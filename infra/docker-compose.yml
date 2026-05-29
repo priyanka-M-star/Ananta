@@ -1,0 +1,83 @@
+# ============================================================
+# Ananta — local development stack
+# Run: docker compose -f infra/docker-compose.yml up -d
+# Stop: docker compose -f infra/docker-compose.yml down
+# ============================================================
+name: ananta
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ananta-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ananta
+      POSTGRES_PASSWORD: ananta
+      POSTGRES_DB: ananta
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ananta -d ananta"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: ananta-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: ananta-livekit
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    ports:
+      - "7880:7880"  # API + WebSocket
+      - "7881:7881"  # TCP
+      - "7882:7882/udp"  # RTC
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+
+  mailhog:
+    # Catches all outgoing email locally so you can preview templates
+    # UI: http://localhost:8025
+    image: mailhog/mailhog:latest
+    container_name: ananta-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+
+  minio:
+    # S3-compatible local storage — substitute for Cloudflare R2 in dev
+    image: minio/minio:latest
+    container_name: ananta-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ananta
+      MINIO_ROOT_PASSWORD: ananta-dev-secret
+    ports:
+      - "9000:9000"  # S3 API
+      - "9001:9001"  # Console UI
+    volumes:
+      - minio-data:/data
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ananta v0 - Bootstrap Build &amp; Launch Plan</title>
+<style>
+  :root {
+    --indigo: #1E3A8A;
+    --saffron: #F59E0B;
+    --teal: #0D9488;
+    --slate: #334155;
+    --slate-light: #64748B;
+    --bg-light: #F1F5F9;
+    --border: #CBD5E1;
+    --white: #ffffff;
+    --green: #15803D;
+    --red: #B91C1C;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #111827;
+    line-height: 1.55;
+    font-size: 11.5pt;
+    background: #fff;
+  }
+  .page { max-width: 820px; margin: 0 auto; padding: 40px 56px 60px; }
+  .cover {
+    background: linear-gradient(135deg, #047857 0%, #0D9488 100%);
+    color: white;
+    padding: 60px 56px 80px;
+    margin: 0 0 30px 0;
+    border-bottom: 6px solid var(--saffron);
+    page-break-after: always;
+  }
+  .cover h1 { font-size: 50px; margin: 0 0 4px 0; font-weight: 800; letter-spacing: -1px; }
+  .cover .tag { font-size: 18px; color: #ECFDF5; margin: 0; }
+  .cover .sub { font-size: 16px; color: #D1FAE5; margin-top: 18px; }
+  .cover-quote {
+    margin-top: 36px;
+    font-style: italic;
+    color: #ECFDF5;
+    border-left: 3px solid var(--saffron);
+    padding-left: 14px;
+    font-size: 13px;
+  }
+  .cover-meta {
+    margin-top: 60px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    padding: 18px 22px;
+  }
+  .cover-meta table { width: 100%; border-collapse: collapse; color: #ECFDF5; }
+  .cover-meta td { padding: 6px 0; font-size: 12.5px; }
+  .cover-meta td:first-child { color: #A7F3D0; width: 40%; }
+  h1 {
+    color: var(--indigo);
+    font-size: 26px;
+    margin: 36px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--saffron);
+  }
+  h2 { color: var(--teal); font-size: 18px; margin: 24px 0 10px; }
+  h3 { color: var(--slate); font-size: 14px; margin: 16px 0 6px; }
+  p { margin: 0 0 10px; text-align: justify; }
+  ul { margin: 6px 0 14px 22px; padding: 0; }
+  li { margin: 4px 0; }
+  code {
+    background: var(--bg-light);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 10.5pt;
+    color: var(--indigo);
+  }
+  blockquote {
+    margin: 12px 0;
+    padding: 12px 18px;
+    border-left: 4px solid var(--saffron);
+    background: var(--bg-light);
+    color: var(--slate);
+    font-style: italic;
+    font-size: 11pt;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 10.5pt; }
+  th { background: var(--indigo); color: white; padding: 9px 10px; text-align: left; font-weight: 600; }
+  td { border: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg-light); }
+  .free-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 12px;
+    background: #DCFCE7;
+    color: #15803D;
+    font-size: 9.5pt;
+    font-weight: 600;
+  }
+  .paid-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 12px;
+    background: #FEF3C7;
+    color: #B45309;
+    font-size: 9.5pt;
+    font-weight: 600;
+  }
+  .small { font-size: 10pt; color: var(--slate-light); }
+  hr.spacer { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .week-card {
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--teal);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    background: #F8FAFC;
+  }
+  .week-card h3 { margin: 0 0 6px 0; color: var(--indigo); }
+  .footer {
+    margin-top: 40px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 10pt;
+    color: var(--slate-light);
+    text-align: center;
+  }
+  @page { size: A4; margin: 16mm 14mm 18mm; }
+  @media print {
+    body { font-size: 10.5pt; }
+    .cover { margin: -16mm -14mm 0; padding: 40px 56px 60px; page-break-after: always; }
+    .page { max-width: none; margin: 0; padding: 0; }
+    h1, h2, h3 { page-break-after: avoid; }
+    table, blockquote, ul, .week-card { page-break-inside: avoid; }
+    .no-print { display: none; }
+  }
+  .print-bar {
+    position: fixed; top: 10px; right: 10px;
+    background: var(--saffron); color: white;
+    padding: 8px 14px; border-radius: 6px;
+    font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    z-index: 999; cursor: pointer; border: none; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<button class="print-bar no-print" onclick="window.print()">Save as PDF (Ctrl/Cmd+P)</button>
+
+<div class="cover">
+  <h1>ANANTA v0</h1>
+  <p class="tag">Bootstrap Build &amp; Launch Plan</p>
+  <p class="sub">Zero-cost build &middot; ₹499 student pricing &middot; Revenue-funded upgrades</p>
+  <div class="cover-meta">
+    <table>
+      <tr><td>Mode</td><td>Founder bootstrap (no investors)</td></tr>
+      <tr><td>Build budget</td><td>₹0 - ₹600 (optional domain)</td></tr>
+      <tr><td>Operating budget (first 50 students)</td><td>~₹0 - ₹500 / month</td></tr>
+      <tr><td>Student price</td><td>₹499 / month</td></tr>
+      <tr><td>Break-even point</td><td>1-2 paying students</td></tr>
+      <tr><td>Plan horizon</td><td>12 weeks to first paying student</td></tr>
+    </table>
+  </div>
+  <p class="cover-quote">"Build it on your laptop. Sell it to ten students. Use their money to buy a real server. That's the whole strategy."</p>
+</div>
+
+<div class="page">
+
+<h1>1. The Strategy in One Page</h1>
+<p>You don't have investors. That's fine. What you have is enough.</p>
+<p>The play is simple: <b>build the entire product using free tiers and open-source models, charge ₹499 per student per month, and use that revenue to graduate to paid infrastructure as you grow.</b> No fund-raising, no dilution, no pressure.</p>
+<table>
+  <tr><th>Stage</th><th>Students</th><th>Monthly Cost</th><th>Monthly Revenue</th><th>What Changes</th></tr>
+  <tr><td>v0 - Build</td><td>0</td><td>₹0</td><td>₹0</td><td>Everything on your laptop + free tiers.</td></tr>
+  <tr><td>v0.5 - Pilot</td><td>1-30</td><td>₹0 - ₹500</td><td>₹499 - ₹15,000</td><td>Domain (₹600/yr). Free tiers still enough.</td></tr>
+  <tr><td>v1 - Grow</td><td>30-100</td><td>₹3,000 - ₹5,000</td><td>₹15,000 - ₹50,000</td><td>Add on-demand GPU + small VPS.</td></tr>
+  <tr><td>v2 - Scale</td><td>100-500</td><td>₹15,000 - ₹30,000</td><td>₹50,000 - ₹2,50,000</td><td>Paid Postgres, full WhatsApp, dedicated GPU.</td></tr>
+  <tr><td>v3 - Production</td><td>500+</td><td>₹50,000+</td><td>₹2,50,000+</td><td>Move to production architecture from v1.0 doc.</td></tr>
+</table>
+<blockquote>The rule: <b>each upgrade is funded by the revenue from the previous stage.</b> You never spend money you don't yet have.</blockquote>
+
+<h1>2. The Free Stack (Every Service, Every Limit)</h1>
+<p>This is the v0 stack. Every service is free; the free-tier ceilings are listed so you know when you'll hit a wall.</p>
+
+<h2>2.1 Compute &amp; hosting</h2>
+<table>
+  <tr><th>Layer</th><th>Service</th><th>Free Tier Limit</th><th>Enough for</th></tr>
+  <tr><td>Frontend hosting</td><td><b>Vercel</b> <span class="free-pill">FREE</span></td><td>Unlimited static; 100 GB bandwidth/mo</td><td>~10,000 visits/month</td></tr>
+  <tr><td>Backend / API hosting</td><td><b>Oracle Cloud Always-Free</b> <span class="free-pill">FREE FOREVER</span></td><td>4 ARM cores + 24 GB RAM + 200 GB disk, forever</td><td>Your entire backend + LiveKit + Postgres if needed</td></tr>
+  <tr><td>Alternative backend</td><td><b>Render</b> <span class="free-pill">FREE</span></td><td>750 hrs/mo (sleeps after 15 min idle)</td><td>Backup option; sleeping is OK for batch jobs</td></tr>
+  <tr><td>Static + edge functions</td><td><b>Cloudflare Pages + Workers</b> <span class="free-pill">FREE</span></td><td>Unlimited bandwidth; 100K req/day</td><td>Marketing site + light APIs</td></tr>
+  <tr><td>Container registry</td><td><b>GitHub Container Registry</b> <span class="free-pill">FREE</span></td><td>500 MB / unlimited bandwidth</td><td>Your Docker images</td></tr>
+</table>
+
+<h2>2.2 Database &amp; storage</h2>
+<table>
+  <tr><th>Layer</th><th>Service</th><th>Free Tier Limit</th><th>Enough for</th></tr>
+  <tr><td>Primary DB</td><td><b>Supabase</b> <span class="free-pill">FREE</span></td><td>500 MB Postgres + 1 GB storage + auth + realtime</td><td>~5,000 students of metadata</td></tr>
+  <tr><td>DB alternative</td><td><b>Neon</b> <span class="free-pill">FREE</span></td><td>3 GB Postgres + branching</td><td>Larger student base</td></tr>
+  <tr><td>Object storage</td><td><b>Cloudflare R2</b> <span class="free-pill">FREE</span></td><td>10 GB + 1M Class-A ops + zero egress</td><td>~30 lesson recordings @ 300 MB each</td></tr>
+  <tr><td>Backup storage</td><td><b>Backblaze B2</b> <span class="free-pill">FREE</span></td><td>10 GB + 1 GB egress/day</td><td>Snapshot backups</td></tr>
+  <tr><td>CDN</td><td><b>Cloudflare Free</b> <span class="free-pill">FREE</span></td><td><b>Unlimited bandwidth</b> + caching + DDoS</td><td>This is the magic - video delivery is free</td></tr>
+</table>
+
+<h2>2.3 AI / ML services</h2>
+<table>
+  <tr><th>Layer</th><th>Service</th><th>Free Tier Limit</th><th>Enough for</th></tr>
+  <tr><td>LLM - lesson generation</td><td><b>Groq</b> <span class="free-pill">FREE</span></td><td>30 req/min on Llama-3-70B; ~14,400 req/day</td><td>Plenty - generate all lessons offline</td></tr>
+  <tr><td>LLM - live Q&amp;A</td><td><b>Groq</b> <span class="free-pill">FREE</span> (fast: 500+ tok/s)</td><td>30 req/min</td><td>Up to ~30 concurrent doubt-answers/min</td></tr>
+  <tr><td>LLM fallback / local</td><td><b>Ollama + Llama-3-8B</b> <span class="free-pill">FREE</span></td><td>Runs on Oracle ARM VM</td><td>Backup when Groq hits limit</td></tr>
+  <tr><td>TTS - English</td><td><b>Coqui XTTS-v2 / Piper</b> <span class="free-pill">FREE</span></td><td>OSS, CPU-runnable</td><td>All English lesson voice-over</td></tr>
+  <tr><td>TTS - Kannada / Hindi</td><td><b>AI4Bharat Indic-Parler-TTS</b> <span class="free-pill">FREE</span></td><td>OSS, MIT/Apache</td><td>All Kannada + Hindi voice-over</td></tr>
+  <tr><td>ASR (doubts spoken)</td><td><b>Whisper.cpp</b> <span class="free-pill">FREE</span></td><td>CPU; or Groq's Whisper-large free</td><td>Plenty for doubt voice notes</td></tr>
+  <tr><td>Avatar / lip-sync</td><td><b>SadTalker on Google Colab</b> <span class="free-pill">FREE</span></td><td>~12 hrs/day T4 GPU</td><td>~20 lesson avatars/day rendered</td></tr>
+  <tr><td>Alt GPU bursts</td><td><b>Kaggle Notebooks</b> <span class="free-pill">FREE</span></td><td>30 hrs/week GPU</td><td>Backup rendering</td></tr>
+  <tr><td>Animation</td><td><b>Manim Community</b> <span class="free-pill">FREE</span></td><td>CPU on Oracle VM</td><td>All math/science animations</td></tr>
+  <tr><td>Vector embeddings</td><td><b>pgvector</b> in Supabase <span class="free-pill">FREE</span></td><td>Inside the 500 MB Postgres</td><td>RAG over curriculum</td></tr>
+</table>
+
+<h2>2.4 Communication &amp; payments</h2>
+<table>
+  <tr><th>Layer</th><th>Service</th><th>Free Tier Limit</th><th>Enough for</th></tr>
+  <tr><td>WhatsApp (parent alerts)</td><td><b>Meta WhatsApp Cloud API</b> <span class="free-pill">FREE</span></td><td>1,000 service conversations/month</td><td>~30 parents × 30 days</td></tr>
+  <tr><td>WhatsApp alt</td><td><b>Gupshup Sandbox</b> <span class="free-pill">FREE</span></td><td>Pre-approved sandbox numbers</td><td>Development testing</td></tr>
+  <tr><td>SMS / OTP</td><td><b>MSG91 Trial</b> <span class="free-pill">FREE</span></td><td>~₹500 signup credit (~3,000 SMS)</td><td>Onboarding OTPs for ~100 students</td></tr>
+  <tr><td>Email (transactional)</td><td><b>Brevo</b> <span class="free-pill">FREE</span></td><td>300 emails/day</td><td>Onboarding + receipts</td></tr>
+  <tr><td>Email alt</td><td><b>Resend</b> <span class="free-pill">FREE</span></td><td>3,000 emails/month + 100/day</td><td>Backup</td></tr>
+  <tr><td>Payments</td><td><b>Razorpay</b> <span class="free-pill">FREE</span> setup</td><td>2% per transaction (only on revenue)</td><td>UPI, cards, subscriptions, autopay</td></tr>
+  <tr><td>Live streaming</td><td><b>LiveKit OSS</b> self-hosted on Oracle <span class="free-pill">FREE</span></td><td>Limited by Oracle VM bandwidth (10 TB/mo egress)</td><td>~50 concurrent viewers per class</td></tr>
+</table>
+
+<h2>2.5 Tooling &amp; operations</h2>
+<table>
+  <tr><th>Layer</th><th>Service</th><th>Free Tier Limit</th><th>Enough for</th></tr>
+  <tr><td>Code</td><td><b>VS Code + GitHub</b> <span class="free-pill">FREE</span></td><td>Unlimited public + private repos</td><td>Everything</td></tr>
+  <tr><td>CI/CD</td><td><b>GitHub Actions</b> <span class="free-pill">FREE</span></td><td>2,000 min/month</td><td>Deploys + tests</td></tr>
+  <tr><td>Error tracking</td><td><b>Sentry</b> <span class="free-pill">FREE</span></td><td>5,000 errors/month + 10K performance</td><td>Plenty for pilot</td></tr>
+  <tr><td>Uptime monitoring</td><td><b>UptimeRobot</b> <span class="free-pill">FREE</span></td><td>50 monitors @ 5-min interval</td><td>All endpoints covered</td></tr>
+  <tr><td>Analytics</td><td><b>PostHog</b> <span class="free-pill">FREE</span></td><td>1M events/month</td><td>Plenty</td></tr>
+  <tr><td>Domain (optional)</td><td><b>BigRock / GoDaddy</b> <span class="paid-pill">~₹600/yr</span></td><td>.in or .com</td><td>Brand. Optional - can use *.vercel.app</td></tr>
+</table>
+
+<h1>3. The Stack at a Glance</h1>
+<blockquote>
+<b>Frontend:</b> Next.js 14 on Vercel<br>
+<b>Backend:</b> NestJS (Node) on Oracle Cloud Always-Free ARM VM<br>
+<b>Database:</b> Supabase Postgres + pgvector + Auth<br>
+<b>AI Services:</b> Python FastAPI on Oracle VM; LLM via Groq free API; TTS/ASR/Avatar locally and via Colab<br>
+<b>Live streaming:</b> LiveKit OSS on Oracle VM<br>
+<b>Video storage:</b> Cloudflare R2 (10 GB)<br>
+<b>CDN:</b> Cloudflare Free (unlimited bandwidth)<br>
+<b>Payments:</b> Razorpay (UPI Recurring Mandate for ₹499/month)<br>
+<b>Notifications:</b> Meta WhatsApp Cloud API (1,000 free) + MSG91 SMS + Brevo email
+</blockquote>
+
+<h1>4. Pricing Model (₹499 / month)</h1>
+<table>
+  <tr><th>Plan</th><th>Price</th><th>Includes</th><th>Best for</th></tr>
+  <tr><td>Free Trial</td><td>₹0 (7 days)</td><td>Full access for 1 week</td><td>Trust-builder; no card needed</td></tr>
+  <tr><td>Monthly</td><td>₹499/month</td><td>All subjects, live + recordings, weekly tests, parent reports</td><td>Default plan</td></tr>
+  <tr><td>Quarterly</td><td>₹1,299 (~₹433/mo)</td><td>Same + ₹200 off</td><td>Committed students</td></tr>
+  <tr><td>Yearly</td><td>₹3,999 (~₹333/mo)</td><td>Same + best savings</td><td>Power users; locks revenue</td></tr>
+  <tr><td>Sibling Pack</td><td>₹799/month for 2 students</td><td>Two siblings, same household</td><td>Family plan</td></tr>
+  <tr><td>Referral credit</td><td>₹100 off both sides</td><td>Friend joins via your link</td><td>Organic growth</td></tr>
+</table>
+<p>Razorpay <b>UPI Recurring Mandate</b> (e-Nach via UPI) handles ₹499 auto-debit on the 1st of every month - no card needed, works with all Indian banks.</p>
+
+<h2>4.1 Unit economics at ₹499</h2>
+<table>
+  <tr><th>Item</th><th>₹</th></tr>
+  <tr><td>Student pays</td><td>₹499</td></tr>
+  <tr><td>Razorpay fee (2% + GST)</td><td>-₹12</td></tr>
+  <tr><td>Net revenue per student</td><td>₹487</td></tr>
+  <tr><td>Variable cost per student (v0 stage)</td><td>~₹0-5 (free tiers absorb it)</td></tr>
+  <tr><td>Contribution margin</td><td>~₹480 per student per month</td></tr>
+</table>
+<p class="small">At 30 paying students, you net ~₹14,400/month with zero infra cost. That's your first GPU upgrade budget.</p>
+
+<h1>5. 12-Week Build Plan (Solo, Weekends + Evenings)</h1>
+<p>You're one person. This plan assumes ~15 hours/week. Each week ends with a working, demoable milestone.</p>
+
+<div class="week-card">
+  <h3>Week 1 - Accounts &amp; Foundation</h3>
+  <p>Sign up: GitHub, Vercel, Oracle Cloud, Supabase, Cloudflare, Groq, Razorpay (test mode), Meta WhatsApp Cloud, Sentry, UptimeRobot. Spin up an Oracle Always-Free ARM VM (Ubuntu 22, 4 cores / 24 GB). Create a GitHub repo <code>ananta</code>. Set up base Next.js + NestJS skeleton. Deploy "Hello Ananta" page to Vercel.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 2 - Auth &amp; Onboarding</h3>
+  <p>Use Supabase Auth with phone OTP (free tier). Build signup flow: phone &rarr; OTP &rarr; collect name, grade (10/11/12), medium (EN/KN), school, parent phone. Generate parent-link code. Build a simple Parent app screen that takes the code and links accounts.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 3 - Curriculum Ingestion (Math, Grade 10)</h3>
+  <p>Download KSEEB Class-10 Maths textbook PDF. Use a script to OCR and chunk into chapters/topics. Use Groq (free Llama-3-70B) to generate a curriculum JSON. Store in Supabase. Build admin page to review/edit topics.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 4 - First AI Lesson (English-medium)</h3>
+  <p>Pick one Math topic. Use Groq to generate the lesson script. Use Coqui XTTS to generate English voice-over. Use Manim to render 3-4 animations. Composite with ffmpeg into one MP4. Upload to R2. Manually review. This is your <b>proof of concept</b>.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 5 - Kannada Track for the Same Lesson</h3>
+  <p>Run the same script through a Kannada adaptation prompt. Use AI4Bharat Indic-Parler-TTS for the Kannada voice. Re-composite with the same animations. Now you have <b>two parallel lessons from one pipeline</b>. Validate that both feel native, not translated.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 6 - Lesson Player &amp; VOD</h3>
+  <p>Build the student lesson page. HLS player (Video.js or Shaka). Lessons stream from R2 through Cloudflare CDN. Implement heartbeat-every-30s pinging your backend. Build basic attendance computation.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 7 - Live Class MVP</h3>
+  <p>Install LiveKit OSS on Oracle VM. Build a live room: AI teacher avatar plays the pre-rendered video at 7 PM; students join; chat sidebar. No live Q&amp;A yet. Test with yourself + 1 friend. Recording = re-upload the source MP4 to R2.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 8 - Live Q&amp;A Bot</h3>
+  <p>Students post doubts in chat (text only at v0). A simple LLM call to Groq answers with RAG over the lesson transcript. Answer appears as a chat reply + an optional TTS voice clip. Skip avatar for v0 - voice + text is enough.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 9 - Parent Notifications</h3>
+  <p>Set up Meta WhatsApp Cloud API. Create a missed-class template, get it approved (~24 hrs). Wire attendance pipeline: if watched_pct &lt; 50%, send WhatsApp to parent. Test end to end with your own number.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 10 - Weekly Test</h3>
+  <p>Build the assessment service: pull last 5 lessons, ask Groq for 30 questions (mix of MCQs and fill-blanks). Build a timed test player with tab-switch detection. MCQ auto-grade instantly; subjective LLM-graded async. Parent gets WhatsApp with the score.</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 11 - Payments &amp; ₹499 Subscription</h3>
+  <p>Integrate Razorpay. Set up the ₹499/month plan with UPI Recurring Mandate. Build pricing page, signup-with-trial flow, billing dashboard. Activate live mode (needs PAN + bank account KYC).</p>
+</div>
+
+<div class="week-card">
+  <h3>Week 12 - Polish + First 5 Students</h3>
+  <p>Fix bugs. Write a landing page. Make a 90-second demo video. Post in 3 Karnataka student WhatsApp groups + ask 5 friends with school-going kids to try a 1-week trial. Start the first paid Maths week. <b>Launch.</b></p>
+</div>
+
+<h1>6. Setup Checklist (Day 1)</h1>
+<p>Sign up for everything in one sitting. All are free; most need just your phone + email.</p>
+<ol>
+  <li><b>GitHub</b> - github.com (code hosting)</li>
+  <li><b>Vercel</b> - vercel.com (frontend hosting; sign in with GitHub)</li>
+  <li><b>Oracle Cloud Free Tier</b> - oracle.com/cloud/free (needs credit card for verification but never charged; pick Mumbai or Hyderabad region)</li>
+  <li><b>Supabase</b> - supabase.com (Postgres + Auth)</li>
+  <li><b>Cloudflare</b> - cloudflare.com (DNS + CDN + R2 storage)</li>
+  <li><b>Groq</b> - console.groq.com (free LLM API)</li>
+  <li><b>Razorpay</b> - razorpay.com (payments; needs PAN + bank for live mode)</li>
+  <li><b>Meta for Developers</b> - developers.facebook.com (WhatsApp Cloud API)</li>
+  <li><b>MSG91</b> - msg91.com (SMS, ₹500 trial)</li>
+  <li><b>Brevo</b> - brevo.com (email)</li>
+  <li><b>Sentry</b> - sentry.io (errors)</li>
+  <li><b>UptimeRobot</b> - uptimerobot.com (uptime)</li>
+  <li><b>Google Colab</b> - colab.research.google.com (GPU rendering)</li>
+  <li><b>BigRock / Namecheap</b> - if you want a domain (optional, ~₹600/year for <code>.in</code>)</li>
+</ol>
+
+<h1>7. When to Upgrade (Spend Triggers Tied to MRR)</h1>
+<p>Each upgrade is funded by paying students. Don't pay for the next thing until the milestone before it is hit.</p>
+<table>
+  <tr><th>Milestone</th><th>MRR</th><th>Upgrade</th><th>Monthly add-on</th></tr>
+  <tr><td>10 paying students</td><td>~₹5,000</td><td>Buy <code>.in</code> domain + Razorpay live mode</td><td>~₹50/mo</td></tr>
+  <tr><td>30 paying students</td><td>~₹15,000</td><td>On-demand GPU for live Q&amp;A (E2E A10 rent-only-during-class)</td><td>~₹2,000/mo</td></tr>
+  <tr><td>50 paying students</td><td>~₹25,000</td><td>Supabase Pro (8 GB DB, daily backups)</td><td>₹2,000/mo</td></tr>
+  <tr><td>100 paying students</td><td>~₹50,000</td><td>Small dedicated VPS (Hetzner CX31) + Gupshup WhatsApp paid plan</td><td>~₹3,500/mo</td></tr>
+  <tr><td>300 paying students</td><td>~₹1,50,000</td><td>Dedicated A10 GPU 24/7 + Cloudflare R2 paid tier + content editor (part-time)</td><td>~₹50,000/mo</td></tr>
+  <tr><td>500 paying students</td><td>~₹2,50,000</td><td>Move to production architecture (see v1.0 doc); hire first engineer</td><td>~₹1,00,000+/mo</td></tr>
+</table>
+<blockquote>Notice the pattern: at every stage, your spend is &lt; 25% of your revenue. The rest is your salary and reinvestment.</blockquote>
+
+<h1>8. The Hard Rules (To Actually Stay Free)</h1>
+<ul>
+  <li><b>Render all lessons offline, never live.</b> The 7-8 PM slot only serves pre-rendered video. Live AI is only for the Q&amp;A overlay.</li>
+  <li><b>Delete recordings older than 2 months</b> until you outgrow R2's 10 GB. Compress at H.265 (50% smaller).</li>
+  <li><b>Cap concurrent viewers at 50 per class</b> in v0. If demand exceeds that, you need a paid VPS - which means you're earning enough to afford it.</li>
+  <li><b>Run the 1-hour live class on Oracle VM, not your laptop.</b> Your laptop can die mid-class; the Oracle VM won't.</li>
+  <li><b>Don't sign up for paid plans of free services.</b> You'll do it accidentally. Stay disciplined - Supabase Pro, Vercel Pro, etc. are tempting but unnecessary for the first 50 students.</li>
+  <li><b>Use WhatsApp templates carefully.</b> Free tier is 1,000 service conversations/month. Batch and dedupe before sending.</li>
+  <li><b>Keep one credit card for emergencies only.</b> If a free tier suddenly bills you, you want to catch it fast.</li>
+</ul>
+
+<h1>9. Risks of the Free Stack &amp; How to Survive Them</h1>
+<table>
+  <tr><th>Risk</th><th>Likelihood</th><th>What to do</th></tr>
+  <tr><td>Oracle reclaims idle Always-Free VM</td><td>Medium</td><td>Keep a cron job pinging the VM every 5 min. Their policy: reclaim only if idle 7+ days.</td></tr>
+  <tr><td>Groq free tier rate-limit during peak class</td><td>High</td><td>Pre-generate &amp; cache common doubt answers. Fall back to local Ollama on Oracle VM.</td></tr>
+  <tr><td>Colab disconnect mid-render</td><td>Medium</td><td>Render in 5-min chunks; save checkpoints to R2. Resume from last checkpoint.</td></tr>
+  <tr><td>Vercel/Supabase bandwidth cap hit</td><td>Low at &lt;100 students</td><td>Move static assets to Cloudflare R2. Move heavy reads to Cloudflare cache.</td></tr>
+  <tr><td>WhatsApp template rejected by Meta</td><td>Medium</td><td>Have 2-3 template variations approved. Fall back to SMS via MSG91.</td></tr>
+  <tr><td>Razorpay KYC delay</td><td>Medium</td><td>Submit PAN + bank details Week 1, not Week 11. Takes 3-5 days to approve.</td></tr>
+  <tr><td>Live class outage</td><td>Medium</td><td>If LiveKit fails: post recording to YouTube unlisted + share link via WhatsApp. Refund the class.</td></tr>
+</table>
+
+<h1>10. What to Tell Students &amp; Parents</h1>
+<blockquote>
+"Ananta is an AI-teacher tutoring platform built for Karnataka SSLC and PU students. Live class daily at 7 PM, recorded so you can watch later, weekly tests every Saturday, parents get a WhatsApp report. English-medium and Kannada-medium tracks. ₹499 a month. Try it free for 7 days."
+</blockquote>
+<p>Be upfront that you're a one-person team in v0. Parents value honesty more than they value polish. Many will root for you.</p>
+
+<h1>11. Two Things Not To Do</h1>
+<ol>
+  <li><b>Don't build all 5 subjects before launching.</b> Launch with <b>Maths Grade 10</b> only. Validate that students pay ₹499 for it. Then expand.</li>
+  <li><b>Don't worry about scale before you have 10 students.</b> The free stack will handle 50 students comfortably. Premature optimization will burn weeks you don't have.</li>
+</ol>
+
+<hr class="spacer">
+
+<div class="footer">
+  <b>End of Bootstrap Plan v1.0</b><br>
+  Companion to Ananta_Architecture.html. Read the architecture for the "what", read this for the "how to start tomorrow".
+</div>
+
+</div>
+
+</body>
+</html>

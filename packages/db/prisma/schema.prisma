@@ -1,0 +1,963 @@
+// ============================================================
+// Ananta — Prisma schema
+// PostgreSQL 16 + pgvector
+// Generated client lives in @ananta/db
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "fullTextSearch"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector"), pg_trgm, uuid_ossp(map: "uuid-ossp"), pgcrypto]
+}
+
+// ====================================================
+// CORE — Users, Students, Parents
+// ====================================================
+
+enum UserRole {
+  STUDENT
+  PARENT
+  TEACHER_ADMIN  // founder-side content team
+  SUPER_ADMIN
+}
+
+enum Medium {
+  ENGLISH
+  KANNADA  // delivered in Kanglish for non-language subjects
+}
+
+enum Grade {
+  GRADE_10
+  GRADE_11
+  GRADE_12
+}
+
+model User {
+  id               String      @id @default(uuid()) @db.Uuid
+  phone            String      @unique
+  email            String?     @unique
+  passwordHash     String?     // optional — OTP login is primary
+  role             UserRole
+  emailVerifiedAt  DateTime?
+  phoneVerifiedAt  DateTime?
+  isActive         Boolean     @default(true)
+  isBanned         Boolean     @default(false)
+  lastLoginAt      DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  deletedAt        DateTime?
+
+  // Relations
+  student          Student?
+  parent           Parent?
+  sessions         Session[]
+  otpCodes         OtpCode[]
+  auditLogs        AuditLog[]
+
+  @@index([phone])
+  @@index([role])
+  @@index([deletedAt])
+}
+
+model Student {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @unique @db.Uuid
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName       String
+  displayName    String?     // student's preferred name shown in UI
+  avatarUrl      String?
+  dateOfBirth    DateTime?
+  grade          Grade
+  medium         Medium
+  school         String?     // free-text, e.g. "Kendriya Vidyalaya, Bangalore"
+  city           String?
+  pincode        String?     @db.VarChar(6)
+
+  // Onboarding
+  onboardedAt    DateTime?
+  referralCode   String?     @unique  // their own referral code
+  referredById   String?     @db.Uuid  // who referred them
+  referredBy     Student?    @relation("Referrals", fields: [referredById], references: [id])
+  referrals      Student[]   @relation("Referrals")
+
+  // Engagement
+  currentStreakDays Int      @default(0)
+  longestStreakDays Int      @default(0)
+  totalXp           Int      @default(0)
+  lastActiveAt      DateTime?
+
+  // Relations
+  parents        ParentStudent[]
+  attendance     Attendance[]
+  quizAttempts   QuizAttempt[]
+  testAttempts   TestAttempt[]
+  memoryCards    MemoryDeckCard[]
+  doubts         Doubt[]
+  subscriptions  Subscription[]
+  payments       Payment[]
+  noteViews      NoteView[]
+  materialDownloads MaterialDownload[]
+  achievements   StudentAchievement[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([grade, medium])
+  @@index([referralCode])
+  @@index([lastActiveAt])
+}
+
+model Parent {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @unique @db.Uuid
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName       String
+  whatsappPhone  String?     // may differ from login phone
+  preferredLanguage String   @default("en")  // en | kn | hi
+  city           String?
+
+  // Notification prefs
+  notifyMissedClass    Boolean @default(true)
+  notifyQuizScore      Boolean @default(true)
+  notifyWeeklyReport   Boolean @default(true)
+  notifyFeeDue         Boolean @default(true)
+
+  // Relations
+  children       ParentStudent[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([whatsappPhone])
+}
+
+// many-to-many — one parent may have multiple kids, kids may have multiple guardians
+model ParentStudent {
+  id          String     @id @default(uuid()) @db.Uuid
+  parentId    String     @db.Uuid
+  studentId   String     @db.Uuid
+  relation    String     // "mother", "father", "guardian"
+  isPrimary   Boolean    @default(false)
+  parent      Parent     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@unique([parentId, studentId])
+  @@index([studentId])
+}
+
+// ====================================================
+// AUTH
+// ====================================================
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model OtpCode {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?  @db.Uuid
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone       String
+  codeHash    String
+  purpose     String   // "login" | "signup" | "phone-change"
+  attempts    Int      @default(0)
+  consumedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([phone, purpose])
+  @@index([expiresAt])
+}
+
+// ====================================================
+// CURRICULUM — Subjects, Chapters, Lessons
+// ====================================================
+
+enum SubjectCode {
+  MATHS         // Praketa
+  SCIENCE       // Vihaan
+  SOCIAL        // Adhvara
+  KANNADA       // Harini  — 1st language
+  ENGLISH       // Anika   — 2nd language
+  HINDI         // Amita   — 3rd language
+}
+
+enum DayOfWeek {
+  MON SUN TUE WED THU FRI SAT
+}
+
+model Subject {
+  id            String       @id @default(uuid()) @db.Uuid
+  code          SubjectCode  @unique
+  nameEn        String
+  nameKn        String
+  nameHi        String?
+  teacherName   String       // "Vihaan", "Praketa", etc.
+  teacherSlug   String       @unique
+  teacherBioEn  String?
+  teacherBioKn  String?
+  themeColor    String       // hex for UI
+  weeklyDay     DayOfWeek    // which weekday this subject is taught
+  isLanguage    Boolean      @default(false)  // language subjects taught in own language for both mediums
+  orderIndex    Int
+
+  chapters      Chapter[]
+  lessons       Lesson[]
+  classes       ClassSession[]
+  materials     Material[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Chapter {
+  id            String     @id @default(uuid()) @db.Uuid
+  subjectId     String     @db.Uuid
+  subject       Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  grade         Grade
+  number        Int        // chapter number per KSEEB book
+  titleEn       String
+  titleKn       String
+  titleHi       String?
+  description   String?    @db.Text
+  estimatedLessons Int     @default(2)  // how many lessons we'll spend here
+  orderIndex    Int
+
+  lessons       Lesson[]
+  materials     Material[]
+  pacingSlots   PacingPlanSlot[]
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@unique([subjectId, grade, number])
+  @@index([grade])
+}
+
+enum LessonStatus {
+  DRAFT
+  GENERATING       // AI worker running pipeline
+  READY            // assets generated, ready to schedule
+  SCHEDULED
+  LIVE             // currently being delivered
+  ARCHIVED         // post-class, available on-demand
+  FAILED
+}
+
+model Lesson {
+  id                  String        @id @default(uuid()) @db.Uuid
+  subjectId           String        @db.Uuid
+  chapterId           String        @db.Uuid
+  subject             Subject       @relation(fields: [subjectId], references: [id])
+  chapter             Chapter       @relation(fields: [chapterId], references: [id])
+
+  grade               Grade
+  medium              Medium
+
+  // Content
+  titleEn             String
+  titleKn             String?
+  summary             String        @db.Text
+  durationMin         Int           @default(55)
+  scriptText          String?       @db.Text       // full lesson script
+  scriptKanglish      String?       @db.Text       // Kanglish version for Kannada medium
+
+  // Generated assets (R2 URLs)
+  videoUrl            String?
+  audioUrl            String?
+  thumbnailUrl        String?
+  captionsEnUrl       String?
+  captionsKnUrl       String?
+
+  // Animation script (Manim / Remotion)
+  animationScript     Json?
+
+  // Embedded learning objectives
+  objectives          String[]      @default([])
+
+  // Status
+  status              LessonStatus  @default(DRAFT)
+  generationStartedAt DateTime?
+  generationCompletedAt DateTime?
+  generationError     String?       @db.Text
+  generationCostInr   Decimal?      @db.Decimal(8, 4)
+
+  // Semantic search embedding (for "find related lesson")
+  embedding           Unsupported("vector(1024)")?
+
+  classSessions       ClassSession[]
+  quizzes             Quiz[]
+  notes               LessonNote[]
+  memoryCards         MemoryDeckCard[]
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([subjectId, grade, medium])
+  @@index([chapterId])
+  @@index([status])
+}
+
+// ====================================================
+// SCHEDULING — Live classes
+// ====================================================
+
+enum ClassStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+model ClassSession {
+  id              String        @id @default(uuid()) @db.Uuid
+  lessonId        String        @db.Uuid
+  subjectId       String        @db.Uuid
+  lesson          Lesson        @relation(fields: [lessonId], references: [id])
+  subject         Subject       @relation(fields: [subjectId], references: [id])
+
+  grade           Grade
+  medium          Medium
+  dayIndex        Int           // 1..250 of pacing plan
+  scheduledStart  DateTime
+  scheduledEnd    DateTime
+  actualStart     DateTime?
+  actualEnd       DateTime?
+
+  // Live room
+  livekitRoomName String        @unique
+  recordingUrl    String?       // R2 URL of mp4
+
+  status          ClassStatus   @default(SCHEDULED)
+  attendeeCount   Int           @default(0)
+  peakViewers     Int           @default(0)
+
+  attendance      Attendance[]
+  doubts          Doubt[]
+  polls           ClassPoll[]
+  reactions       ClassReaction[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([scheduledStart])
+  @@index([grade, medium, scheduledStart])
+  @@index([status])
+}
+
+model Attendance {
+  id              String        @id @default(uuid()) @db.Uuid
+  classSessionId  String        @db.Uuid
+  studentId       String        @db.Uuid
+  classSession    ClassSession  @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  student         Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  joinedAt        DateTime?
+  leftAt          DateTime?
+  durationSec     Int           @default(0)
+  joinMethod      String?       // "webrtc" | "hls"
+
+  // Computed at write time so we can index it
+  wasPresent      Boolean       @default(false)  // true if joined > 5 min
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([classSessionId, studentId])
+  @@index([studentId])
+  @@index([wasPresent])
+}
+
+// ====================================================
+// LIVE-CLASS INTERACTIVE LAYER
+// ====================================================
+
+enum DoubtSource {
+  TYPED
+  VOICE
+}
+
+enum DoubtStatus {
+  PENDING
+  ANSWERING
+  ANSWERED
+  ESCALATED  // for the Sunday doubt session
+}
+
+model Doubt {
+  id              String         @id @default(uuid()) @db.Uuid
+  classSessionId  String?        @db.Uuid
+  classSession    ClassSession?  @relation(fields: [classSessionId], references: [id])
+  studentId       String         @db.Uuid
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  source          DoubtSource
+  question        String         @db.Text
+  questionAudioUrl String?       // for voice doubts
+  answer          String?        @db.Text
+  answerAudioUrl  String?
+  status          DoubtStatus    @default(PENDING)
+  upvotes         Int            @default(0)
+
+  // For the AI to find related doubts
+  embedding       Unsupported("vector(1024)")?
+
+  answeredAt      DateTime?
+  createdAt       DateTime       @default(now())
+
+  @@index([studentId])
+  @@index([classSessionId, createdAt])
+  @@index([status])
+}
+
+model ClassPoll {
+  id              String         @id @default(uuid()) @db.Uuid
+  classSessionId  String         @db.Uuid
+  classSession    ClassSession   @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  question        String
+  options         Json           // [{ id, text }]
+  correctOptionId String?
+  launchedAt      DateTime       @default(now())
+  closedAt        DateTime?
+  responses       Json           @default("[]")  // [{studentId, optionId, atMs}]
+}
+
+model ClassReaction {
+  id              String         @id @default(uuid()) @db.Uuid
+  classSessionId  String         @db.Uuid
+  classSession    ClassSession   @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  studentId       String         @db.Uuid
+  emoji           String
+  createdAt       DateTime       @default(now())
+
+  @@index([classSessionId, createdAt])
+}
+
+// ====================================================
+// QUIZ — Post-class auto-graded
+// ====================================================
+
+enum QuestionType {
+  MCQ_SINGLE
+  MCQ_MULTI
+  TRUE_FALSE
+  FILL_BLANK
+  NUMERIC
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Quiz {
+  id              String           @id @default(uuid()) @db.Uuid
+  lessonId        String           @db.Uuid
+  lesson          Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  titleEn         String
+  titleKn         String?
+  description     String?
+  durationMin     Int              @default(8)
+  passPercentage  Int              @default(60)
+
+  questions       QuizQuestion[]
+  attempts        QuizAttempt[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([lessonId])
+}
+
+model QuizQuestion {
+  id              String        @id @default(uuid()) @db.Uuid
+  quizId          String        @db.Uuid
+  quiz            Quiz          @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  orderIndex      Int
+  type            QuestionType
+  difficulty      Difficulty    @default(EASY)
+  textEn          String        @db.Text
+  textKn          String?       @db.Text
+  options         Json          // [{ id, textEn, textKn? }]
+  correctAnswer   Json          // depends on type
+  explanationEn   String?       @db.Text
+  explanationKn   String?       @db.Text
+  points          Int           @default(10)
+
+  responses       QuizResponse[]
+
+  @@index([quizId, orderIndex])
+}
+
+model QuizAttempt {
+  id              String         @id @default(uuid()) @db.Uuid
+  quizId          String         @db.Uuid
+  studentId       String         @db.Uuid
+  quiz            Quiz           @relation(fields: [quizId], references: [id])
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  startedAt       DateTime       @default(now())
+  submittedAt     DateTime?
+  durationSec     Int?
+  scorePoints     Int            @default(0)
+  scorePercent    Decimal?       @db.Decimal(5, 2)
+  passed          Boolean?
+
+  responses       QuizResponse[]
+
+  @@index([studentId, submittedAt])
+  @@index([quizId])
+}
+
+model QuizResponse {
+  id              String         @id @default(uuid()) @db.Uuid
+  attemptId       String         @db.Uuid
+  questionId      String         @db.Uuid
+  attempt         QuizAttempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        QuizQuestion   @relation(fields: [questionId], references: [id])
+
+  studentAnswer   Json
+  isCorrect       Boolean
+  pointsEarned    Int            @default(0)
+  answeredAt      DateTime       @default(now())
+
+  @@unique([attemptId, questionId])
+}
+
+// ====================================================
+// SUNDAY WEEKLY TEST — separate from per-class quizzes
+// ====================================================
+
+model WeeklyTest {
+  id              String         @id @default(uuid()) @db.Uuid
+  weekStartDate   DateTime       @db.Date
+  grade           Grade
+  medium          Medium
+  titleEn         String
+  durationMin     Int            @default(60)
+  scheduledStart  DateTime
+  scheduledEnd    DateTime
+
+  questions       WeeklyTestQuestion[]
+  attempts        TestAttempt[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([weekStartDate, grade, medium])
+  @@index([scheduledStart])
+}
+
+model WeeklyTestQuestion {
+  id              String         @id @default(uuid()) @db.Uuid
+  testId          String         @db.Uuid
+  test            WeeklyTest     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  subjectId       String         @db.Uuid
+
+  orderIndex      Int
+  type            QuestionType
+  difficulty      Difficulty
+  textEn          String         @db.Text
+  textKn          String?        @db.Text
+  options         Json
+  correctAnswer   Json
+  explanationEn   String?        @db.Text
+  points          Int            @default(10)
+
+  @@index([testId])
+}
+
+model TestAttempt {
+  id              String         @id @default(uuid()) @db.Uuid
+  testId          String         @db.Uuid
+  studentId       String         @db.Uuid
+  test            WeeklyTest     @relation(fields: [testId], references: [id])
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  startedAt       DateTime       @default(now())
+  submittedAt     DateTime?
+  scorePoints     Int            @default(0)
+  scorePercent    Decimal?       @db.Decimal(5, 2)
+  passed          Boolean?
+  rank            Int?           // rank within cohort
+  responses       Json           // serialised; we don't need a relational table for these
+
+  @@unique([testId, studentId])
+  @@index([studentId])
+}
+
+// ====================================================
+// NOTES — auto-generated per lesson
+// ====================================================
+
+enum NoteFormat {
+  HTML
+  MARKDOWN
+  PDF
+}
+
+model LessonNote {
+  id              String         @id @default(uuid()) @db.Uuid
+  lessonId        String         @db.Uuid
+  lesson          Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  language        Medium
+  format          NoteFormat     @default(HTML)
+  contentHtml     String         @db.Text
+  contentMarkdown String?        @db.Text
+  pdfUrl          String?        // R2 URL
+  pageCount       Int?
+  wordCount       Int?
+  generatedAt     DateTime       @default(now())
+
+  views           NoteView[]
+
+  @@unique([lessonId, language])
+}
+
+model NoteView {
+  id              String         @id @default(uuid()) @db.Uuid
+  noteId          String         @db.Uuid
+  studentId       String         @db.Uuid
+  note            LessonNote     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  viewedAt        DateTime       @default(now())
+  downloadedPdf   Boolean        @default(false)
+
+  @@unique([noteId, studentId])
+  @@index([studentId])
+}
+
+// ====================================================
+// MATERIALS — chapter-bound reference library
+// ====================================================
+
+enum MaterialType {
+  WORKSHEET
+  PYQ              // previous-year question paper
+  REFERENCE
+  SYLLABUS
+  BLUEPRINT
+  ANSWER_KEY
+}
+
+model Material {
+  id              String         @id @default(uuid()) @db.Uuid
+  subjectId       String         @db.Uuid
+  chapterId       String?        @db.Uuid
+  subject         Subject        @relation(fields: [subjectId], references: [id])
+  chapter         Chapter?       @relation(fields: [chapterId], references: [id])
+
+  type            MaterialType
+  titleEn         String
+  titleKn         String?
+  description     String?
+  fileUrl         String         // R2 URL
+  fileSizeBytes   Int
+  pageCount       Int?
+  year            Int?           // for PYQs
+
+  // Access control
+  isFree          Boolean        @default(false)  // some PYQs free for marketing
+  requiresPlan    String?        // null = any paid plan, else "yearly" etc.
+
+  downloadCount   Int            @default(0)
+
+  downloads       MaterialDownload[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([subjectId, type])
+  @@index([chapterId])
+}
+
+model MaterialDownload {
+  id              String         @id @default(uuid()) @db.Uuid
+  materialId      String         @db.Uuid
+  studentId       String         @db.Uuid
+  material        Material       @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  downloadedAt    DateTime       @default(now())
+  ipAddress       String?
+
+  @@index([studentId])
+  @@index([materialId])
+}
+
+// ====================================================
+// MEMORY DECK — auto-generated flashcards
+// ====================================================
+
+enum CardState {
+  NEW
+  LEARNING
+  REVIEWING
+  MASTERED
+}
+
+model MemoryDeckCard {
+  id              String         @id @default(uuid()) @db.Uuid
+  studentId       String         @db.Uuid
+  lessonId        String?        @db.Uuid
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lesson          Lesson?        @relation(fields: [lessonId], references: [id])
+
+  front           String         @db.Text
+  back            String         @db.Text
+  tags            String[]       @default([])
+  state           CardState      @default(NEW)
+
+  // SM-2 spaced-repetition
+  easeFactor      Decimal        @default(2.5) @db.Decimal(4, 2)
+  intervalDays    Int            @default(0)
+  repetitions     Int            @default(0)
+  dueAt           DateTime       @default(now())
+  lastReviewedAt  DateTime?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([studentId, dueAt])
+  @@index([studentId, state])
+}
+
+// ====================================================
+// PAYMENTS — Razorpay subscriptions
+// ====================================================
+
+enum PlanInterval {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  CREATED
+  AUTHENTICATED
+  ACTIVE
+  PAUSED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+  HALTED  // payment failed too many times
+}
+
+model Plan {
+  id              String         @id @default(uuid()) @db.Uuid
+  razorpayPlanId  String         @unique
+  name            String         // "Solo Monthly", "Sibling Pack", "Yearly"
+  interval        PlanInterval
+  amountInr       Decimal        @db.Decimal(10, 2)
+  maxSeats        Int            @default(1)  // for sibling pack = 2
+  isActive        Boolean        @default(true)
+
+  subscriptions   Subscription[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Subscription {
+  id                String              @id @default(uuid()) @db.Uuid
+  studentId         String              @db.Uuid
+  planId            String              @db.Uuid
+  student           Student             @relation(fields: [studentId], references: [id])
+  plan              Plan                @relation(fields: [planId], references: [id])
+
+  razorpaySubId     String              @unique
+  status            SubscriptionStatus  @default(CREATED)
+
+  startAt           DateTime
+  endAt             DateTime?
+  cancelledAt       DateTime?
+  pausedAt          DateTime?
+
+  // Pricing snapshot at signup (so future plan changes don't break history)
+  amountInr         Decimal             @db.Decimal(10, 2)
+  discountInr       Decimal             @default(0) @db.Decimal(10, 2)
+  referralCodeUsed  String?
+
+  payments          Payment[]
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([studentId])
+  @@index([status])
+  @@index([endAt])
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NETBANKING
+  WALLET
+  UNKNOWN
+}
+
+enum PaymentStatus {
+  CREATED
+  AUTHORIZED
+  CAPTURED
+  REFUNDED
+  FAILED
+}
+
+model Payment {
+  id                String         @id @default(uuid()) @db.Uuid
+  studentId         String         @db.Uuid
+  subscriptionId    String?        @db.Uuid
+  student           Student        @relation(fields: [studentId], references: [id])
+  subscription      Subscription?  @relation(fields: [subscriptionId], references: [id])
+
+  razorpayPaymentId String         @unique
+  razorpayOrderId   String?
+  amountInr         Decimal        @db.Decimal(10, 2)
+  currency          String         @default("INR")
+  method            PaymentMethod  @default(UNKNOWN)
+  status            PaymentStatus
+  failureReason     String?
+
+  invoiceUrl        String?
+  receiptNumber     String?        @unique
+
+  paidAt            DateTime?
+  createdAt         DateTime       @default(now())
+
+  @@index([studentId, paidAt])
+  @@index([status])
+}
+
+// ====================================================
+// PACING PLAN — 180-day grid per (subject, grade, medium)
+// ====================================================
+
+model PacingPlanSlot {
+  id              String         @id @default(uuid()) @db.Uuid
+  chapterId       String         @db.Uuid
+  chapter         Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  medium          Medium
+  dayIndex        Int            // 1..250
+  weekIndex       Int            // 1..36
+  scheduledDate   DateTime       @db.Date
+  isCompleted     Boolean        @default(false)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([chapterId, medium, dayIndex])
+  @@index([scheduledDate, medium])
+}
+
+// ====================================================
+// GAMIFICATION — achievements, badges, XP
+// ====================================================
+
+model Achievement {
+  id              String         @id @default(uuid()) @db.Uuid
+  slug            String         @unique  // "7-day-streak", "first-quiz-100"
+  titleEn         String
+  titleKn         String?
+  description     String
+  iconUrl         String?
+  xpReward        Int            @default(0)
+
+  students        StudentAchievement[]
+}
+
+model StudentAchievement {
+  id              String         @id @default(uuid()) @db.Uuid
+  studentId       String         @db.Uuid
+  achievementId   String         @db.Uuid
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  achievement     Achievement    @relation(fields: [achievementId], references: [id])
+
+  unlockedAt      DateTime       @default(now())
+
+  @@unique([studentId, achievementId])
+  @@index([studentId])
+}
+
+// ====================================================
+// AUDIT + ADMIN
+// ====================================================
+
+model AuditLog {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String?        @db.Uuid
+  user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action          String         // "subscription.cancel", "lesson.publish"
+  entityType      String?
+  entityId        String?
+  metadata        Json?
+  ipAddress       String?
+  userAgent       String?
+
+  createdAt       DateTime       @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ====================================================
+// LAUNCH GATE — track ≥10 members before July 2026
+// ====================================================
+
+model LaunchGateConfig {
+  id              String         @id @default(uuid()) @db.Uuid
+  minMembers      Int            @default(10)
+  targetLaunchDate DateTime      @default("2026-07-01T00:00:00Z")
+  isLaunched      Boolean        @default(false)
+  launchedAt      DateTime?
+  updatedAt       DateTime       @updatedAt
+}
+
+// ====================================================
+// WAITLIST — pre-launch signups
+// ====================================================
+
+model WaitlistEntry {
+  id              String         @id @default(uuid()) @db.Uuid
+  phone           String         @unique
+  fullName        String?
+  email           String?
+  grade           Grade?
+  medium          Medium?
+  city            String?
+  referralCode    String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  invitedAt       DateTime?
+  convertedAt     DateTime?      // when they actually signed up
+  createdAt       DateTime       @default(now())
+
+  @@index([createdAt])
+  @@index([convertedAt])
+}

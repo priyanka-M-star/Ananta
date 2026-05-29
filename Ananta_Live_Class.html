@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ananta — Live Class</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans:['Inter','sans-serif'], display:['Plus Jakarta Sans','Inter','sans-serif'] },
+      colors: {
+        ink:'#0F172A',
+        indigo:{600:'#1E3A8A',700:'#1E40AF',800:'#1E3A8A',900:'#172554',950:'#0c1638'},
+        saffron:{400:'#FBBF24',500:'#F59E0B',600:'#D97706'},
+        teal:{500:'#0D9488',600:'#0F766E'},
+      }
+    }}
+  };
+</script>
+<style>
+  html,body { height:100%; }
+  body { font-family:'Inter',sans-serif; color:#0F172A; background:#0c1638; margin:0; }
+  .font-display { font-family:'Plus Jakarta Sans','Inter',sans-serif; }
+
+  @keyframes bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+  .bob { animation:bob 3s ease-in-out infinite; }
+
+  .anime-eye { transform-box:fill-box; transform-origin:center; }
+  @keyframes blink { 0%,93%,100%{transform:scaleY(1);} 96.5%{transform:scaleY(.08);} }
+  .blink-2 { animation:blink 5s infinite; }
+
+  /* speaking sound waves */
+  @keyframes sw { 0%,100%{height:6px;} 50%{height:18px;} }
+  .sw span { display:inline-block; width:3px; background:#0D9488; border-radius:3px; }
+  .sw span:nth-child(1){animation:sw .7s ease-in-out infinite;}
+  .sw span:nth-child(2){animation:sw .7s ease-in-out .15s infinite;}
+  .sw span:nth-child(3){animation:sw .7s ease-in-out .3s infinite;}
+  .sw span:nth-child(4){animation:sw .7s ease-in-out .45s infinite;}
+  .sw span:nth-child(5){animation:sw .7s ease-in-out .2s infinite;}
+
+  /* rising bubbles */
+  @keyframes rise { 0%{transform:translateY(0) scale(.6);opacity:0;}
+    20%{opacity:.9;} 100%{transform:translateY(-150px) scale(1.1);opacity:0;} }
+  .bubble { position:absolute; border-radius:50%; background:rgba(255,255,255,0.5);
+    animation:rise 3s ease-in infinite; }
+
+  /* orbiting molecules */
+  @keyframes orbit { from{transform:rotate(0deg) translateX(70px) rotate(0deg);}
+    to{transform:rotate(360deg) translateX(70px) rotate(-360deg);} }
+  .orbit-1 { animation:orbit 9s linear infinite; }
+  .orbit-2 { animation:orbit 12s linear infinite reverse; }
+  .orbit-3 { animation:orbit 7s linear infinite; }
+
+  @keyframes flash { 0%,100%{opacity:.25; transform:scale(1);}
+    50%{opacity:.9; transform:scale(1.18);} }
+  .flash { animation:flash 2.6s ease-in-out infinite; }
+
+  @keyframes float-eq { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-7px);} }
+  .float-eq { animation:float-eq 4s ease-in-out infinite; }
+
+  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+  .pulse-dot { animation:pulse-dot 1.4s ease-in-out infinite; }
+
+  /* doubt message slide-in */
+  @keyframes slide-in { from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  .msg { animation:slide-in .4s ease-out; }
+
+  /* typing dots */
+  @keyframes td { 0%,60%,100%{transform:translateY(0);opacity:.4;} 30%{transform:translateY(-4px);opacity:1;} }
+  .td span { display:inline-block; width:5px; height:5px; border-radius:50%; background:#0D9488; }
+  .td span:nth-child(1){animation:td 1s infinite;}
+  .td span:nth-child(2){animation:td 1s .2s infinite;}
+  .td span:nth-child(3){animation:td 1s .4s infinite;}
+
+  /* floating reaction */
+  @keyframes react-float { 0%{transform:translateY(0) scale(.5);opacity:0;}
+    15%{opacity:1;transform:scale(1.2);} 100%{transform:translateY(-220px) scale(1);opacity:0;} }
+  .react-fly { position:absolute; pointer-events:none; font-size:32px;
+    animation:react-float 2.2s ease-out forwards; z-index:50; }
+
+  /* confetti */
+  .confetti-piece { position:fixed; width:9px; height:9px; border-radius:2px;
+    pointer-events:none; z-index:9999; animation:cf 1.2s ease-out forwards; }
+  @keyframes cf { to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0;} }
+
+  /* poll pop */
+  @keyframes poll-in { from{opacity:0;transform:translateY(30px) scale(.9);}
+    to{opacity:1;transform:translateY(0) scale(1);} }
+  .poll-in { animation:poll-in .5s cubic-bezier(.34,1.5,.6,1); }
+
+  .scroll-y::-webkit-scrollbar { width:6px; }
+  .scroll-y::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+  @keyframes prog { from{width:0;} }
+</style>
+</head>
+<body class="h-full">
+
+<!-- ===== Vihaan anime face ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="face-vihaan" viewBox="0 0 240 250">
+    <path d="M120 32C78 32 60 72 60 122c0 50 14 86 14 86h92s14-36 14-86c0-50-18-90-60-90Z" fill="#22303A"/>
+    <rect x="106" y="158" width="28" height="30" rx="13" fill="#D49A6E"/>
+    <ellipse cx="120" cy="120" rx="57" ry="60" fill="#E3A878"/>
+    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#E3A878"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#E3A878"/>
+    <path d="M60 110C60 60 86 40 120 40s60 20 60 70c-4-14-14-22-20-30 2 14-6 20-10 16-2-18-14-26-22-20-8-8-20-2-22 14-8-10-16-8-20 6-2-16-8-30 6-46-8 6-12 16-12 26-4-6-12 4-18 24Z" fill="#22303A"/>
+    <path d="M78 100q16-8 30-1" stroke="#22303A" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M132 99q14-7 30 1" stroke="#22303A" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g class="anime-eye blink-2">
+      <ellipse cx="97" cy="126" rx="13" ry="16" fill="#fff"/><ellipse cx="98" cy="128" rx="9.5" ry="12" fill="#3F4A3A"/>
+      <circle cx="98" cy="129" r="5" fill="#1a1a1a"/><circle cx="102" cy="123" r="3.6" fill="#fff"/>
+      <ellipse cx="143" cy="126" rx="13" ry="16" fill="#fff"/><ellipse cx="142" cy="128" rx="9.5" ry="12" fill="#3F4A3A"/>
+      <circle cx="142" cy="129" r="5" fill="#1a1a1a"/><circle cx="146" cy="123" r="3.6" fill="#fff"/>
+    </g>
+    <path d="M120 134q-4 7 0 9" stroke="#C4895F" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M104 150q16 12 32 0" stroke="#B0485E" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<!-- ============ TOP BAR ============ -->
+<header class="bg-indigo-950 border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-indigo-800 flex items-center justify-center">
+      <span class="text-saffron-500 font-display font-extrabold">अ</span>
+    </div>
+    <div class="leading-tight">
+      <div class="text-white font-display font-bold text-sm">Science · Chemical Reactions &amp; Equations</div>
+      <div class="text-indigo-300 text-[11px]">Chapter 6 · Grade 10 · with Vihaan</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center gap-1.5 bg-red-500 text-white text-[11px] font-bold px-2.5 py-1 rounded">
+      <span class="w-1.5 h-1.5 rounded-full bg-white pulse-dot"></span> LIVE
+    </div>
+    <div class="hidden sm:flex items-center gap-1.5 bg-white/10 text-white text-xs px-2.5 py-1 rounded">
+      <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.97 5.97 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+      <span id="viewers">247</span>
+    </div>
+    <div class="bg-white/10 text-white text-xs font-semibold px-2.5 py-1 rounded tabular-nums" id="elapsed">42:08</div>
+    <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Leave</button>
+  </div>
+</header>
+
+<div class="flex flex-col lg:flex-row" style="height:calc(100vh - 53px)">
+
+  <!-- ============ VIDEO STAGE ============ -->
+  <main class="flex-1 flex flex-col bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 relative overflow-hidden" id="stage">
+
+    <!-- lesson scene -->
+    <div class="flex-1 flex items-center justify-center relative px-4">
+      <!-- decorative orbiting molecules -->
+      <div class="absolute top-10 left-10 w-3 h-3">
+        <div class="orbit-1 w-4 h-4 rounded-full bg-teal-400/50"></div>
+      </div>
+      <div class="absolute bottom-16 right-16 w-3 h-3">
+        <div class="orbit-2 w-5 h-5 rounded-full bg-saffron-400/40"></div>
+      </div>
+      <div class="absolute top-1/3 right-24 w-3 h-3">
+        <div class="orbit-3 w-3 h-3 rounded-full bg-indigo-400/50"></div>
+      </div>
+
+      <!-- the "slide" -->
+      <div class="w-full max-w-xl">
+        <div class="text-center">
+          <div class="inline-block bg-saffron-500/20 text-saffron-300 text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Now Learning</div>
+          <h2 class="font-display font-extrabold text-white text-2xl sm:text-3xl mt-3">Combustion Reaction</h2>
+          <p class="text-indigo-300 text-sm mt-1">When magnesium burns in oxygen</p>
+        </div>
+
+        <!-- animated reaction demo -->
+        <div class="mt-7 bg-white/5 border border-white/10 rounded-2xl p-6 relative">
+          <div class="flex items-center justify-center gap-3 sm:gap-5">
+            <!-- Mg ribbon glowing -->
+            <div class="text-center">
+              <div class="w-16 h-16 rounded-2xl bg-slate-200 flex items-center justify-center relative">
+                <div class="absolute inset-0 rounded-2xl bg-white flash"></div>
+                <span class="relative font-display font-extrabold text-slate-800 text-xl">Mg</span>
+              </div>
+              <div class="text-indigo-300 text-[10px] mt-1">Magnesium</div>
+            </div>
+            <div class="text-white/60 text-2xl font-bold">+</div>
+            <!-- O2 -->
+            <div class="text-center">
+              <div class="w-16 h-16 rounded-2xl bg-teal-500/30 border border-teal-400/40 flex items-center justify-center relative">
+                <div class="bubble w-2 h-2" style="left:18px;bottom:8px;animation-delay:0s"></div>
+                <div class="bubble w-1.5 h-1.5" style="left:34px;bottom:8px;animation-delay:1s"></div>
+                <div class="bubble w-2.5 h-2.5" style="left:26px;bottom:8px;animation-delay:2s"></div>
+                <span class="relative font-display font-extrabold text-teal-200 text-xl">O₂</span>
+              </div>
+              <div class="text-indigo-300 text-[10px] mt-1">Oxygen</div>
+            </div>
+            <div class="text-saffron-400 text-3xl font-bold">→</div>
+            <!-- MgO -->
+            <div class="text-center">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-saffron-400 to-saffron-600 flex items-center justify-center shadow-lg">
+                <span class="font-display font-extrabold text-white text-lg">MgO</span>
+              </div>
+              <div class="text-indigo-300 text-[10px] mt-1">Magnesium oxide</div>
+            </div>
+          </div>
+          <div class="float-eq mt-6 text-center">
+            <div class="inline-block bg-indigo-950/60 rounded-xl px-5 py-2.5">
+              <span class="font-display font-extrabold text-white text-lg sm:text-xl">2Mg + O₂ → 2MgO</span>
+            </div>
+            <div class="text-teal-300 text-xs mt-2">A bright white flame — this is an <b>exothermic</b> reaction ✨</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- teacher PiP -->
+      <div class="absolute bottom-4 left-4 flex items-end gap-2">
+        <div class="bob w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white overflow-hidden shadow-2xl ring-2 ring-teal-400/50">
+          <svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-vihaan"/></svg>
+        </div>
+        <div class="bg-indigo-950/80 backdrop-blur rounded-lg px-2.5 py-1.5 mb-1">
+          <div class="text-white text-xs font-bold">Vihaan</div>
+          <div class="sw flex items-end gap-0.5 h-4 mt-0.5">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- reactions launch area marker -->
+      <div id="reactZone" class="absolute bottom-24 right-8"></div>
+    </div>
+
+    <!-- captions -->
+    <div class="px-4 pb-2">
+      <div class="max-w-2xl mx-auto bg-black/50 backdrop-blur rounded-xl px-4 py-2.5 text-center">
+        <p id="caption" class="text-white text-sm leading-snug">
+          "Notice the bright white light — that tells us a large amount of energy is being released as heat."
+        </p>
+      </div>
+    </div>
+
+    <!-- lesson progress + controls -->
+    <div class="bg-indigo-950/80 backdrop-blur border-t border-white/10 px-4 py-3">
+      <div class="flex items-center gap-3">
+        <span class="text-indigo-300 text-[11px] tabular-nums">42:08</span>
+        <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-saffron-500" style="width:70%;animation:prog 1.4s ease-out"></div>
+        </div>
+        <span class="text-indigo-300 text-[11px] tabular-nums">60:00</span>
+      </div>
+      <div class="flex items-center justify-between mt-3">
+        <div class="flex items-center gap-1.5">
+          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="👍">👍</button>
+          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="❤️">❤️</button>
+          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="🎉">🎉</button>
+          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="🤔">🤔</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="capToggle" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.5 6a1.5 1.5 0 01.5-3 .75.75 0 000-1.5 3 3 0 100 6 .75.75 0 000-1.5zm6 0a1.5 1.5 0 01.5-3 .75.75 0 000-1.5 3 3 0 100 6 .75.75 0 000-1.5z"/></svg>
+            Captions: <span id="capLang">English</span>
+          </button>
+          <button class="bg-saffron-500 hover:bg-saffron-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition">Raise hand ✋</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== POLL OVERLAY ===== -->
+    <div id="poll" class="absolute inset-0 bg-indigo-950/70 backdrop-blur-sm flex items-center justify-center px-4 hidden">
+      <div class="poll-in bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+        <div class="flex items-center gap-2 text-saffron-600 text-xs font-bold uppercase tracking-widest">
+          <span class="w-2 h-2 rounded-full bg-saffron-500 pulse-dot"></span> Quick poll
+        </div>
+        <h3 class="font-display font-extrabold text-lg mt-2">Is the burning of magnesium an exothermic or endothermic reaction?</h3>
+        <div class="mt-4 space-y-2" id="pollOptions">
+          <button class="poll-opt w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-medium transition" data-correct="1">Exothermic — it releases heat</button>
+          <button class="poll-opt w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-medium transition" data-correct="0">Endothermic — it absorbs heat</button>
+        </div>
+        <p id="pollResult" class="text-sm text-center mt-3 font-semibold hidden"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ DOUBT PANEL ============ -->
+  <aside class="w-full lg:w-80 xl:w-96 bg-white flex flex-col border-l border-slate-200" style="max-height:100%">
+    <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h3 class="font-display font-bold text-sm flex items-center gap-1.5">💬 Live Doubts</h3>
+        <p class="text-[11px] text-slate-500">Ask Vihaan anything — answered in seconds</p>
+      </div>
+      <div class="text-[11px] text-slate-400">247 students</div>
+    </div>
+
+    <!-- chat stream -->
+    <div id="chat" class="flex-1 overflow-y-auto scroll-y px-4 py-3 space-y-3 bg-slate-50">
+      <div class="msg flex items-start gap-2">
+        <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">SK</div>
+        <div>
+          <div class="text-[10px] text-slate-400 mb-0.5">Sneha K. · asked</div>
+          <div class="bg-white border border-slate-200 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-700">Why does magnesium burn with such a bright light?</div>
+        </div>
+      </div>
+      <div class="msg flex items-start gap-2">
+        <div class="w-7 h-7 rounded-full bg-teal-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">VI</div>
+        <div>
+          <div class="text-[10px] text-teal-600 font-semibold mb-0.5">Vihaan · answered</div>
+          <div class="bg-teal-50 border border-teal-100 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-800">Magnesium reacts very rapidly with oxygen and releases a large amount of energy at once — a lot of it as light. That's why we see the intense white glow. 🔆</div>
+        </div>
+      </div>
+      <div class="msg flex items-start gap-2">
+        <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">RP</div>
+        <div>
+          <div class="text-[10px] text-slate-400 mb-0.5">Rahul P. · asked</div>
+          <div class="bg-white border border-slate-200 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-700">Is rusting also this type of reaction?</div>
+        </div>
+      </div>
+      <div class="msg flex items-start gap-2">
+        <div class="w-7 h-7 rounded-full bg-teal-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">VI</div>
+        <div>
+          <div class="text-[10px] text-teal-600 font-semibold mb-0.5">Vihaan · answered</div>
+          <div class="bg-teal-50 border border-teal-100 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-800">Good link! Rusting is also oxidation — iron reacting with oxygen — but it is very slow, so we don't see a flame. We'll cover it next class. 🙂</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- typing indicator -->
+    <div id="typing" class="px-4 py-1.5 hidden">
+      <div class="flex items-center gap-2 text-[11px] text-teal-600">
+        <span class="td flex gap-1"><span></span><span></span><span></span></span>
+        Vihaan is answering…
+      </div>
+    </div>
+
+    <!-- doubt input -->
+    <div class="border-t border-slate-100 p-3">
+      <div class="flex items-center gap-2">
+        <button id="micBtn" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-500 flex items-center justify-center transition shrink-0" title="Record a voice doubt">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/><path d="M5.5 9.5a.5.5 0 011 0 3.5 3.5 0 007 0 .5.5 0 011 0 4.5 4.5 0 01-4 4.473V16h2a.5.5 0 010 1h-5a.5.5 0 010-1h2v-2.027a4.5 4.5 0 01-4-4.473z"/></svg>
+        </button>
+        <input id="doubtInput" type="text" placeholder="Type your doubt…"
+          class="flex-1 bg-slate-100 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-300 transition">
+        <button id="sendBtn" class="w-10 h-10 rounded-xl bg-indigo-800 hover:bg-indigo-900 text-white flex items-center justify-center transition shrink-0">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.926A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.085l-1.414 4.926a.75.75 0 00.826.95 28.897 28.897 0 0015.293-7.155.75.75 0 000-1.114A28.897 28.897 0 003.105 2.289z"/></svg>
+        </button>
+      </div>
+      <p class="text-[10px] text-slate-400 mt-1.5 text-center">Your doubt is private — only you and Vihaan see it unless it's picked for everyone.</p>
+    </div>
+  </aside>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('doubtInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const typing = document.getElementById('typing');
+
+    // canned AI answers
+    const answers = [
+      "Great question! Let me explain — in this reaction, energy stored in chemical bonds is released, mostly as heat and light. ✨",
+      "Nice thinking. The key idea is the balanced equation: atoms are never lost, only rearranged. Count them on both sides!",
+      "Good doubt. Remember: exothermic = releases heat, endothermic = absorbs heat. Burning is always exothermic. 🔥",
+      "I'll add a quick note to your Memory Deck so you can revise this later. The short answer: yes, oxidation is involved here. 👍",
+      "Let's keep that in mind for the Sunday doubt session too — for now, focus on the balanced equation 2Mg + O₂ → 2MgO."
+    ];
+    let ai = 0;
+
+    function addMsg(who, text, name, initials) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg flex items-start gap-2';
+      if (who === 'me') {
+        wrap.classList.add('flex-row-reverse');
+        wrap.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-indigo-800 flex items-center justify-center text-[9px] font-bold text-white shrink-0">You</div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-400 mb-0.5">You · asked</div>
+            <div class="bg-indigo-800 text-white rounded-xl rounded-tr-sm px-3 py-2 text-sm text-left">${text}</div>
+          </div>`;
+      } else {
+        wrap.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-teal-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">VI</div>
+          <div>
+            <div class="text-[10px] text-teal-600 font-semibold mb-0.5">Vihaan · answered</div>
+            <div class="bg-teal-50 border border-teal-100 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-800">${text}</div>
+          </div>`;
+      }
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function send() {
+      const t = input.value.trim();
+      if (!t) return;
+      addMsg('me', t);
+      input.value = '';
+      typing.classList.remove('hidden');
+      chat.scrollTop = chat.scrollHeight;
+      setTimeout(() => {
+        typing.classList.add('hidden');
+        addMsg('ai', answers[ai % answers.length]);
+        ai++;
+      }, 1400 + Math.random()*900);
+    }
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+    // mic button
+    document.getElementById('micBtn').addEventListener('click', function() {
+      this.classList.toggle('bg-rose-100');
+      this.classList.toggle('text-rose-600');
+      if (this.classList.contains('text-rose-600')) {
+        input.placeholder = 'Listening… speak your doubt';
+        setTimeout(() => {
+          input.value = 'Why is the product MgO and not MgO₂?';
+          this.classList.remove('bg-rose-100','text-rose-600');
+          input.placeholder = 'Type your doubt…';
+        }, 1800);
+      }
+    });
+
+    // captions toggle
+    const capLang = document.getElementById('capLang');
+    const caption = document.getElementById('caption');
+    const caps = {
+      'English': '"Notice the bright white light — that tells us a large amount of energy is being released as heat."',
+      'Kanglish': '"Nodi, bright white light bartide — adu energy heat-aagi release aagtide antha tortte. ✨"'
+    };
+    document.getElementById('capToggle').addEventListener('click', () => {
+      capLang.textContent = capLang.textContent === 'English' ? 'Kanglish' : 'English';
+      caption.textContent = caps[capLang.textContent];
+    });
+
+    // reactions
+    const stage = document.getElementById('stage');
+    document.querySelectorAll('.react-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        for (let i=0;i<3;i++){
+          const r = document.createElement('div');
+          r.className = 'react-fly';
+          r.textContent = btn.dataset.emoji;
+          r.style.left = (70 + Math.random()*60) + '%';
+          r.style.bottom = '120px';
+          r.style.animationDelay = (i*0.15) + 's';
+          stage.appendChild(r);
+          setTimeout(() => r.remove(), 2400);
+        }
+      });
+    });
+
+    // confetti
+    const colors = ['#F59E0B','#0D9488','#1E3A8A','#FB7185','#A855F7','#FBBF24'];
+    function confetti(x,y){
+      for(let i=0;i<40;i++){
+        const p=document.createElement('div');
+        p.className='confetti-piece';
+        p.style.left=x+'px'; p.style.top=y+'px';
+        p.style.background=colors[i%colors.length];
+        const a=Math.random()*Math.PI*2, v=80+Math.random()*160;
+        p.style.setProperty('--dx',Math.cos(a)*v+'px');
+        p.style.setProperty('--dy',(Math.sin(a)*v-100)+'px');
+        p.style.setProperty('--rot',(Math.random()*900-450)+'deg');
+        document.body.appendChild(p);
+        setTimeout(()=>p.remove(),1250);
+      }
+    }
+
+    // poll — appears after 4s
+    const poll = document.getElementById('poll');
+    const pollResult = document.getElementById('pollResult');
+    setTimeout(() => poll.classList.remove('hidden'), 4000);
+    document.querySelectorAll('.poll-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.poll-opt').forEach(o => o.disabled = true);
+        const correct = opt.dataset.correct === '1';
+        opt.classList.add(correct ? 'border-teal-500' : 'border-rose-400');
+        opt.classList.add(correct ? 'bg-teal-50' : 'bg-rose-50');
+        pollResult.classList.remove('hidden');
+        if (correct) {
+          pollResult.textContent = '🎉 Correct! Burning always releases heat.';
+          pollResult.classList.add('text-teal-600');
+          const r = opt.getBoundingClientRect();
+          confetti(r.left + r.width/2, r.top);
+        } else {
+          pollResult.textContent = 'Not quite — burning releases heat, so it’s exothermic.';
+          pollResult.classList.add('text-rose-600');
+          document.querySelector('.poll-opt[data-correct="1"]').classList.add('border-teal-500','bg-teal-50');
+        }
+        setTimeout(() => poll.classList.add('hidden'), 2600);
+      });
+    });
+
+    // live elapsed timer
+    let secs = 42*60 + 8;
+    const el = document.getElementById('elapsed');
+    setInterval(() => {
+      secs++;
+      el.textContent = String(Math.floor(secs/60)).padStart(2,'0') + ':' + String(secs%60).padStart(2,'0');
+    }, 1000);
+
+    // wobble viewer count a little
+    const vc = document.getElementById('viewers');
+    setInterval(() => {
+      vc.textContent = 245 + Math.floor(Math.random()*8);
+    }, 3000);
+  });
+</script>
+
+</body>
+</html>

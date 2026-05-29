@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ananta · Stack Decisions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --indigo:#1E3A8A; --indigo2:#3B82F6; --saffron:#F59E0B;
+    --teal:#0D9488; --rose:#E11D48; --ink:#0F172A;
+    --paper:#FAFAF9; --line:#E2E8F0;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:'Inter',sans-serif; color:var(--ink); margin:0;
+    background:
+      radial-gradient(800px 500px at 90% -10%, #fde68a44 0%, transparent 60%),
+      radial-gradient(600px 500px at -10% 30%, #c7d2fe44 0%, transparent 55%),
+      var(--paper);
+    line-height:1.6;
+  }
+  .display{font-family:'Plus Jakarta Sans',sans-serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1180px; margin:0 auto; padding:48px 32px;}
+  header.hero{
+    background: linear-gradient(135deg,#1E3A8A 0%, #0D9488 60%, #F59E0B 130%);
+    color:#fff; padding:64px 32px; position:relative; overflow:hidden;
+  }
+  header.hero::before{
+    content:''; position:absolute; right:-100px; top:-100px;
+    width:380px; height:380px; border-radius:50%; background:rgba(255,255,255,.08); filter:blur(40px);
+  }
+  header.hero::after{
+    content:''; position:absolute; left:-80px; bottom:-100px;
+    width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.08); filter:blur(40px);
+  }
+  header .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,.18); backdrop-filter:blur(8px);
+    padding:6px 14px; border-radius:999px; font-size:12px; font-weight:600;
+    margin-bottom:16px;
+  }
+  header h1{font-family:'Plus Jakarta Sans',sans-serif; font-size:46px; font-weight:800; margin:0 0 12px; line-height:1.1; max-width:900px;}
+  header .sub{font-size:18px; max-width:760px; opacity:.92;}
+  header .meta{margin-top:24px; display:flex; flex-wrap:wrap; gap:12px;}
+  header .pill{background:rgba(255,255,255,.16); padding:8px 14px; border-radius:12px; font-size:13px;}
+  header .pill b{font-weight:700;}
+
+  h2{font-family:'Plus Jakarta Sans',sans-serif; font-size:28px; font-weight:800; margin:48px 0 6px; color:var(--indigo);}
+  h2 .num{display:inline-block; font-size:14px; background:var(--indigo); color:#fff; padding:4px 10px; border-radius:8px; vertical-align:middle; margin-right:10px;}
+  h3{font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:700; margin:24px 0 8px;}
+
+  .section-lead{color:#475569; margin-bottom:18px; font-size:15px;}
+
+  /* Decision card */
+  .pick{
+    background:#fff; border-radius:18px; padding:22px 26px; margin:14px 0;
+    box-shadow: 0 8px 24px -14px rgba(15,23,42,.18), 0 2px 6px -3px rgba(15,23,42,.08);
+    border-left: 6px solid var(--teal);
+  }
+  .pick .row{display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .pick .name{font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:22px; color:var(--ink);}
+  .pick .tag{
+    background:#ccfbf1; color:#0f766e; font-weight:700; font-size:11px;
+    padding:4px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;
+  }
+  .pick .cost{
+    background:#dcfce7; color:#15803d; font-weight:700; font-size:11px;
+    padding:4px 10px; border-radius:999px;
+  }
+  .pick .cost.paid{background:#fef3c7; color:#92400e;}
+  .pick .cost.scale{background:#fee2e2; color:#9f1239;}
+  .pick p{margin:8px 0; color:#334155;}
+  .pick .why{margin-top:10px; padding-top:12px; border-top:1px dashed #e2e8f0;}
+  .pick .why-head{font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+  .pick ul{margin:6px 0 0 0; padding-left:20px;}
+  .pick ul li{margin:4px 0; color:#475569; font-size:14.5px;}
+  .pick ul li b{color:var(--ink);}
+
+  .rejected{margin-top:10px;}
+  .rejected .why-head{color:#9f1239;}
+  .rejected ul li b{color:#9f1239;}
+
+  .toc{
+    background:#fff; border-radius:18px; padding:24px 28px; margin:0 0 32px;
+    box-shadow: 0 8px 24px -14px rgba(15,23,42,.18);
+  }
+  .toc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px 18px;}
+  .toc a{color:var(--ink); text-decoration:none; font-size:14px; padding:6px 8px; border-radius:8px; display:block; transition:all .15s ease;}
+  .toc a:hover{background:#eef2ff; color:var(--indigo); transform:translateX(2px);}
+  .toc a .n{display:inline-block; width:24px; color:#94a3b8; font-weight:600; font-size:12px;}
+
+  .principles{
+    background:linear-gradient(135deg,#fff7ed,#fef3c7);
+    border-radius:18px; padding:24px 28px; margin:28px 0;
+    border:2px solid #fde68a;
+  }
+  .principles h3{margin:0 0 12px; color:#92400e;}
+  .principles ol{margin:0; padding-left:20px;}
+  .principles ol li{margin:6px 0; color:#78350f;}
+
+  .cost-table{
+    width:100%; border-collapse:collapse; margin:18px 0;
+    background:#fff; border-radius:14px; overflow:hidden;
+    box-shadow:0 8px 24px -14px rgba(15,23,42,.18);
+  }
+  .cost-table th{
+    background:linear-gradient(135deg,#1E3A8A,#0D9488); color:#fff;
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+    text-align:left; padding:12px 16px; font-size:13px;
+  }
+  .cost-table td{padding:12px 16px; border-bottom:1px solid var(--line); font-size:14px;}
+  .cost-table tr:last-child td{border-bottom:0;}
+  .cost-table tr:hover{background:#f8fafc;}
+  .cost-table td.free{color:#15803d; font-weight:700;}
+  .cost-table td.cheap{color:#92400e; font-weight:600;}
+
+  .callout{
+    background:#eef2ff; border-left:4px solid var(--indigo);
+    padding:14px 18px; border-radius:12px; margin:16px 0; font-size:14.5px;
+  }
+  .callout b{color:var(--indigo);}
+
+  footer{
+    margin-top:60px; padding:32px; text-align:center;
+    color:#64748b; font-size:13px; border-top:1px solid var(--line);
+  }
+  .anchor{display:block; position:relative; top:-20px; visibility:hidden;}
+
+  @media print{
+    header.hero{padding:32px;}
+    .pick{break-inside:avoid;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap" style="padding:0; max-width:1180px; margin:0 auto;">
+    <span class="badge">
+      <span style="width:8px; height:8px; background:#86efac; border-radius:50%; display:inline-block;"></span>
+      v1.0 · Confirmed 2026-05-28
+    </span>
+    <h1>Ananta Stack Decisions</h1>
+    <p class="sub">Every tool. What I picked. What I rejected and why. Optimised for: <b>free or near-free at MVP</b>, <b>Indian-friendly</b> (UPI, Kannada/Hindi, low bandwidth), <b>open-source where possible</b>, <b>scales with revenue</b>.</p>
+    <div class="meta">
+      <span class="pill">🇮🇳 <b>India-first</b></span>
+      <span class="pill">💰 <b>₹0 to start</b></span>
+      <span class="pill">🔓 <b>OSS-heavy</b></span>
+      <span class="pill">📈 <b>Scales to 1L+ users</b></span>
+      <span class="pill">🎯 <b>Solo-founder friendly</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Guiding principles -->
+  <div class="principles">
+    <h3>🧭 Guiding principles for every pick</h3>
+    <ol>
+      <li><b>Free at MVP</b> — Day-1 cost should be ₹0 for compute, storage, CDN, DB, monitoring. Paid only what you can't fake: domain (~₹800/yr) and Razorpay txn fees (2%).</li>
+      <li><b>One language per layer</b> — TypeScript everywhere except the AI worker (Python, because every Indic AI model is Python-first).</li>
+      <li><b>Open-source preferred</b> — no vendor lock-in. If a SaaS dies, you keep running.</li>
+      <li><b>Indian models for Indian voices</b> — AI4Bharat (Bengaluru, IIT Madras) handles Kanglish and Hindi better than any global TTS.</li>
+      <li><b>Upgrade triggers tied to MRR</b> — don't over-engineer for 1L users when you have 10. But pick tools that *can* scale there.</li>
+      <li><b>Solo-founder rule</b> — never pick a tool you can't operate alone. No Kubernetes-from-scratch, no Kafka cluster on day 1.</li>
+    </ol>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3 style="margin-top:0;">Quick navigation</h3>
+    <div class="toc-grid">
+      <a href="#s1"><span class="n">01</span> Frontend framework</a>
+      <a href="#s2"><span class="n">02</span> Backend API</a>
+      <a href="#s3"><span class="n">03</span> AI worker</a>
+      <a href="#s4"><span class="n">04</span> Database</a>
+      <a href="#s5"><span class="n">05</span> Cache + queue</a>
+      <a href="#s6"><span class="n">06</span> Auth + OTP</a>
+      <a href="#s7"><span class="n">07</span> LLM (lesson content)</a>
+      <a href="#s8"><span class="n">08</span> TTS — English</a>
+      <a href="#s9"><span class="n">09</span> TTS — Kanglish/Hindi</a>
+      <a href="#s10"><span class="n">10</span> AI avatar / lip-sync</a>
+      <a href="#s11"><span class="n">11</span> Animation engine</a>
+      <a href="#s12"><span class="n">12</span> Live class streaming</a>
+      <a href="#s13"><span class="n">13</span> Recording + VOD</a>
+      <a href="#s14"><span class="n">14</span> Object storage + CDN</a>
+      <a href="#s15"><span class="n">15</span> Compute hosting</a>
+      <a href="#s16"><span class="n">16</span> Payments (UPI)</a>
+      <a href="#s17"><span class="n">17</span> WhatsApp + SMS</a>
+      <a href="#s18"><span class="n">18</span> Email</a>
+      <a href="#s19"><span class="n">19</span> PDF generation</a>
+      <a href="#s20"><span class="n">20</span> Analytics</a>
+      <a href="#s21"><span class="n">21</span> Error monitoring</a>
+      <a href="#s22"><span class="n">22</span> CI/CD</a>
+      <a href="#s23"><span class="n">23</span> Container orchestration</a>
+      <a href="#s24"><span class="n">24</span> Domain + DNS</a>
+      <a href="#s25"><span class="n">25</span> Secrets management</a>
+      <a href="#s26"><span class="n">26</span> Logging</a>
+      <a href="#s27"><span class="n">27</span> Search</a>
+      <a href="#s28"><span class="n">28</span> Testing</a>
+      <a href="#summary"><span class="n">📊</span> Cost summary</a>
+    </div>
+  </div>
+
+  <!-- ============ 01 Frontend ============ -->
+  <h2><span class="num">01</span> Frontend framework</h2><span class="anchor" id="s1"></span>
+  <p class="section-lead">The student app, parent dashboard, landing page. Must be fast on cheap Android phones with 3G, render Kannada/Devanagari cleanly, and feel joyful.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Next.js 14 (App Router) + React + TypeScript</div>
+        <p>Server-side rendering for SEO + fast first paint, client components for interactivity. App Router + React Server Components keep the JS bundle small — critical for ₹6k Android phones on 3G.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Tailwind CSS</b> already used in your existing mockups — no re-styling needed.</li>
+        <li><b>Vercel deploy</b> is free (hobby tier) — perfect for staging. Production we'll self-host on Oracle to avoid Vercel's commercial limits.</li>
+        <li><b>Largest hiring pool</b> in India for React devs when you eventually hire help.</li>
+        <li><b>Streaming SSR</b> means the lesson page can start rendering before the AI worker finishes generating tomorrow's content.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>SvelteKit</b> — smaller bundles, but tiny ecosystem in India + no LiveKit React-equivalent component library is as polished.</li>
+        <li><b>Remix</b> — great patterns, but lost mindshare after the React Router merge; uncertain future.</li>
+        <li><b>Plain React + Vite</b> — no SSR = slower first paint on cheap phones, worse SEO for landing page.</li>
+        <li><b>Flutter Web</b> — bundle is 2MB+ before your code; brutal on 3G connections.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 02 Backend ============ -->
+  <h2><span class="num">02</span> Backend API</h2><span class="anchor" id="s2"></span>
+  <p class="section-lead">The transactional brain — auth, payments, scheduling, attendance, quiz scoring, parent reports. Needs to be modular so you can extract services later.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">NestJS (Node.js + TypeScript)</div>
+        <p>Opinionated framework with built-in DI, modules, guards, interceptors. Same language as the frontend → you share types via a single <span class="mono">packages/db</span>. Excellent for solo-dev productivity.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Module-per-domain</b> structure (auth, classes, payments, etc.) maps cleanly to your 4-plane architecture.</li>
+        <li><b>Built-in validation, swagger, queues, scheduling</b> — fewer libraries to learn.</li>
+        <li><b>Prisma + NestJS</b> is one of the most-documented combos online → fewer hours stuck.</li>
+        <li><b>Workers/scheduling</b> via BullMQ comes built-in for the lesson-generation pipeline.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Express</b> — too unopinionated; you'll re-invent NestJS poorly as you grow.</li>
+        <li><b>FastAPI (Python)</b> for everything — Python is great for AI but worse for high-RPS transactional APIs; harder to share types with the frontend.</li>
+        <li><b>Go + Fiber</b> — fastest runtime, but doubles the languages you maintain solo.</li>
+        <li><b>Spring Boot</b> — heavy, slow startup, JVM RAM appetite is brutal on free-tier VMs.</li>
+        <li><b>Django</b> — couples to its ORM; doesn't fit a microservices-friendly path.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 03 AI worker ============ -->
+  <h2><span class="num">03</span> AI worker</h2><span class="anchor" id="s3"></span>
+  <p class="section-lead">Separate service that generates lesson content, calls TTS, renders animations, builds quizzes/notes/Memory Deck cards. Heavy GPU/CPU work that should NEVER block the main API.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">FastAPI (Python 3.11) + Celery + Redis</div>
+        <p>Python because every Indic LLM/TTS model (AI4Bharat IndicTTS, IndicWhisper, Sarvam-1) is Python-only. FastAPI for sync HTTP, Celery for background jobs (lesson rendering can take 5–10 min).</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT/BSD</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Best ML library ecosystem</b> — PyTorch, Transformers, gTTS, Coqui, Piper, SadTalker all Python-native.</li>
+        <li><b>Async + types</b> via Pydantic — closest experience to Nest/TS for the rest of your codebase.</li>
+        <li><b>Celery</b> handles retry, scheduling, priority queues — exactly what overnight lesson generation needs.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Node.js for AI</b> — most Indic models simply don't have JS bindings.</li>
+        <li><b>Flask</b> — older, no async, no built-in OpenAPI.</li>
+        <li><b>Ray Serve</b> — great at scale but overkill for a single worker box; would consume your RAM on free tier.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 04 Database ============ -->
+  <h2><span class="num">04</span> Database</h2><span class="anchor" id="s4"></span>
+  <p class="section-lead">Stores users, lessons, attendance, quiz scores, payments, Memory Deck cards, pacing plan. Also needs vector storage for the AI to find related concepts during doubt-answering.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">PostgreSQL 16 + pgvector + Prisma ORM</div>
+        <p>One database, two superpowers: relational for transactions, pgvector for semantic search (e.g. "find related quiz questions when student asks a doubt"). Prisma gives type-safe queries shared between frontend + API.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · PostgreSQL License</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Supabase free tier</b> hosts Postgres+pgvector free up to 500MB, 2GB egress/mo — easily fits 0→500 students.</li>
+        <li><b>pgvector</b> means no separate vector DB (Pinecone $70/mo, Weaviate ops overhead) — one less thing to run.</li>
+        <li><b>Prisma migrations</b> are reviewed in git → safer than raw SQL migrations.</li>
+        <li><b>Row-Level Security</b> for multi-tenant student/parent isolation.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>MongoDB</b> — bad fit for transactional money + heavy joins (parent ↔ child ↔ classes ↔ payments).</li>
+        <li><b>MySQL/MariaDB</b> — no pgvector equivalent; weaker JSON support.</li>
+        <li><b>PlanetScale</b> — used to be the obvious choice but killed free tier in 2024.</li>
+        <li><b>SQLite</b> — fine for prototypes, won't survive concurrent live-class writes.</li>
+        <li><b>Pinecone / Weaviate / Qdrant</b> as a separate vector DB — another piece to monitor.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 05 Cache + queue ============ -->
+  <h2><span class="num">05</span> Cache + queue</h2><span class="anchor" id="s5"></span>
+  <p class="section-lead">Session storage, BullMQ job queue, leaderboards, presence counts ("847 students watching live"), rate-limiting.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Redis 7 (self-hosted) + BullMQ</div>
+        <p>Industry default. Sub-millisecond reads. BullMQ on top gives you the job-queue features Celery offers, but for Node.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · BSD</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Self-hosted on the Oracle VM</b> for free; ~50MB RAM with the config we'll use.</li>
+        <li>Same Redis instance serves both BullMQ (Node side) and Celery (Python side) — one less service.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Upstash Redis</b> — generous free tier (10k commands/day) but billing is per-command; gets expensive fast at scale.</li>
+        <li><b>Memcached</b> — no persistence, no streams, no pub/sub at the depth Redis offers.</li>
+        <li><b>RabbitMQ</b> as queue — more ops overhead; BullMQ on Redis is plenty until you're past 100k jobs/day.</li>
+        <li><b>SQS</b> — cloud lock-in, not free.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 06 Auth + OTP ============ -->
+  <h2><span class="num">06</span> Auth + OTP</h2><span class="anchor" id="s6"></span>
+  <p class="section-lead">Students log in by phone number (most Karnataka families have one shared phone). Parents have separate accounts. Founder admin needs MFA.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Lucia Auth + bcrypt + MSG91 OTP</div>
+        <p>Self-hosted, framework-agnostic auth library. Sessions stored in Postgres. OTPs sent via MSG91 (Indian SMS gateway with ₹0.15/SMS pricing — cheapest in market).</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT (+SMS ₹0.15)</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>No vendor lock-in</b> — Lucia is library code, not a service. Auth is too foundational to outsource.</li>
+        <li><b>MSG91 is DLT-registered</b> (mandatory in India since 2021) and Indian companies trust it.</li>
+        <li><b>WhatsApp OTP option</b> later via Meta Cloud API for power users (saves SMS cost).</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Auth0</b> — free up to 7,500 MAU then jumps to $240/mo. Hostile to scaling.</li>
+        <li><b>Firebase Auth</b> — Google lock-in; phone-auth SMS is billed at $0.05/SMS = 8x MSG91.</li>
+        <li><b>Clerk</b> — beautiful UX, but $25/mo + per-MAU fees; doesn't support Kannada UI strings well.</li>
+        <li><b>Supabase Auth</b> — fine, but you're locked to their Postgres if you go this route.</li>
+        <li><b>NextAuth/Auth.js</b> — good, but Lucia is leaner and more transparent.</li>
+        <li><b>Twilio Verify</b> — $0.05/OTP and routes via foreign carriers (slow delivery in India).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 07 LLM ============ -->
+  <h2><span class="num">07</span> LLM (lesson content generation)</h2><span class="anchor" id="s7"></span>
+  <p class="section-lead">Generates lesson scripts, quiz questions, notes summaries, Memory Deck flashcards, and answers student doubts in real time during live class.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Groq (Llama 3.3 70B + Llama 3.1 8B) + Sarvam-1 (Indic)</div>
+        <p><b>Groq</b> serves Llama-family models at 500+ tokens/sec for FREE on their dev tier (30 req/min, 14k req/day). <b>Sarvam-1</b> is an Indian-built 2B-param model trained specifically on Indic languages — best Kanglish output.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free at MVP</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Groq's speed</b> (500 tok/s) means real-time doubt answering during live class — students don't wait.</li>
+        <li><b>Free dev tier</b> covers 14,000 requests/day — enough for 10 lessons × 6 subjects × 2 mediums × ~50 LLM calls = ~6k/day.</li>
+        <li><b>Llama 3.3 70B</b> matches GPT-4o on most reasoning tasks at 0 cost.</li>
+        <li><b>Sarvam-1</b> handles Kanglish code-mix far better than English-trained models (which often "correct" Kanglish into formal English or Kannada).</li>
+        <li><b>OpenRouter fallback</b> when Groq rate-limits: free DeepSeek, free Gemini 2.0 Flash.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>OpenAI GPT-4o</b> — $5/M input, $15/M output. At 6k requests/day × ~3k tokens each = ~$1,000/month from day 1. Murders the ₹0 promise.</li>
+        <li><b>Anthropic Claude</b> — even pricier than OpenAI; no free production tier.</li>
+        <li><b>Self-hosted Llama on Oracle ARM</b> — free VM has 24GB RAM but no GPU; ARM CPU inference of a 70B model takes 60+ sec/token. Unusable.</li>
+        <li><b>Cohere</b> — generous free tier but weak on Indic languages.</li>
+        <li><b>Pure Sarvam</b> for everything — small model struggles with multi-step reasoning needed for lesson scripts. Use it for Kanglish polish, not core reasoning.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 08 TTS English ============ -->
+  <h2><span class="num">08</span> TTS — English</h2><span class="anchor" id="s8"></span>
+  <p class="section-lead">For Anika (English teacher) and English-medium delivery of Maths, Science, Social Science.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Piper TTS (Rhasspy/OSS)</div>
+        <p>Tiny ONNX-based TTS that runs on CPU. ~50ms latency per sentence on the Oracle ARM VM. Several Indian-English voices already trained.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Runs on the Oracle ARM CPU</b> — no GPU needed.</li>
+        <li><b>Voices are downloadable</b> (~30MB each) → you own them forever, no per-character billing.</li>
+        <li><b>Indian-English accent voices</b> match Karnataka students' expectations better than American voices.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>ElevenLabs</b> — gorgeous quality but $5/mo for only 10k chars; 60-min lesson script ≈ 30k chars → $80+/mo per teacher.</li>
+        <li><b>OpenAI TTS</b> — $15/M characters; cheaper than ElevenLabs but still meaningful at scale.</li>
+        <li><b>Google Cloud TTS</b> — $4/M chars but Indian accents are robotic.</li>
+        <li><b>Coqui XTTS v2</b> — better quality than Piper, but needs GPU. Plan B once we have an Oracle GPU instance.</li>
+        <li><b>Amazon Polly</b> — AWS lock-in, similar pricing to Google.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 09 TTS Kanglish/Hindi ============ -->
+  <h2><span class="num">09</span> TTS — Kanglish, Kannada, Hindi</h2><span class="anchor" id="s9"></span>
+  <p class="section-lead">For Vihaan, Praketa, Adhvara (Kanglish), Harini (Kannada), Amita (Hindi). No global TTS handles Kanglish properly — this is where we need an Indian model.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">AI4Bharat IndicTTS (Indic-Parler-TTS)</div>
+        <p>Open-source TTS from AI4Bharat (IIT Madras + Bengaluru). Supports 22 Indic languages including Kannada and Hindi, with code-mixing support for Kanglish/Hinglish.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Only Indian model</b> trained on real Kanglish/Hinglish code-switched corpora.</li>
+        <li><b>Free weights</b> via Hugging Face → run on your own infra.</li>
+        <li><b>Sarvam AI</b> (commercial fork of AI4Bharat by the same team) offers a paid API for higher quality when revenue allows — graceful upgrade path.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Google Cloud TTS (Kannada)</b> — Kannada is supported but accent is wooden; <b>cannot handle Kanglish code-mixing</b> — it will either pronounce English words with heavy Kannada accent or vice versa.</li>
+        <li><b>ElevenLabs Multilingual v2</b> — supports Hindi but no Kannada, no Kanglish.</li>
+        <li><b>Azure Speech</b> — has Kannada but same code-mix problem as Google.</li>
+        <li><b>OpenAI TTS</b> — no Kannada at all.</li>
+        <li><b>Bhashini (Govt of India)</b> — TTS quality is sub-Piper-level; integration paperwork is heavy.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 10 Avatar ============ -->
+  <h2><span class="num">10</span> AI avatar / lip-sync</h2><span class="anchor" id="s10"></span>
+  <p class="section-lead">Animates the anime teacher face to lip-sync the TTS audio. Critical for "AI teacher who actually teaches" feel.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Live2D Cubism (free tier) + Rhubarb Lip-Sync</div>
+        <p>2D rigged anime characters (much cheaper than 3D + more on-brand for the anime-face look you want). <b>Rhubarb</b> analyses the TTS audio and outputs viseme timings → drive the mouth shapes in Live2D.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free for indie use</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Live2D Free Edition</b> is free for projects under $10M annual gross — you'll outgrow it pleasantly, not painfully.</li>
+        <li><b>Rhubarb</b> is a tiny CLI that adds ~100ms to lesson rendering — no GPU needed.</li>
+        <li><b>Web-friendly</b> — Live2D models render via Cubism Web SDK directly in browser → student doesn't download a 200MB video.</li>
+        <li><b>One model = infinite lessons</b> — once you've rigged Vihaan once, every Vihaan lesson reuses the same file.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>SadTalker / Wav2Lip</b> — full neural lip-sync; requires GPU per lesson render (~5 min on free GPU). Beautiful but blocks free-tier deployment.</li>
+        <li><b>HeyGen / D-ID / Synthesia</b> — $30–$200/mo SaaS, generic Western avatars, lip-syncs poorly to Kannada/Kanglish.</li>
+        <li><b>Ready Player Me 3D</b> — Western art style, doesn't match the anime brief.</li>
+        <li><b>Unreal MetaHuman</b> — gorgeous but renders need a beefy GPU and giant downloads.</li>
+        <li><b>VRoid Studio</b> — anime 3D models, but 3D in browser is heavy on cheap phones.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 11 Animation ============ -->
+  <h2><span class="num">11</span> Animation engine (lesson scenes)</h2><span class="anchor" id="s11"></span>
+  <p class="section-lead">For the "animated scene" part of each lesson — e.g. burning magnesium for chemical reactions, balanced beams for algebra, India map for Social.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Manim Community Edition + Remotion (React video)</div>
+        <p><b>Manim</b> (the 3Blue1Brown engine) renders mathematical/scientific animations from Python scripts. <b>Remotion</b> renders React components into MP4s — perfect for slide-style animations.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · MIT</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Manim</b> covers Maths/Science beautifully; the AI worker generates a Manim script per lesson, then renders to MP4.</li>
+        <li><b>Remotion</b> covers Social/Language slides — reuse your existing Tailwind components.</li>
+        <li><b>Both render on CPU</b> — Manim is FFmpeg under the hood; no GPU needed.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>After Effects + scripts</b> — Adobe lock-in, expensive, can't run headless on free Linux.</li>
+        <li><b>Synthesia / DeepBrain</b> — packages avatar + animation but SaaS pricing.</li>
+        <li><b>Stable Video Diffusion</b> — beautiful but needs GPU, ~5min per 4-second clip.</li>
+        <li><b>Hand-drawn each lesson</b> — doesn't scale beyond ~10 lessons solo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 12 Live class ============ -->
+  <h2><span class="num">12</span> Live class streaming</h2><span class="anchor" id="s12"></span>
+  <p class="section-lead">7–8 PM daily, AI teacher + recorded animation + live audience chat/polls/doubts. Needs sub-second latency for the "live" feel even though the teacher video is pre-rendered.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">LiveKit (self-hosted) + HLS for late-joiners</div>
+        <p>WebRTC SFU for the live class itself (chat, polls, audio doubts). HLS stream from the same LiveKit room for browsers that want lower bandwidth or late-joiners on bad 3G.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · Apache 2.0</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>WebRTC sub-second latency</b> for the interactive layer (raise hand, poll vote, type doubt).</li>
+        <li><b>Auto-generated HLS</b> from LiveKit Egress for students on flaky connections — they trade 5–10 sec latency for stability.</li>
+        <li><b>Self-host free</b> on the Oracle VM — handles ~500 concurrent until we need to upgrade.</li>
+        <li><b>LiveKit Cloud</b> is the paid escape valve when revenue arrives.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Agora</b> — generous free tier (10k min/mo) then $1–$4/1000 min; expensive at scale, vendor lock-in.</li>
+        <li><b>100ms</b> — Indian SaaS, free tier 10k min/mo but capped. Self-hosting LiveKit gives more headroom.</li>
+        <li><b>Daily.co</b> — great DX, but free tier is tiny.</li>
+        <li><b>Pure YouTube Live</b> — no interactivity, no doubt-asking layer.</li>
+        <li><b>Zoom Webinar</b> — ₹14k/mo per host, not how a tech-first brand looks.</li>
+        <li><b>Twilio Video</b> — DEPRECATED in 2024.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 13 Recording ============ -->
+  <h2><span class="num">13</span> Recording + on-demand (VOD)</h2><span class="anchor" id="s13"></span>
+  <p class="section-lead">Every class recorded and available on-demand. Students who missed the 7pm slot can catch up.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">LiveKit Egress → MP4 → Cloudflare R2 + Cloudflare Stream</div>
+        <p>LiveKit records to MP4. Stored in R2 (S3-compatible, no egress fees). For playback, push to Cloudflare Stream once we cross 100 paying users (₹0.005/min played).</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free at MVP · Cheap at scale</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>R2 has zero egress fees</b> — unlike S3 which charges $0.09/GB out. Critical: each recorded class is ~500MB, 1L students watching = 50TB egress = $4,500 on S3, ₹0 on R2.</li>
+        <li><b>Free tier</b>: 10GB storage, 1M Class-A ops/mo — fits MVP.</li>
+        <li><b>Cloudflare Stream</b> handles adaptive bitrate (3G→4G→WiFi) automatically.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>S3 / Backblaze + CloudFront</b> — egress kills you at scale. R2 is purpose-built to fix that.</li>
+        <li><b>BunnyCDN</b> — cheap ($0.005/GB) but not free; R2 wins on day 1.</li>
+        <li><b>Mux / Cloudflare Stream from day 1</b> — billed per-minute-stored AND per-minute-streamed; overkill before product-market fit.</li>
+        <li><b>YouTube unlisted</b> — bandwidth is free but you give up control, ads risk, students can find it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 14 Storage ============ -->
+  <h2><span class="num">14</span> Object storage + CDN</h2><span class="anchor" id="s14"></span>
+  <p class="section-lead">Notes PDFs, materials, lesson assets, profile photos, Memory Deck images.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Cloudflare R2 + Cloudflare CDN</div>
+        <p>Same provider as live recording. S3-compatible API → Prisma + Nest can use the standard <span class="mono">@aws-sdk/client-s3</span>. Cloudflare CDN sits in front for free.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free up to 10GB</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Zero egress fees</b> — same reason as VOD.</li>
+        <li><b>Cloudflare CDN is free</b> — 270+ POPs globally including Bengaluru, Chennai, Mumbai.</li>
+        <li><b>Workers + R2</b> combo lets you do image resizing at the edge → smaller images for cheap phones.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>AWS S3 + CloudFront</b> — egress fees + CloudFront has ~25 Indian POPs vs Cloudflare's 5+.</li>
+        <li><b>Backblaze B2 + Bunny</b> — cheap, but two vendors instead of one.</li>
+        <li><b>Self-host MinIO on Oracle</b> — uses your scarce VM disk; egress through Oracle is metered.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 15 Compute ============ -->
+  <h2><span class="num">15</span> Compute hosting</h2><span class="anchor" id="s15"></span>
+  <p class="section-lead">Where the API, AI worker, LiveKit, Postgres, Redis actually run.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Oracle Cloud Always-Free ARM Ampere A1 (4 vCPU + 24 GB RAM)</div>
+        <p>The most generous free-forever VM in the industry. 4 ARM CPUs, 24GB RAM, 200GB block storage, 10TB/mo egress — all permanently free, no credit card expiry trick.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free forever</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Bigger than any other free tier</b> — AWS gives 1 vCPU + 1GB for 12 months; Oracle gives 4 + 24 forever.</li>
+        <li><b>ARM = lower power = cheaper per cycle</b>; modern Node/Python/Postgres all run native ARM.</li>
+        <li><b>Mumbai region available</b> → 20ms latency to Karnataka students.</li>
+        <li>Comfortably runs API + Postgres + Redis + LiveKit + 1 AI worker in parallel.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>AWS Free Tier</b> — 12 months only, then bills automatically. Tiny 1 vCPU.</li>
+        <li><b>GCP Free Tier</b> — e2-micro is 0.25 vCPU and only in US regions.</li>
+        <li><b>Azure Free</b> — 12 months only; B1S = 1 vCPU + 1GB.</li>
+        <li><b>Render / Railway / Fly.io</b> — free tiers exist but apps sleep after inactivity; bad UX for a live-class platform.</li>
+        <li><b>Hetzner</b> — €4/mo, not free, but a great upgrade target.</li>
+        <li><b>DigitalOcean</b> — no free tier.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Caveat:</b> Oracle's reputation for reclaiming idle free VMs is real but exaggerated; using the VM continuously (which we will) prevents reclamation. A weekly cron pings it to be safe.</div>
+  </div>
+
+  <!-- ============ 16 Payments ============ -->
+  <h2><span class="num">16</span> Payments (UPI + cards)</h2><span class="anchor" id="s16"></span>
+  <p class="section-lead">₹299/mo subscription via UPI Auto-Pay. Must handle small-town parents who only have UPI, no card.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Razorpay (Subscriptions + UPI Auto-Pay)</div>
+        <p>Indian payment gateway with native UPI Auto-Pay (most parents won't enable card auto-debit but UPI auto-pay is trusted). Has the most coverage of Indian banks for failed-payment retries.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost paid">~2% txn fee</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>UPI Auto-Pay is THE Indian recurring-payment rail</b> — Razorpay supports it natively; most others don't.</li>
+        <li><b>No signup fee, no monthly fee</b> — only 2% per transaction (1.99% for UPI, 2.36% for cards).</li>
+        <li><b>Subscriptions API</b> handles billing cycles, retries, refunds — saves you 100s of hours.</li>
+        <li><b>Best-in-class GST invoicing</b> — necessary for an Indian business.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Stripe</b> — entered India 2024 but UPI Auto-Pay support is still spotty; Indian banks know Razorpay better.</li>
+        <li><b>PayU</b> — older, clunkier API, weaker docs.</li>
+        <li><b>Cashfree</b> — strong but smaller bank coverage for failed-payment retries.</li>
+        <li><b>Paytm Payment Gateway</b> — declining merchant adoption post the 2024 RBI issues.</li>
+        <li><b>Direct UPI Collect requests</b> — works for one-off but you'd build the subscription logic yourself. Not worth it for 0.5% saved.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 17 WhatsApp/SMS ============ -->
+  <h2><span class="num">17</span> WhatsApp + SMS</h2><span class="anchor" id="s17"></span>
+  <p class="section-lead">Parent alerts for missed class, quiz scores, weekly test results, fee reminders. SMS only for OTP fallback.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Meta WhatsApp Business Cloud API + MSG91 (SMS fallback)</div>
+        <p><b>Meta Cloud API</b> direct (no BSP middleman) → 1,000 free conversations/month from Meta. MSG91 for SMS-OTP when WhatsApp delivery fails.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free 1k convos/mo</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>1000 free conversations/mo</b> from Meta = ~33/day = enough for first 100 parents.</li>
+        <li><b>Going direct to Meta</b> skips the BSP markup (Gupshup, Karix charge 30–50% on top).</li>
+        <li><b>Utility category</b> conversations (homework reminders, attendance) are ~₹0.115 each — dirt cheap.</li>
+        <li><b>WhatsApp template approval</b> ~24 hours; we'll pre-approve all 8–10 templates we need.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Gupshup / Karix / WATI / AiSensy</b> — 30–50% markup; useful only if you want a no-code drag-drop builder, which you don't.</li>
+        <li><b>Twilio WhatsApp</b> — global pricing, 2–3x Indian alternatives.</li>
+        <li><b>MSG91 WhatsApp</b> — they have it, but markup vs going direct to Meta.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 18 Email ============ -->
+  <h2><span class="num">18</span> Email</h2><span class="anchor" id="s18"></span>
+  <p class="section-lead">Receipts, password reset, optional weekly parent digest.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Resend (free tier) → AWS SES at scale</div>
+        <p>Resend gives 3,000 emails/mo + 100/day free; gorgeous DX. AWS SES at $0.10/1000 emails is the long-term home.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Resend is the developer-grade email service</b> — modern API, React templates, free tier is enough until ~1k paying users.</li>
+        <li><b>SES upgrade path</b> is industry-standard at scale.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>SendGrid</b> — free tier slashed to 100/day in 2024; deliverability declining.</li>
+        <li><b>Mailgun</b> — no free tier anymore.</li>
+        <li><b>Self-hosted Postfix</b> — Karnataka ISPs WILL flag your IP. Don't do this.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 19 PDF ============ -->
+  <h2><span class="num">19</span> PDF generation (notes downloads)</h2><span class="anchor" id="s19"></span>
+  <p class="section-lead">Auto-generated notes PDFs for download, parent reports, fee receipts.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Playwright headless Chromium + React templates</div>
+        <p>Render the same React component to HTML → screenshot to PDF. Looks identical to what students see on screen.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · Apache 2.0</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>One template, two outputs</b> (browser view + PDF) — reuses your existing Tailwind components.</li>
+        <li><b>Handles Kannada/Devanagari fonts</b> natively — unlike older PDF libs that need font registration gymnastics.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>react-pdf</b> — separate component model; can't reuse your normal React.</li>
+        <li><b>wkhtmltopdf</b> — abandoned; broken on modern Chromium.</li>
+        <li><b>Puppeteer</b> — fine but Playwright has better Linux ARM support.</li>
+        <li><b>PDFKit</b> — programmatic only; awful for designed documents.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 20 Analytics ============ -->
+  <h2><span class="num">20</span> Analytics</h2><span class="anchor" id="s20"></span>
+  <p class="section-lead">Who's actually using the product, where do students drop off, which lessons are loved.</p>
+
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">PostHog Cloud (free tier) + Cloudflare Web Analytics</div>
+        <p>PostHog for product analytics (funnels, heatmaps, session replays) — 1M events/mo free. Cloudflare Web Analytics for marketing (privacy-respecting, ad-blocker-resistant).</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>PostHog is open-source</b> — self-host the day you cross 1M events/mo.</li>
+        <li><b>Session replay</b> is gold for solo debugging: when a parent says "the quiz didn't work", you watch their session.</li>
+        <li><b>Cloudflare Web Analytics</b> is ad-blocker-proof because it works at the CDN layer.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Google Analytics 4</b> — useless for product analytics; ad-blockers nuke it; clunky UI.</li>
+        <li><b>Mixpanel</b> — paid after 100k events/mo.</li>
+        <li><b>Amplitude</b> — paid after 50k events/mo and aggressive on upsell.</li>
+        <li><b>Plausible Cloud</b> — beautiful but no funnels/replays.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 21 Errors ============ -->
+  <h2><span class="num">21</span> Error monitoring</h2><span class="anchor" id="s21"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Sentry (Developer plan free)</div>
+        <p>Industry standard. Free plan: 5k errors/mo, 10k performance units, 50 replays. Plenty for MVP.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Frontend + backend + AI worker</b> all funnel into one dashboard.</li>
+        <li><b>Source maps</b> = readable stack traces even on minified JS.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Rollbar / Bugsnag</b> — comparable, weaker free tier.</li>
+        <li><b>Self-hosted Sentry (Glitchtip)</b> — possible but ops cost not worth saving $26/mo.</li>
+        <li><b>Datadog</b> — costs more than your VM.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 22 CI/CD ============ -->
+  <h2><span class="num">22</span> CI/CD</h2><span class="anchor" id="s22"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">GitHub Actions (2,000 free min/mo)</div>
+        <p>Build, test, deploy on every push. Free tier gives 2,000 minutes/month — more than enough for a solo dev.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>CircleCI / GitLab CI</b> — fine but you'd have your code on GitHub anyway; Actions removes one integration.</li>
+        <li><b>Jenkins</b> — self-host overhead.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 23 K8s ============ -->
+  <h2><span class="num">23</span> Container orchestration</h2><span class="anchor" id="s23"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Docker Compose (MVP) → k3s (when scaling)</div>
+        <p>Compose for the single Oracle VM. <b>k3s</b> (lightweight Kubernetes) when we need 2+ VMs across regions.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free · Apache 2.0</span>
+      </div>
+    </div>
+    <div class="why">
+      <div class="why-head">Why this</div>
+      <ul>
+        <li><b>Compose</b> is YAML you can read in 10 minutes. Don't introduce K8s before you need it.</li>
+        <li><b>k3s</b> is a 100MB single binary that gives you Kubernetes without the operational pain.</li>
+      </ul>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Full Kubernetes</b> from day 1 — solo-founder rule.</li>
+        <li><b>Nomad</b> — fine but ecosystem is smaller; k3s is more "boring tech".</li>
+        <li><b>Docker Swarm</b> — dying.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 24 Domain ============ -->
+  <h2><span class="num">24</span> Domain + DNS</h2><span class="anchor" id="s24"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Namecheap (.com) + Cloudflare DNS</div>
+        <p>Register at Namecheap (~₹900/yr for .com), but transfer DNS to Cloudflare immediately for free DDoS protection and edge-routing.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost cheap">~₹900/year</span>
+      </div>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>GoDaddy</b> — pushy upsells, hostile UI.</li>
+        <li><b>.in domain</b> only — fine, but .com still signals legitimacy more universally.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 25 Secrets ============ -->
+  <h2><span class="num">25</span> Secrets management</h2><span class="anchor" id="s25"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Doppler (free Developer plan) + sealed-secrets in git</div>
+        <p>Doppler stores all secrets in one place, syncs to local + CI + prod. Free plan covers 5 users + unlimited projects.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>HashiCorp Vault</b> — overkill for solo dev.</li>
+        <li><b>1Password Secrets Automation</b> — paid only.</li>
+        <li><b>Plain .env files</b> — too easy to leak.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 26 Logging ============ -->
+  <h2><span class="num">26</span> Logging</h2><span class="anchor" id="s26"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Pino (Node) / loguru (Python) → BetterStack Logs (free tier)</div>
+        <p>Structured JSON logs locally; ship to BetterStack (1GB free/mo) for search across services.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Datadog Logs</b> — bills by ingestion volume.</li>
+        <li><b>Self-hosted Loki + Grafana</b> — eventually yes, not before users.</li>
+        <li><b>console.log into files</b> — non-searchable, fills disk.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 27 Search ============ -->
+  <h2><span class="num">27</span> Search (lessons, materials, doubts)</h2><span class="anchor" id="s27"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Postgres full-text + pgvector</div>
+        <p>Both keyword search ("French Revolution") and semantic search ("ಫ್ರೆಂಚ್ ಕ್ರಾಂತಿ") in the same database, no extra service.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Elasticsearch / OpenSearch</b> — RAM-hungry; another service to operate.</li>
+        <li><b>Meilisearch / Typesense</b> — great, but another service. Postgres FTS is "good enough" until 50k+ documents.</li>
+        <li><b>Algolia</b> — free tier shrunk to 10k operations/mo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 28 Testing ============ -->
+  <h2><span class="num">28</span> Testing</h2><span class="anchor" id="s28"></span>
+  <div class="pick">
+    <div class="row">
+      <div style="flex:1; min-width:280px;">
+        <div class="name">Vitest (unit) + Playwright (E2E) + Supertest (API)</div>
+        <p>Vitest = Jest API but 10x faster. Playwright = same headless Chromium we use for PDFs. Supertest for NestJS HTTP testing.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <span class="tag">Chosen</span>
+        <span class="cost">Free</span>
+      </div>
+    </div>
+    <div class="why rejected">
+      <div class="why-head">Rejected</div>
+      <ul>
+        <li><b>Jest</b> — slower; ESM still messy.</li>
+        <li><b>Cypress</b> — slower than Playwright, weaker iframe support (live class iframe).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ Summary ============ -->
+  <h2 id="summary">📊 Cost summary</h2>
+  <p class="section-lead">What ₹ leaves your bank account at each user milestone.</p>
+
+  <table class="cost-table">
+    <thead>
+      <tr><th>Stage</th><th>Users</th><th>Monthly cost</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>Build (Jun 2026)</b></td><td>0</td><td class="free">₹0</td><td>Domain (~₹75/mo amortized) is the only spend</td></tr>
+      <tr><td><b>Pilot (Jul 2026)</b></td><td>10–50</td><td class="free">₹0–500</td><td>WhatsApp + SMS within free tiers; Razorpay 2% of revenue ≈ ₹300</td></tr>
+      <tr><td><b>Soft launch</b></td><td>500</td><td class="cheap">~₹4,000</td><td>Hetzner upgrade for AI worker, Sarvam paid TTS, MSG91 SMS scale</td></tr>
+      <tr><td><b>Growth</b></td><td>5,000</td><td class="cheap">~₹40,000</td><td>2nd VM, paid Sentry, paid PostHog, Cloudflare Stream</td></tr>
+      <tr><td><b>Scale</b></td><td>50,000</td><td>~₹4 lakh</td><td>k3s cluster, GPU pool for TTS, Postgres replicas</td></tr>
+      <tr><td><b>1 lakh</b></td><td>1,00,000</td><td>~₹15–25 lakh</td><td>vs. ₹3 crore revenue → ~90% gross margin</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Bottom line:</b> Day 1 cost = ₹900 (domain). At product-market fit (~500 paying users), MRR = ₹1,49,500 and infra = ₹4k → 97% gross margin. You don't need investors; you need 500 students.</div>
+
+  <h2>🚀 What I'm building right now</h2>
+  <div class="callout">
+    Next steps in this session, in order:
+    <ol style="margin-top:10px;">
+      <li><b>Monorepo scaffold</b> — pnpm + Turborepo with apps/web, apps/api, apps/ai-worker, packages/db, packages/ui</li>
+      <li><b>Prisma schema</b> — full DB model: users, students, parents, subjects, lessons, classes, quizzes, notes, materials, memory_deck, payments, attendance, pacing_plan</li>
+      <li><b>NestJS API skeleton</b> — auth + classes + quizzes + notes + materials + payments modules</li>
+      <li><b>Next.js app shell</b> — convert your existing 5 HTML mockups into App Router pages</li>
+      <li><b>FastAPI AI worker</b> — lesson generation pipeline (Groq + AI4Bharat TTS + Manim)</li>
+      <li><b>docker-compose.yml</b> for local dev (Postgres + Redis + LiveKit + all 3 services)</li>
+      <li><b>README + ENV setup</b> so you can <span class="mono">git clone</span> + <span class="mono">docker compose up</span> + start coding tomorrow</li>
+    </ol>
+  </div>
+
+</div>
+
+<footer>
+  Ananta · Stack Decisions v1.0 · 2026-05-28 · Solo-founder optimised<br>
+  Architecture doc: Ananta_Architecture.html · Bootstrap plan: Ananta_Bootstrap_Plan.html
+</footer>
+
+</body>
+</html>
