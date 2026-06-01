@@ -1,678 +1,812 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ananta — Student Dashboard</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Today · Ananta</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: { extend: {
-      fontFamily: { sans: ['Inter','sans-serif'], display: ['Plus Jakarta Sans','Inter','sans-serif'] },
-      colors: {
-        ink:'#0F172A',
-        indigo:{600:'#1E3A8A',700:'#1E40AF',800:'#1E3A8A',900:'#172554'},
-        saffron:{400:'#FBBF24',500:'#F59E0B',600:'#D97706'},
-        teal:{500:'#0D9488',600:'#0F766E'},
-      },
-      boxShadow:{
-        'soft':'0 4px 20px -4px rgba(15,23,42,0.08)',
-        'pop':'0 12px 40px -10px rgba(30,58,138,0.25)',
-        'deep':'0 30px 60px -20px rgba(30,58,138,0.4)',
-      }
-    }}
-  };
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 <style>
-  html { scroll-behavior:smooth; }
-  body { font-family:'Inter',sans-serif; color:#0F172A; background:#F1F5F9; }
-  .font-display { font-family:'Plus Jakarta Sans','Inter',sans-serif; }
+  :root {
+    --bg: #FAF5EB; --bg-2: #F5EDD8; --paper: #FFFFFF;
+    --ink: #1F1611; --ink-2: #3F2E22; --ink-soft: #6B5D4F; --ink-dim: #A89A87;
+    --line: #E8DFCF; --line-2: #EAE1D1;
+    --amber: #D97706; --amber-deep: #B45309;
+    --emerald: #059669; --emerald-deep: #047857;
+    --terracotta: #B45309; --gold: #B8860B; --sage: #65A30D; --copper: #92400E; --burgundy: #9F1239;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); overflow-x: hidden; -webkit-font-smoothing: antialiased; line-height: 1.55; }
+  .serif { font-family: 'Fraunces', serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
 
-  .gradient-text { background:linear-gradient(120deg,#1E3A8A,#0D9488,#F59E0B,#1E3A8A);
-    background-size:300% 300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    background-clip:text; animation:gradient-shift 9s ease infinite; }
-  @keyframes gradient-shift { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
-
-  .blob { position:absolute; border-radius:50%; filter:blur(48px); }
-  @keyframes blob-float { 0%,100%{transform:translate(0,0) scale(1);}
-    33%{transform:translate(30px,-26px) scale(1.1);} 66%{transform:translate(-22px,18px) scale(.94);} }
-  .blob-anim { animation:blob-float 22s ease-in-out infinite; }
-
-  @keyframes float-soft { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
-  .float-soft { animation:float-soft 3.4s ease-in-out infinite; }
-  @keyframes bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
-  .bob { animation:bob 3s ease-in-out infinite; }
-
-  @keyframes flame { 0%,100%{transform:scale(1) rotate(-3deg);} 50%{transform:scale(1.15) rotate(3deg);} }
-  .flame { animation:flame 1.1s ease-in-out infinite; display:inline-block; }
-
-  @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(13,148,136,0.5);}
-    50%{box-shadow:0 0 0 14px rgba(13,148,136,0);} }
-  .pulse-glow { animation:pulse-glow 2s ease-out infinite; }
-
-  @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
-  .shimmer { background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);
-    background-size:200% 100%; animation:shimmer 3s linear infinite; }
-
-  .tilt-card { transition:transform .4s cubic-bezier(.2,.7,.2,1),box-shadow .4s; transform-style:preserve-3d; }
-  .tilt-card:hover { transform:perspective(1000px) rotateX(3deg) translateY(-5px) scale(1.015);
-    box-shadow:0 22px 48px -16px rgba(30,58,138,0.3); }
-
-  .reveal { opacity:0; transform:translateY(28px) scale(.98);
-    transition:opacity .6s ease-out,transform .6s cubic-bezier(.34,1.3,.64,1); }
-  .reveal.visible { opacity:1; transform:translateY(0) scale(1); }
-  .reveal-d1{transition-delay:.07s;} .reveal-d2{transition-delay:.14s;}
-  .reveal-d3{transition-delay:.21s;} .reveal-d4{transition-delay:.28s;}
-  .reveal-d5{transition-delay:.35s;} .reveal-d6{transition-delay:.42s;}
-
-  .btn-3d { box-shadow:0 4px 0 0 #0c1b4d,0 14px 30px -10px rgba(30,58,138,0.5);
-    transition:transform .14s ease,box-shadow .14s ease; }
-  .btn-3d:hover { transform:translateY(-2px); box-shadow:0 6px 0 0 #0c1b4d,0 18px 36px -10px rgba(30,58,138,0.55); }
-  .btn-3d:active { transform:translateY(3px); box-shadow:0 1px 0 0 #0c1b4d,0 6px 14px -6px rgba(30,58,138,0.5); }
-  .btn-teal { box-shadow:0 4px 0 0 #0a5d54,0 14px 30px -10px rgba(13,148,136,0.5); }
-  .btn-teal:hover { box-shadow:0 6px 0 0 #0a5d54,0 18px 36px -10px rgba(13,148,136,0.55); }
-  .btn-teal:active { box-shadow:0 1px 0 0 #0a5d54,0 6px 14px -6px rgba(13,148,136,0.5); }
-
-  .flip-card { perspective:1200px; }
-  .flip-inner { position:relative; width:100%; height:100%;
-    transition:transform .8s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d; }
-  .flip-card:hover .flip-inner { transform:rotateY(180deg); }
-  .flip-face { position:absolute; inset:0; backface-visibility:hidden;
-    -webkit-backface-visibility:hidden; border-radius:1rem; }
-  .flip-back { transform:rotateY(180deg); }
-
-  .anime-eye { transform-box:fill-box; transform-origin:center; }
-  @keyframes blink { 0%,94%,100%{transform:scaleY(1);} 97%{transform:scaleY(.08);} }
-  .blink-1{animation:blink 4.2s infinite;} .blink-2{animation:blink 5.1s infinite;}
-  .blink-3{animation:blink 6.0s infinite;} .blink-4{animation:blink 4.8s infinite;}
-  .blink-5{animation:blink 5.6s infinite;} .blink-6{animation:blink 6.4s infinite;}
-
-  /* progress bar fill */
-  .bar-fill { width:0; transition:width 1.4s cubic-bezier(.3,1,.4,1); }
-
-  /* ring progress */
-  .ring-track { stroke:#E2E8F0; }
-  .ring-fill { stroke-linecap:round; transition:stroke-dashoffset 1.6s cubic-bezier(.3,1,.4,1); }
-
-  .confetti-piece { position:fixed; width:9px; height:9px; border-radius:2px;
-    pointer-events:none; z-index:9999; animation:confetti-fall 1.2s ease-out forwards; }
-  @keyframes confetti-fall { to { transform:translate(var(--dx),var(--dy)) rotate(var(--rot)); opacity:0; } }
-
-  .day-pill { transition:all .25s ease; }
-  .day-pill:hover { transform:translateY(-3px); }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .035;
+  }
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(900px 600px at 18% 8%, rgba(217,119,6,.05), transparent 60%),
+      radial-gradient(800px 600px at 86% 5%, rgba(5,150,105,.05), transparent 60%);
+  }
+  .paper-card {
+    background: #FFFFFFCC; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--line);
+    box-shadow: 0 1px 0 #FFFFFFcc inset, 0 2px 6px rgba(31,22,17,.03), 0 16px 40px -22px rgba(31,22,17,.10);
+  }
+  .paper-card-strong {
+    background: #FFFFFF; border: 1px solid var(--line);
+    box-shadow: 0 1px 0 #FFFFFFff inset, 0 6px 16px -8px rgba(31,22,17,.07), 0 22px 60px -28px rgba(31,22,17,.14);
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; }
+  h1 { font-weight: 700; letter-spacing: -.025em; }
+  h2 { font-weight: 600; letter-spacing: -.018em; }
+  h3 { font-weight: 600; letter-spacing: -.012em; }
+  .accent-warm {
+    background: linear-gradient(120deg, var(--amber) 0%, var(--terracotta) 60%, var(--burgundy) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .btn-primary { padding: 11px 22px; border-radius: 999px; font-weight: 600; background: var(--ink); color: var(--bg); transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(31,22,17,.35); font-size: 14px; }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--ink-2); }
+  .btn-amber { padding: 11px 22px; border-radius: 999px; font-weight: 600; background: var(--amber); color: #fff; transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(217,119,6,.4); font-size: 14px; }
+  .btn-amber:hover { transform: translateY(-2px); background: var(--amber-deep); }
+  .btn-ghost { padding: 11px 22px; border-radius: 999px; font-weight: 600; background: transparent; color: var(--ink); border: 1px solid var(--ink); transition: all .25s ease; font-size: 14px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  .tilt-3d { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; }
+  .tilt-3d:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -20px rgba(31,22,17,.18); }
+  .link-u { background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .3s; }
+  .link-u:hover { background-size: 0 1px; }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94%, 98% { transform: scaleY(.1); } }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
+  @keyframes pulsePing { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.2); opacity: 0; } }
+  .pulse-dot { position: relative; }
+  .pulse-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: pulsePing 1.6s ease-out infinite; }
+  @keyframes fillBar { from { width: 0; } }
+  .bar-fill { animation: fillBar 1.3s cubic-bezier(.2,.7,.2,1) both; }
+  .subject-card { transition: all .3s cubic-bezier(.2,.7,.2,1); }
+  .subject-card:hover { transform: translateY(-5px); box-shadow: 0 22px 50px -20px rgba(31,22,17,.22); }
+  .mini-3d { position: absolute; inset: 0; }
+  .day-cell { transition: all .25s ease; }
+  .day-cell.today { background: var(--ink); color: var(--bg); transform: scale(1.04); }
+  .day-cell.today .day-name { color: rgba(250,245,235,.65); }
+  .day-cell.past { opacity: .55; }
+  .flip { perspective: 1000px; }
+  .flip-inner { position: relative; width: 100%; height: 100%; transition: transform .6s; transform-style: preserve-3d; }
+  .flip.flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; align-items: center; justify-content: center; padding: 18px; border-radius: 18px; }
+  .flip-back { transform: rotateY(180deg); }
+  .ring-bg { stroke: var(--line); }
+  .ring-fg { stroke: url(#progGrad); transition: stroke-dashoffset .8s ease; }
+  .reveal { opacity: 0; transform: translateY(20px); transition: all .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
 </style>
 </head>
-<body class="antialiased">
+<body>
 
-<!-- ===== ANIME TEACHER FACES ===== -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="face-praketa" viewBox="0 0 240 250">
-    <ellipse cx="120" cy="40" rx="26" ry="24" fill="#2B2420"/>
-    <path d="M120 30C72 30 54 74 54 124c0 54 18 92 18 92h96s18-38 18-92c0-50-18-94-66-94Z" fill="#2B2420"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#E7B98F"/>
-    <ellipse cx="120" cy="120" rx="58" ry="62" fill="#F0C9A0"/>
-    <ellipse cx="62" cy="124" rx="11" ry="14" fill="#F0C9A0"/><ellipse cx="178" cy="124" rx="11" ry="14" fill="#F0C9A0"/>
-    <path d="M58 112C58 58 88 38 120 38s62 20 62 74c-6-22-24-28-32-20-4-26-20-32-30-30-10-2-26 4-30 30-8-8-26-2-32 20Z" fill="#2B2420"/>
-    <path d="M80 102q16-9 30-2" stroke="#2B2420" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M130 100q14-7 30 0" stroke="#2B2420" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-1">
-      <ellipse cx="96" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="97" cy="128" rx="10" ry="13" fill="#5B3A29"/>
-      <circle cx="97" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="101" cy="123" r="4" fill="#fff"/>
-      <ellipse cx="144" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="143" cy="128" rx="10" ry="13" fill="#5B3A29"/>
-      <circle cx="143" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="147" cy="123" r="4" fill="#fff"/>
-    </g>
-    <g fill="none" stroke="#1E3A8A" stroke-width="3.5">
-      <circle cx="96" cy="127" r="20"/><circle cx="144" cy="127" r="20"/><line x1="116" y1="124" x2="124" y2="124"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#D9A77F" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M108 152q12 12 24 0" stroke="#C0506A" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="80" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/><ellipse cx="160" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/>
-  </symbol>
-  <symbol id="face-vihaan" viewBox="0 0 240 250">
-    <path d="M120 32C78 32 60 72 60 122c0 50 14 86 14 86h92s14-36 14-86c0-50-18-90-60-90Z" fill="#22303A"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#D49A6E"/>
-    <ellipse cx="120" cy="120" rx="57" ry="60" fill="#E3A878"/>
-    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#E3A878"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#E3A878"/>
-    <path d="M60 110C60 60 86 40 120 40s60 20 60 70c-4-14-14-22-20-30 2 14-6 20-10 16-2-18-14-26-22-20-8-8-20-2-22 14-8-10-16-8-20 6-2-16-8-30 6-46-8 6-12 16-12 26-4-6-12 4-18 24Z" fill="#22303A"/>
-    <path d="M78 100q16-8 30-1" stroke="#22303A" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M132 99q14-7 30 1" stroke="#22303A" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-2">
-      <ellipse cx="97" cy="126" rx="13" ry="16" fill="#fff"/><ellipse cx="98" cy="128" rx="9.5" ry="12" fill="#3F4A3A"/>
-      <circle cx="98" cy="129" r="5" fill="#1a1a1a"/><circle cx="102" cy="123" r="3.6" fill="#fff"/>
-      <ellipse cx="143" cy="126" rx="13" ry="16" fill="#fff"/><ellipse cx="142" cy="128" rx="9.5" ry="12" fill="#3F4A3A"/>
-      <circle cx="142" cy="129" r="5" fill="#1a1a1a"/><circle cx="146" cy="123" r="3.6" fill="#fff"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#C4895F" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M106 152q14 10 28 0" stroke="#B0485E" stroke-width="4" fill="none" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="face-adhvara" viewBox="0 0 240 250">
-    <path d="M120 30C66 30 50 78 52 132c1 40 8 78 8 78l24-6c-10-30-12-70-6-104 8 16 76 16 84 0 6 34 4 74-6 104l24 6s7-38 8-78c2-54-14-102-68-102Z" fill="#211A16"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#DFAB7C"/>
-    <ellipse cx="120" cy="120" rx="57" ry="61" fill="#E8B98E"/>
-    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#E8B98E"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#E8B98E"/>
-    <path d="M58 112C58 58 88 38 120 38s62 20 62 74c-6-22-24-28-32-20-4-26-20-32-30-30-10-2-26 4-30 30-8-8-26-2-32 20Z" fill="#211A16"/>
-    <rect x="56" y="74" width="128" height="13" rx="6" fill="#F59E0B"/>
-    <path d="M80 102q16-9 30-2" stroke="#211A16" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M130 100q14-7 30 0" stroke="#211A16" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-3">
-      <ellipse cx="96" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="97" cy="128" rx="10" ry="13" fill="#4A2C1A"/>
-      <circle cx="97" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="101" cy="123" r="4" fill="#fff"/>
-      <ellipse cx="144" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="143" cy="128" rx="10" ry="13" fill="#4A2C1A"/>
-      <circle cx="143" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="147" cy="123" r="4" fill="#fff"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#D2A074" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M108 152q12 12 24 0" stroke="#C0506A" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="80" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/><ellipse cx="160" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/>
-  </symbol>
-  <symbol id="face-harini" viewBox="0 0 240 250">
-    <path d="M120 30C68 30 52 76 52 130c0 44 6 86 6 86h20c-8-40-10-86-4-118 10 14 82 14 92 0 6 32 4 78-4 118h20s6-42 6-86c0-54-16-100-68-100Z" fill="#161210"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#E4B488"/>
-    <ellipse cx="120" cy="120" rx="57" ry="61" fill="#EFC7A0"/>
-    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#EFC7A0"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#EFC7A0"/>
-    <path d="M58 112C58 58 88 38 120 38s62 20 62 74c-6-22-24-28-32-20-4-26-20-32-30-30-10-2-26 4-30 30-8-8-26-2-32 20Z" fill="#161210"/>
-    <g transform="translate(158,70)">
-      <circle cx="0" cy="0" r="6" fill="#fff"/><circle cx="9" cy="3" r="6" fill="#fff"/>
-      <circle cx="6" cy="11" r="6" fill="#fff"/><circle cx="-4" cy="9" r="6" fill="#fff"/>
-      <circle cx="-7" cy="0" r="6" fill="#fff"/><circle cx="1" cy="4" r="3.4" fill="#F59E0B"/>
-    </g>
-    <path d="M80 102q16-9 30-2" stroke="#161210" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M130 100q14-7 30 0" stroke="#161210" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-4">
-      <ellipse cx="96" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="97" cy="128" rx="10" ry="13" fill="#3A2418"/>
-      <circle cx="97" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="101" cy="123" r="4" fill="#fff"/>
-      <ellipse cx="144" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="143" cy="128" rx="10" ry="13" fill="#3A2418"/>
-      <circle cx="143" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="147" cy="123" r="4" fill="#fff"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#D9AC82" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M108 152q12 12 24 0" stroke="#C0506A" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="80" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/><ellipse cx="160" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/>
-    <circle cx="120" cy="58" r="5" fill="#C0392B"/>
-  </symbol>
-  <symbol id="face-anika" viewBox="0 0 240 250">
-    <path d="M120 32C80 32 58 70 58 120c0 48 12 84 12 84h44c-16-20-22-66-14-100 16 12 56 8 64-8 8 30 6 80-8 108h12s14-36 14-84c0-50-18-88-58-88Z" fill="#4A3526"/>
-    <path d="M168 92c22 6 34 30 30 58-4 26-22 44-22 44l-20-10c10-14 18-34 16-54-2-18-12-32-24-38Z" fill="#4A3526"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#E6BC95"/>
-    <ellipse cx="120" cy="120" rx="57" ry="60" fill="#F2CDA8"/>
-    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#F2CDA8"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#F2CDA8"/>
-    <path d="M58 112C58 58 88 38 120 38s62 20 62 74c-6-22-24-28-32-20-4-26-20-32-30-30-10-2-26 4-30 30-8-8-26-2-32 20Z" fill="#4A3526"/>
-    <circle cx="160" cy="86" r="8" fill="#F59E0B"/>
-    <path d="M80 102q16-9 30-2" stroke="#4A3526" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M130 100q14-7 30 0" stroke="#4A3526" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-5">
-      <ellipse cx="96" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="97" cy="128" rx="10" ry="13" fill="#6B4A2E"/>
-      <circle cx="97" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="101" cy="123" r="4" fill="#fff"/>
-      <ellipse cx="144" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="143" cy="128" rx="10" ry="13" fill="#6B4A2E"/>
-      <circle cx="143" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="147" cy="123" r="4" fill="#fff"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#DDB088" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M106 151q14 13 28 0" stroke="#C0506A" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="80" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/><ellipse cx="160" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/>
-  </symbol>
-  <symbol id="face-amita" viewBox="0 0 240 250">
-    <path d="M120 30C70 30 54 76 54 128c0 42 6 80 6 80h18c-8-38-10-80-4-110 12 14 80 14 92 0 6 30 4 72-4 110h18s6-38 6-80c0-52-16-98-66-98Z" fill="#241C17"/>
-    <path d="M62 130c-12 4-18 26-14 52 3 20 12 36 12 36l18-6c-8-16-14-34-12-50 2-14 6-26 8-32Z" fill="#241C17"/>
-    <path d="M178 130c12 4 18 26 14 52-3 20-12 36-12 36l-18-6c8-16 14-34 12-50-2-14-6-26-8-32Z" fill="#241C17"/>
-    <circle cx="64" cy="132" r="7" fill="#A855F7"/><circle cx="176" cy="132" r="7" fill="#A855F7"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#DCAE84"/>
-    <ellipse cx="120" cy="120" rx="57" ry="61" fill="#E6B690"/>
-    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#E6B690"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#E6B690"/>
-    <path d="M58 112C58 58 88 38 120 38s62 20 62 74c-6-22-24-28-32-20-4-26-20-32-30-30-10-2-26 4-30 30-8-8-26-2-32 20Z" fill="#241C17"/>
-    <path d="M80 102q16-9 30-2" stroke="#241C17" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M130 100q14-7 30 0" stroke="#241C17" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-6">
-      <ellipse cx="96" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="97" cy="128" rx="10" ry="13" fill="#43291A"/>
-      <circle cx="97" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="101" cy="123" r="4" fill="#fff"/>
-      <ellipse cx="144" cy="126" rx="14" ry="17" fill="#fff"/><ellipse cx="143" cy="128" rx="10" ry="13" fill="#43291A"/>
-      <circle cx="143" cy="129" r="5.5" fill="#1a1a1a"/><circle cx="147" cy="123" r="4" fill="#fff"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#D2A37A" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M108 152q12 12 24 0" stroke="#C0506A" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="80" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/><ellipse cx="160" cy="146" rx="10" ry="6" fill="#FF8FA3" opacity="0.45"/>
-  </symbol>
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/></radialGradient>
+    <linearGradient id="progGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D97706"/><stop offset="100%" stop-color="#059669"/></linearGradient>
+
+    <symbol id="face-praketa" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 60 Q24 20 60 18 Q96 20 98 60 Q96 38 80 36 Q70 56 60 38 Q50 56 40 36 Q24 38 22 60Z" fill="#3F2418"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#1F1611"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#1F1611"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-vihaan" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M20 56 Q24 18 60 16 Q96 18 100 56 Q90 32 78 38 L84 22 L74 36 L66 18 L60 36 L52 18 L46 36 L36 22 L42 38 Q30 32 20 56Z" fill="#2B1410"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#059669"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#059669"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-adhvara" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 56 Q22 20 60 18 Q96 18 100 56 Q102 44 96 38 Q70 30 50 38 Q44 28 36 34 Q26 38 22 56Z" fill="#1F1611"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B45309"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B45309"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-harini" viewBox="0 0 120 120">
+      <path d="M18 58 Q14 110 60 112 Q106 110 102 58 Q102 18 60 16 Q18 18 18 58Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B8860B"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B8860B"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="48" r="2" fill="#9F1239"/>
+    </symbol>
+    <symbol id="face-anika" viewBox="0 0 120 120">
+      <path d="M18 56 Q14 92 60 98 Q106 92 102 56 Q102 16 60 14 Q18 16 18 56Z" fill="#2B1410"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#65A30D"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#65A30D"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <circle cx="46" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <circle cx="74" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <line x1="56" y1="69" x2="64" y2="69" stroke="#B8860B" stroke-width="1.6"/>
+      <path d="M52 96 Q60 102 68 96" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-amita" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="14" rx="14" ry="10" fill="#3F2418"/>
+      <ellipse cx="60" cy="14" rx="14" ry="10" fill="none" stroke="#92400E" stroke-width="1.5"/>
+      <path d="M22 56 Q22 22 60 22 Q98 22 98 56 Q88 36 60 34 Q32 36 22 56Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#92400E"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#92400E"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="48" r="1.6" fill="#9F1239"/>
+    </symbol>
+  </defs>
 </svg>
 
-<!-- ============ TOP NAV ============ -->
-<nav class="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-    <a href="#" class="flex items-center gap-2 group">
-      <div class="w-9 h-9 rounded-xl bg-indigo-800 flex items-center justify-center shadow-pop group-hover:rotate-12 transition-transform">
-        <span class="text-saffron-500 font-display font-extrabold text-lg">अ</span>
+<div class="mesh-bg"></div>
+
+<!-- TOP BAR -->
+<header class="relative z-20 px-5 lg:px-10 pt-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D97706"/></svg>
       </div>
-      <span class="font-display font-extrabold text-xl tracking-tight">Ananta</span>
+      <div>
+        <div class="serif font-bold text-lg leading-none" style="color: var(--ink);">Ananta</div>
+        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--ink-soft);">STUDENT · GRADE 10</div>
+      </div>
     </a>
-    <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-      <a href="#" class="text-indigo-800 font-semibold">Dashboard</a>
-      <a href="#deck" class="hover:text-indigo-800 transition">Memory Deck</a>
-      <a href="#subjects" class="hover:text-indigo-800 transition">Subjects</a>
-      <a href="#tests" class="hover:text-indigo-800 transition">Tests</a>
-    </div>
+    <nav class="hidden lg:flex items-center gap-7 text-sm" style="color: var(--ink-soft);">
+      <a class="font-semibold" style="color: var(--ink);" href="#">Today</a>
+      <a class="link-u" href="#subjects">Subjects</a>
+      <a class="link-u" href="#memory">Memory Deck</a>
+      <a class="link-u" href="#notes">Notes</a>
+      <a class="link-u" href="#materials">Materials</a>
+    </nav>
     <div class="flex items-center gap-3">
-      <div class="hidden sm:flex items-center gap-1.5 bg-saffron-500/10 text-saffron-600 rounded-full px-3 py-1.5 text-sm font-bold">
-        <span class="flame">🔥</span> 12
+      <div class="hidden sm:flex paper-card rounded-full px-3 py-1.5 items-center gap-2 text-xs">
+        <span class="serif font-bold" style="color: var(--amber-deep);">🔥 7</span>
+        <span style="color: var(--ink-soft);">day streak</span>
       </div>
-      <button class="relative w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition">
-        <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
-        <span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-rose-500 rounded-full border-2 border-white"></span>
-      </button>
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-600 to-teal-500 flex items-center justify-center text-white font-bold text-sm">A</div>
-        <div class="hidden sm:block leading-tight">
-          <div class="text-sm font-semibold">Arjun</div>
-          <div class="text-[10px] text-slate-500">Grade 10 · English</div>
+      <div class="hidden sm:flex paper-card rounded-full px-3 py-1.5 items-center gap-2 text-xs">
+        <span class="serif font-bold" style="color: var(--emerald-deep);">2,340</span>
+        <span style="color: var(--ink-soft);">XP</span>
+      </div>
+      <div class="relative">
+        <div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-offset-2" style="background: #FED7AA; --tw-ring-color: var(--amber); --tw-ring-offset-color: var(--bg);">
+          <div class="w-full h-full flex items-center justify-center serif font-bold text-sm" style="color: var(--terracotta);">PR</div>
+        </div>
+        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ring-2" style="background: var(--emerald); --tw-ring-color: var(--bg);"></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- GREETING + WEEK STRIP -->
+<section class="relative z-10 px-5 lg:px-10 mt-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— TUESDAY · 28 MAY 2026</div>
+      <h1 class="serif text-4xl md:text-5xl font-bold mt-2" style="color: var(--ink);">
+        Good evening, Priya. <span class="accent-warm italic">Vihaan</span> is teaching in <span class="mono font-semibold" id="countdown" style="color: var(--terracotta);">— : —</span>.
+      </h1>
+      <p class="mt-3 max-w-2xl" style="color: var(--ink-soft);">
+        Today's class is Science — Chapter 3: Acids, Bases and Salts. Join the live room at 7 PM, or watch the recording any time after.
+      </p>
+    </div>
+
+    <div class="reveal mt-7 paper-card-strong rounded-3xl p-4">
+      <div class="flex items-center justify-between mb-3 px-2 flex-wrap gap-2">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— THIS WEEK</div>
+        <div class="text-xs" style="color: var(--ink-soft);">Week 5 of teaching · Day 32 toward January 2027</div>
+      </div>
+      <div class="grid grid-cols-7 gap-2">
+        <div class="day-cell past rounded-2xl p-3 text-center" style="background: var(--bg-2);">
+          <div class="day-name text-[10px] mono uppercase tracking-widest" style="color: var(--ink-soft);">Mon</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden mx-auto mt-1.5" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+          <div class="serif font-semibold mt-1 text-xs" style="color: var(--ink);">Maths</div>
+          <div class="text-[10px]" style="color: var(--ink-soft);">attended</div>
+        </div>
+        <div class="day-cell today rounded-2xl p-3 text-center">
+          <div class="day-name text-[10px] mono uppercase tracking-widest">Tue · Now</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden mx-auto mt-1.5" style="background:#D1FAE5;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
+          <div class="serif font-semibold mt-1 text-xs">Science</div>
+          <div class="text-[10px]">starts 7 PM</div>
+        </div>
+        <div class="day-cell rounded-2xl p-3 text-center" style="background: var(--paper); border:1px solid var(--line);">
+          <div class="day-name text-[10px] mono uppercase tracking-widest" style="color: var(--ink-soft);">Wed</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden mx-auto mt-1.5" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+          <div class="serif font-semibold mt-1 text-xs" style="color: var(--ink);">Social</div>
+          <div class="text-[10px]" style="color: var(--ink-soft);">tomorrow</div>
+        </div>
+        <div class="day-cell rounded-2xl p-3 text-center" style="background: var(--paper); border:1px solid var(--line);">
+          <div class="day-name text-[10px] mono uppercase tracking-widest" style="color: var(--ink-soft);">Thu</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden mx-auto mt-1.5" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-harini"/></svg></div>
+          <div class="serif font-semibold mt-1 text-xs" style="color: var(--ink);">Kannada</div>
+          <div class="text-[10px]" style="color: var(--ink-soft);">7 PM</div>
+        </div>
+        <div class="day-cell rounded-2xl p-3 text-center" style="background: var(--paper); border:1px solid var(--line);">
+          <div class="day-name text-[10px] mono uppercase tracking-widest" style="color: var(--ink-soft);">Fri</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden mx-auto mt-1.5" style="background:#ECFCCB;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-anika"/></svg></div>
+          <div class="serif font-semibold mt-1 text-xs" style="color: var(--ink);">English</div>
+          <div class="text-[10px]" style="color: var(--ink-soft);">7 PM</div>
+        </div>
+        <div class="day-cell rounded-2xl p-3 text-center" style="background: var(--paper); border:1px solid var(--line);">
+          <div class="day-name text-[10px] mono uppercase tracking-widest" style="color: var(--ink-soft);">Sat</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden mx-auto mt-1.5" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-amita"/></svg></div>
+          <div class="serif font-semibold mt-1 text-xs" style="color: var(--ink);">Hindi</div>
+          <div class="text-[10px]" style="color: var(--ink-soft);">7 PM</div>
+        </div>
+        <div class="day-cell rounded-2xl p-3 text-center" style="background: linear-gradient(135deg, var(--bg-2), #FCD34D33); border:1px solid #FCD34D;">
+          <div class="day-name text-[10px] mono uppercase tracking-widest" style="color: var(--amber-deep);">Sun</div>
+          <div class="serif text-2xl mt-1" style="color: var(--amber-deep);">📝</div>
+          <div class="serif font-semibold mt-1 text-xs" style="color: var(--ink);">Test + Doubts</div>
+          <div class="text-[10px]" style="color: var(--ink-soft);">6 — 8 PM</div>
         </div>
       </div>
     </div>
   </div>
-</nav>
+</section>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+<!-- TONIGHT'S CLASS + YEAR RING -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal grid lg:grid-cols-[1.4fr_1fr] gap-5">
 
-  <!-- ===== WELCOME ===== -->
-  <div class="reveal flex flex-wrap items-end justify-between gap-4">
-    <div>
-      <h1 class="font-display font-extrabold text-3xl sm:text-4xl">Good evening, Arjun <span class="inline-block">👋</span></h1>
-      <p class="text-slate-600 mt-1">You're on <b class="text-indigo-800">Day 47</b> of your 180-day journey. Keep the streak alive!</p>
-    </div>
-    <div class="flex flex-wrap gap-2">
-      <div class="bg-white rounded-xl px-3.5 py-2 shadow-soft border border-slate-100 flex items-center gap-2">
-        <span class="flame text-lg">🔥</span>
-        <div class="leading-tight"><div class="text-sm font-bold"><span class="stat-counter" data-target="12">12</span>-day</div><div class="text-[10px] text-slate-500">streak</div></div>
-      </div>
-      <div class="bg-white rounded-xl px-3.5 py-2 shadow-soft border border-slate-100 flex items-center gap-2">
-        <span class="text-lg">✅</span>
-        <div class="leading-tight"><div class="text-sm font-bold"><span class="stat-counter" data-target="92">92</span>%</div><div class="text-[10px] text-slate-500">attendance</div></div>
-      </div>
-      <div class="bg-white rounded-xl px-3.5 py-2 shadow-soft border border-slate-100 flex items-center gap-2">
-        <span class="text-lg">📚</span>
-        <div class="leading-tight"><div class="text-sm font-bold"><span class="stat-counter" data-target="142">142</span></div><div class="text-[10px] text-slate-500">flashcards</div></div>
-      </div>
-      <div class="bg-white rounded-xl px-3.5 py-2 shadow-soft border border-slate-100 flex items-center gap-2">
-        <span class="text-lg">🎯</span>
-        <div class="leading-tight"><div class="text-sm font-bold"><span class="stat-counter" data-target="87">87</span>%</div><div class="text-[10px] text-slate-500">last test</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid lg:grid-cols-3 gap-6 mt-6">
-
-    <!-- ===== MAIN COLUMN ===== -->
-    <div class="lg:col-span-2 space-y-6">
-
-      <!-- TODAY'S CLASS -->
-      <div class="reveal relative rounded-3xl bg-gradient-to-br from-indigo-800 to-indigo-900 text-white p-6 sm:p-7 shadow-pop overflow-hidden">
-        <div class="blob blob-anim bg-saffron-500/40 w-56 h-56 -top-20 -right-16"></div>
-        <div class="blob blob-anim bg-teal-500/30 w-44 h-44 -bottom-16 -left-10"></div>
-        <div class="relative flex flex-col sm:flex-row items-center gap-6">
-          <div class="bob w-32 h-32 rounded-2xl bg-white/95 overflow-hidden shrink-0 shadow-deep">
-            <svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-vihaan"/></svg>
-          </div>
-          <div class="flex-1 text-center sm:text-left">
-            <div class="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1 text-xs font-semibold text-saffron-300">
-              <span class="w-2 h-2 rounded-full bg-saffron-400 animate-pulse"></span> TODAY'S CLASS
-            </div>
-            <h2 class="font-display font-extrabold text-2xl sm:text-3xl mt-2">Science · Chemical Reactions</h2>
-            <p class="text-indigo-200 text-sm mt-1">Chapter 6 · Grade 10 · with Vihaan · English-medium</p>
-            <div class="mt-4 flex flex-col sm:flex-row items-center gap-3">
-              <div class="bg-white/10 rounded-xl px-4 py-2.5">
-                <div class="text-[10px] text-indigo-200 uppercase tracking-wide">Starts in</div>
-                <div id="countdown" class="font-display font-extrabold text-xl tabular-nums">--:--:--</div>
-              </div>
-              <button id="joinBtn" class="btn-3d btn-teal bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl">
-                Join Class at 7 PM
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 180-DAY PROGRESS + WEEK -->
-      <div class="reveal reveal-d1 bg-white rounded-3xl p-6 shadow-soft border border-slate-100">
-        <div class="flex items-center justify-between">
-          <h3 class="font-display font-bold text-lg">Your 180-day syllabus journey</h3>
-          <span class="text-sm font-bold text-indigo-800">Day 47 / 180</span>
-        </div>
-        <div class="mt-3 h-4 rounded-full bg-slate-100 overflow-hidden">
-          <div class="bar-fill h-full rounded-full bg-gradient-to-r from-indigo-700 via-teal-500 to-saffron-500" data-width="26"></div>
-        </div>
-        <p class="text-xs text-slate-500 mt-2">26% complete · 133 days to go · on track to finish before the board exams 🎉</p>
-
-        <div class="mt-5 grid grid-cols-7 gap-2 text-center">
-          <div class="day-pill rounded-xl bg-teal-500/10 py-2"><div class="text-[10px] text-slate-500 font-semibold">MON</div><div class="text-lg mt-0.5">∑</div><div class="text-teal-600 text-xs">✓</div></div>
-          <div class="day-pill rounded-xl bg-indigo-800 py-2 ring-2 ring-saffron-400"><div class="text-[10px] text-indigo-200 font-semibold">TUE</div><div class="text-lg mt-0.5">🔬</div><div class="text-saffron-300 text-[9px] font-bold">TODAY</div></div>
-          <div class="day-pill rounded-xl bg-slate-50 py-2"><div class="text-[10px] text-slate-400 font-semibold">WED</div><div class="text-lg mt-0.5">🌏</div><div class="text-slate-300 text-xs">·</div></div>
-          <div class="day-pill rounded-xl bg-slate-50 py-2"><div class="text-[10px] text-slate-400 font-semibold">THU</div><div class="text-lg mt-0.5">ಕ</div><div class="text-slate-300 text-xs">·</div></div>
-          <div class="day-pill rounded-xl bg-slate-50 py-2"><div class="text-[10px] text-slate-400 font-semibold">FRI</div><div class="text-lg mt-0.5">A</div><div class="text-slate-300 text-xs">·</div></div>
-          <div class="day-pill rounded-xl bg-slate-50 py-2"><div class="text-[10px] text-slate-400 font-semibold">SAT</div><div class="text-lg mt-0.5">अ</div><div class="text-slate-300 text-xs">·</div></div>
-          <div class="day-pill rounded-xl bg-saffron-500/10 py-2"><div class="text-[10px] text-saffron-600 font-semibold">SUN</div><div class="text-sm mt-0.5 leading-none">📝<br>💬</div><div class="text-[8px] text-saffron-600 mt-0.5">Test+Doubt</div></div>
-        </div>
-      </div>
-
-      <!-- MEMORY DECK -->
-      <div id="deck" class="reveal reveal-d2 bg-white rounded-3xl p-6 shadow-soft border border-slate-100">
-        <div class="flex items-center justify-between flex-wrap gap-2">
+      <div class="paper-card-strong rounded-3xl p-7 relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full" style="background: radial-gradient(circle, rgba(5,150,105,.18), transparent 70%);"></div>
+        <div class="relative flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h3 class="font-display font-bold text-lg flex items-center gap-2">📇 Memory Deck</h3>
-            <p class="text-sm text-slate-500">Flashcards from every class you've attended.</p>
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">TONIGHT · 7 — 8 PM</div>
+            <div class="flex items-center gap-3 mt-2">
+              <div class="w-14 h-14 rounded-full overflow-hidden ring-2 ring-emerald-200" style="background:#D1FAE5;">
+                <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
+              </div>
+              <div>
+                <h2 class="serif text-2xl font-semibold leading-none" style="color: var(--ink);">Science with Vihaan</h2>
+                <div class="text-sm mt-1.5" style="color: var(--ink-soft);">Chapter 3 — Acids, Bases and Salts</div>
+              </div>
+            </div>
           </div>
-          <div class="bg-rose-50 text-rose-600 rounded-lg px-3 py-1.5 text-sm font-bold pulse-glow">23 cards due today</div>
+          <div class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style="background:#FEF3C7; color: var(--amber-deep);">
+            <span class="w-2 h-2 rounded-full pulse-dot" style="color: var(--amber);"></span>
+            Starts in <span class="mono font-bold" id="countdown2" style="color: var(--amber-deep);">— : —</span>
+          </div>
         </div>
-
-        <div class="mt-5 grid sm:grid-cols-5 gap-4 items-center">
-          <!-- flip card -->
-          <div class="sm:col-span-2 flip-card h-52">
-            <div class="flip-inner shadow-pop rounded-2xl">
-              <div class="flip-face bg-gradient-to-br from-indigo-800 to-indigo-900 text-white p-5 flex flex-col">
-                <div class="flex justify-between text-[10px]"><span class="text-saffron-400 font-bold uppercase tracking-widest">Science · Ch 5</span><span class="text-indigo-200">142 cards</span></div>
-                <div class="flex-1 flex items-center justify-center text-center">
-                  <p class="font-display font-bold text-lg leading-snug">What is an exothermic reaction?</p>
-                </div>
-                <p class="text-[10px] text-indigo-200 text-center">Hover to flip ↻</p>
-              </div>
-              <div class="flip-face flip-back bg-white border border-slate-200 p-5 flex flex-col">
-                <span class="text-[10px] text-teal-600 font-bold uppercase tracking-widest">Answer</span>
-                <div class="flex-1 flex items-center justify-center text-center">
-                  <p class="text-sm text-slate-800 leading-snug">A reaction that <b>releases heat</b> to its surroundings — e.g. burning of fuel, respiration.</p>
-                </div>
-                <div class="flex justify-center gap-1.5 text-[10px]">
-                  <span class="px-2 py-1 rounded bg-rose-100 text-rose-600 font-semibold">Hard</span>
-                  <span class="px-2 py-1 rounded bg-amber-100 text-amber-600 font-semibold">Okay</span>
-                  <span class="px-2 py-1 rounded bg-teal-100 text-teal-700 font-semibold">Easy</span>
-                </div>
-              </div>
-            </div>
+        <p class="mt-5 text-sm leading-relaxed" style="color: var(--ink-soft);">
+          Vihaan will demonstrate the pH scale with rotating molecules, then walk through the difference between strong and weak acids using a 3D titration scene you can pause and replay.
+        </p>
+        <div class="grid sm:grid-cols-3 gap-3 mt-5">
+          <div class="rounded-2xl p-3 border" style="background: var(--bg-2); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">LESSON 7</div>
+            <div class="text-sm font-semibold mt-1" style="color: var(--ink);">of 32 in Science</div>
           </div>
-          <!-- deck stats -->
-          <div class="sm:col-span-3">
-            <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="rounded-xl bg-teal-50 p-3"><div class="font-display font-extrabold text-2xl text-teal-700"><span class="stat-counter" data-target="89">89</span></div><div class="text-[10px] text-slate-500 font-semibold">Mastered</div></div>
-              <div class="rounded-xl bg-amber-50 p-3"><div class="font-display font-extrabold text-2xl text-amber-600"><span class="stat-counter" data-target="38">38</span></div><div class="text-[10px] text-slate-500 font-semibold">Learning</div></div>
-              <div class="rounded-xl bg-indigo-50 p-3"><div class="font-display font-extrabold text-2xl text-indigo-800"><span class="stat-counter" data-target="15">15</span></div><div class="text-[10px] text-slate-500 font-semibold">New</div></div>
-            </div>
-            <button id="reviseBtn" class="btn-3d btn-teal w-full mt-3 bg-teal-600 text-white font-semibold py-3 rounded-xl">
-              Start Revision · 23 cards
-            </button>
-            <div class="flex gap-2 mt-2">
-              <button class="flex-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg py-2 transition">Browse all</button>
-              <button class="flex-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg py-2 transition">Filter by subject</button>
-            </div>
+          <div class="rounded-2xl p-3 border" style="background: var(--bg-2); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">EXPECTED LENGTH</div>
+            <div class="text-sm font-semibold mt-1" style="color: var(--ink);">55 minutes</div>
           </div>
+          <div class="rounded-2xl p-3 border" style="background: var(--bg-2); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">RECORDING AFTER</div>
+            <div class="text-sm font-semibold mt-1" style="color: var(--ink);">~8:05 PM</div>
+          </div>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button class="btn-primary">Join live at 7 PM</button>
+          <button class="btn-ghost">Review last week's notes</button>
         </div>
       </div>
 
-      <!-- SUBJECT PROGRESS -->
-      <div id="subjects" class="reveal reveal-d3">
-        <h3 class="font-display font-bold text-lg mb-3">Subject progress</h3>
-        <div class="grid sm:grid-cols-2 gap-4">
-          <!-- Maths -->
-          <div class="tilt-card bg-white rounded-2xl p-4 shadow-soft border border-slate-100 flex items-center gap-3">
-            <div class="w-14 h-14 rounded-xl bg-indigo-100 overflow-hidden shrink-0"><svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-praketa"/></svg></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-baseline"><span class="font-bold text-sm">Mathematics</span><span class="text-[11px] text-slate-500">Ch 4 / 15</span></div>
-              <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="bar-fill h-full bg-indigo-700 rounded-full" data-width="27"></div></div>
-              <div class="text-[10px] text-slate-500 mt-1">7 of 26 lessons · with Praketa</div>
-            </div>
-          </div>
-          <!-- Science -->
-          <div class="tilt-card bg-white rounded-2xl p-4 shadow-soft border border-slate-100 flex items-center gap-3">
-            <div class="w-14 h-14 rounded-xl bg-teal-100 overflow-hidden shrink-0"><svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-baseline"><span class="font-bold text-sm">Science</span><span class="text-[11px] text-slate-500">Ch 6 / 13</span></div>
-              <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="bar-fill h-full bg-teal-500 rounded-full" data-width="31"></div></div>
-              <div class="text-[10px] text-slate-500 mt-1">8 of 26 lessons · with Vihaan</div>
-            </div>
-          </div>
-          <!-- Social -->
-          <div class="tilt-card bg-white rounded-2xl p-4 shadow-soft border border-slate-100 flex items-center gap-3">
-            <div class="w-14 h-14 rounded-xl bg-amber-100 overflow-hidden shrink-0"><svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-baseline"><span class="font-bold text-sm">Social Science</span><span class="text-[11px] text-slate-500">Ch 5 / 30</span></div>
-              <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="bar-fill h-full bg-saffron-500 rounded-full" data-width="24"></div></div>
-              <div class="text-[10px] text-slate-500 mt-1">6 of 26 lessons · with Adhvara</div>
-            </div>
-          </div>
-          <!-- Kannada -->
-          <div class="tilt-card bg-white rounded-2xl p-4 shadow-soft border border-slate-100 flex items-center gap-3">
-            <div class="w-14 h-14 rounded-xl bg-rose-100 overflow-hidden shrink-0"><svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-harini"/></svg></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-baseline"><span class="font-bold text-sm">Kannada</span><span class="text-[11px] text-slate-500">Ch 6 / 20</span></div>
-              <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="bar-fill h-full bg-rose-500 rounded-full" data-width="29"></div></div>
-              <div class="text-[10px] text-slate-500 mt-1">7 of 26 lessons · with Harini</div>
-            </div>
-          </div>
-          <!-- English -->
-          <div class="tilt-card bg-white rounded-2xl p-4 shadow-soft border border-slate-100 flex items-center gap-3">
-            <div class="w-14 h-14 rounded-xl bg-orange-100 overflow-hidden shrink-0"><svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-anika"/></svg></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-baseline"><span class="font-bold text-sm">English</span><span class="text-[11px] text-slate-500">Ch 5 / 18</span></div>
-              <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="bar-fill h-full bg-orange-500 rounded-full" data-width="26"></div></div>
-              <div class="text-[10px] text-slate-500 mt-1">7 of 26 lessons · with Anika</div>
-            </div>
-          </div>
-          <!-- Hindi -->
-          <div class="tilt-card bg-white rounded-2xl p-4 shadow-soft border border-slate-100 flex items-center gap-3">
-            <div class="w-14 h-14 rounded-xl bg-purple-100 overflow-hidden shrink-0"><svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-amita"/></svg></div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-baseline"><span class="font-bold text-sm">Hindi</span><span class="text-[11px] text-slate-500">Ch 5 / 15</span></div>
-              <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden"><div class="bar-fill h-full bg-purple-500 rounded-full" data-width="28"></div></div>
-              <div class="text-[10px] text-slate-500 mt-1">7 of 26 lessons · with Amita</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RECORDINGS -->
-      <div class="reveal reveal-d4">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-display font-bold text-lg">Catch up on recordings</h3>
-          <a href="#" class="text-sm text-indigo-800 font-semibold hover:underline">View all →</a>
-        </div>
-        <div class="grid sm:grid-cols-3 gap-4">
-          <div class="tilt-card bg-white rounded-2xl overflow-hidden shadow-soft border border-slate-100">
-            <div class="aspect-video bg-gradient-to-br from-indigo-700 to-indigo-900 relative flex items-center justify-center">
-              <div class="w-11 h-11 rounded-full bg-white/90 flex items-center justify-center">
-                <svg class="w-5 h-5 text-indigo-800 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.8A1 1 0 005 3.7v12.6a1 1 0 001.5.9l10-6.3a1 1 0 000-1.7l-10-6.4z"/></svg>
-              </div>
-              <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">58:24</span>
-            </div>
-            <div class="p-3">
-              <div class="text-[10px] font-bold uppercase text-indigo-700">Mathematics</div>
-              <div class="text-sm font-semibold leading-tight mt-0.5">Quadratic Equations</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Yesterday · watched 100%</div>
-            </div>
-          </div>
-          <div class="tilt-card bg-white rounded-2xl overflow-hidden shadow-soft border border-slate-100">
-            <div class="aspect-video bg-gradient-to-br from-rose-600 to-rose-800 relative flex items-center justify-center">
-              <div class="w-11 h-11 rounded-full bg-white/90 flex items-center justify-center">
-                <svg class="w-5 h-5 text-rose-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.8A1 1 0 005 3.7v12.6a1 1 0 001.5.9l10-6.3a1 1 0 000-1.7l-10-6.4z"/></svg>
-              </div>
-              <span class="absolute top-2 left-2 bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">MISSED</span>
-              <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">59:10</span>
-            </div>
-            <div class="p-3">
-              <div class="text-[10px] font-bold uppercase text-rose-600">Kannada</div>
-              <div class="text-sm font-semibold leading-tight mt-0.5">ಪದ್ಯ ಭಾಗ — Poetry</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Last Thursday · not watched</div>
-            </div>
-          </div>
-          <div class="tilt-card bg-white rounded-2xl overflow-hidden shadow-soft border border-slate-100">
-            <div class="aspect-video bg-gradient-to-br from-teal-600 to-teal-800 relative flex items-center justify-center">
-              <div class="w-11 h-11 rounded-full bg-white/90 flex items-center justify-center">
-                <svg class="w-5 h-5 text-teal-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.8A1 1 0 005 3.7v12.6a1 1 0 001.5.9l10-6.3a1 1 0 000-1.7l-10-6.4z"/></svg>
-              </div>
-              <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">57:02</span>
-            </div>
-            <div class="p-3">
-              <div class="text-[10px] font-bold uppercase text-teal-600">Science</div>
-              <div class="text-sm font-semibold leading-tight mt-0.5">Acids, Bases &amp; Salts</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">2 days ago · watched 80%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ===== SIDEBAR ===== -->
-    <div class="space-y-6">
-
-      <!-- PROFILE -->
-      <div class="reveal reveal-d1 bg-white rounded-3xl p-6 shadow-soft border border-slate-100 text-center">
-        <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-indigo-600 to-teal-500 flex items-center justify-center text-white font-display font-extrabold text-3xl shadow-pop">A</div>
-        <h3 class="font-display font-bold text-lg mt-3">Arjun Gowda</h3>
-        <p class="text-xs text-slate-500">Grade 10 · English-medium</p>
-        <div class="mt-3 flex justify-center gap-2 text-xs">
-          <span class="bg-indigo-50 text-indigo-800 rounded-full px-2.5 py-1 font-semibold">KSEEB</span>
-          <span class="bg-teal-50 text-teal-700 rounded-full px-2.5 py-1 font-semibold">Joined Apr 2026</span>
-        </div>
-        <button class="w-full mt-4 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg py-2.5 transition">Edit profile</button>
-      </div>
-
-      <!-- WEEKLY TEST -->
-      <div id="tests" class="reveal reveal-d2 bg-white rounded-3xl p-6 shadow-soft border border-slate-100">
-        <h3 class="font-display font-bold text-lg flex items-center gap-2">📝 Weekly Test</h3>
-        <div class="mt-4 flex items-center gap-4">
-          <svg viewBox="0 0 80 80" class="w-20 h-20 -rotate-90 shrink-0">
-            <circle cx="40" cy="40" r="32" fill="none" class="ring-track" stroke-width="9"/>
-            <circle cx="40" cy="40" r="32" fill="none" stroke="#0D9488" stroke-width="9"
-              class="ring-fill" stroke-dasharray="201" stroke-dashoffset="201" data-offset="26"/>
+      <div class="paper-card-strong rounded-3xl p-7 flex flex-col">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— YOUR YEAR</div>
+        <h3 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">On pace to finish by January</h3>
+        <div class="relative mx-auto my-5 w-44 h-44">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+            <circle class="ring-bg" cx="50" cy="50" r="44" stroke-width="8" fill="none"/>
+            <circle class="ring-fg" cx="50" cy="50" r="44" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="237"/>
           </svg>
-          <div>
-            <div class="font-display font-extrabold text-2xl">87%</div>
-            <div class="text-xs text-slate-500">Last test score</div>
-            <div class="text-[11px] text-teal-600 font-semibold mt-0.5">▲ 9% vs last week</div>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">DAY</div>
+            <div class="serif font-bold text-4xl" style="color: var(--ink);">32</div>
+            <div class="text-[10px] mono" style="color: var(--ink-soft);">of academic year</div>
           </div>
         </div>
-        <div class="mt-4 rounded-xl bg-saffron-500/10 p-3">
-          <div class="text-xs font-bold text-saffron-700">Next test — Sunday</div>
-          <div class="text-[11px] text-slate-600 mt-0.5">7–8 PM test, then 8–9 PM live doubt-clearing session.</div>
+        <div class="rounded-2xl p-3 mt-auto" style="background: var(--bg-2); border:1px dashed var(--line-2);">
+          <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SCHEDULE NOTE</div>
+          <p class="text-xs mt-1" style="color: var(--ink-2);">
+            Hindi is ahead of schedule. If it wraps early, Saturday slots will switch to Social Science. You'll see it on the schedule before it happens.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATCH-UP PANEL (shown when student is ≥2 lessons behind on any subject) -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal paper-card-strong rounded-3xl p-6 md:p-7 relative overflow-hidden" style="background: linear-gradient(135deg, #FFFFFF 0%, #FEF3C7 130%);">
+      <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full" style="background: radial-gradient(circle, rgba(217,119,6,.18), transparent 70%);"></div>
+
+      <div class="relative grid lg:grid-cols-[1.2fr_1.4fr_auto] gap-6 items-center">
+
+        <!-- Status + plan -->
+        <div>
+          <div class="flex items-center gap-2 text-xs mono tracking-widest" style="color: var(--amber-deep);">
+            <span class="w-2 h-2 rounded-full" style="background: var(--amber);"></span>
+            CATCHING UP
+          </div>
+          <h3 class="serif text-2xl font-semibold mt-2" style="color: var(--ink);">You joined on Day 28 — let's bridge the gap.</h3>
+          <p class="text-sm mt-2" style="color: var(--ink-soft);">
+            You're behind on a few subjects because you started later than the cohort. Watch the suggested catch-up plan below and you'll be live with everyone by <b style="color: var(--ink);">14 June</b>.
+          </p>
+        </div>
+
+        <!-- Per-subject status -->
+        <div class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-3 gap-2">
+          <div class="rounded-xl p-2.5 text-center border" style="background:#FEE2E2; border-color:#FCA5A5;">
+            <div class="w-7 h-7 rounded-full overflow-hidden mx-auto" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+            <div class="text-[10px] mono mt-1 font-bold" style="color: var(--burgundy);">SOCIAL</div>
+            <div class="text-[10px]" style="color: var(--burgundy);">8 behind</div>
+          </div>
+          <div class="rounded-xl p-2.5 text-center border" style="background:#FEE2E2; border-color:#FCA5A5;">
+            <div class="w-7 h-7 rounded-full overflow-hidden mx-auto" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+            <div class="text-[10px] mono mt-1 font-bold" style="color: var(--burgundy);">MATHS</div>
+            <div class="text-[10px]" style="color: var(--burgundy);">5 behind</div>
+          </div>
+          <div class="rounded-xl p-2.5 text-center border" style="background:#FEF3C7; border-color:#FCD34D;">
+            <div class="w-7 h-7 rounded-full overflow-hidden mx-auto" style="background:#D1FAE5;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
+            <div class="text-[10px] mono mt-1 font-bold" style="color: var(--amber-deep);">SCIENCE</div>
+            <div class="text-[10px]" style="color: var(--amber-deep);">2 behind</div>
+          </div>
+          <div class="rounded-xl p-2.5 text-center border" style="background:#ECFDF5; border-color:#A7F3D0;">
+            <div class="w-7 h-7 rounded-full overflow-hidden mx-auto" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-harini"/></svg></div>
+            <div class="text-[10px] mono mt-1 font-bold" style="color: var(--emerald-deep);">KANNADA</div>
+            <div class="text-[10px]" style="color: var(--emerald-deep);">on pace</div>
+          </div>
+          <div class="rounded-xl p-2.5 text-center border" style="background:#ECFDF5; border-color:#A7F3D0;">
+            <div class="w-7 h-7 rounded-full overflow-hidden mx-auto" style="background:#ECFCCB;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-anika"/></svg></div>
+            <div class="text-[10px] mono mt-1 font-bold" style="color: var(--emerald-deep);">ENGLISH</div>
+            <div class="text-[10px]" style="color: var(--emerald-deep);">on pace</div>
+          </div>
+          <div class="rounded-xl p-2.5 text-center border" style="background:#ECFDF5; border-color:#A7F3D0;">
+            <div class="w-7 h-7 rounded-full overflow-hidden mx-auto" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-amita"/></svg></div>
+            <div class="text-[10px] mono mt-1 font-bold" style="color: var(--emerald-deep);">HINDI</div>
+            <div class="text-[10px]" style="color: var(--emerald-deep);">on pace</div>
+          </div>
+        </div>
+
+        <!-- Today's catch-up CTA -->
+        <div class="text-center lg:text-right">
+          <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">TODAY'S CATCH-UP</div>
+          <div class="serif font-bold text-2xl mt-1" style="color: var(--ink);">3 lessons</div>
+          <div class="text-xs mt-1" style="color: var(--ink-soft);">≈ 90 minutes total</div>
+          <button class="mt-3 btn-amber whitespace-nowrap">Start catch-up</button>
         </div>
       </div>
 
-      <!-- ACHIEVEMENTS -->
-      <div class="reveal reveal-d3 bg-white rounded-3xl p-6 shadow-soft border border-slate-100">
-        <h3 class="font-display font-bold text-lg flex items-center gap-2">🏆 Achievements</h3>
-        <div class="grid grid-cols-4 gap-3 mt-4">
-          <div class="text-center" title="7-day streak"><div class="w-12 h-12 mx-auto rounded-xl bg-saffron-500/15 flex items-center justify-center text-2xl">🔥</div><div class="text-[9px] text-slate-500 mt-1">Streak 7</div></div>
-          <div class="text-center" title="First 80+ test"><div class="w-12 h-12 mx-auto rounded-xl bg-teal-500/15 flex items-center justify-center text-2xl">🎯</div><div class="text-[9px] text-slate-500 mt-1">Sharp</div></div>
-          <div class="text-center" title="100 flashcards"><div class="w-12 h-12 mx-auto rounded-xl bg-indigo-500/15 flex items-center justify-center text-2xl">📚</div><div class="text-[9px] text-slate-500 mt-1">100 cards</div></div>
-          <div class="text-center" title="Perfect week"><div class="w-12 h-12 mx-auto rounded-xl bg-rose-500/15 flex items-center justify-center text-2xl">⭐</div><div class="text-[9px] text-slate-500 mt-1">Full week</div></div>
-          <div class="text-center opacity-35" title="Locked"><div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 flex items-center justify-center text-2xl">🔒</div><div class="text-[9px] text-slate-400 mt-1">Day 90</div></div>
-          <div class="text-center opacity-35" title="Locked"><div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 flex items-center justify-center text-2xl">🔒</div><div class="text-[9px] text-slate-400 mt-1">95% test</div></div>
-          <div class="text-center opacity-35" title="Locked"><div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 flex items-center justify-center text-2xl">🔒</div><div class="text-[9px] text-slate-400 mt-1">30 streak</div></div>
-          <div class="text-center opacity-35" title="Locked"><div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 flex items-center justify-center text-2xl">🔒</div><div class="text-[9px] text-slate-400 mt-1">All deck</div></div>
+      <!-- Catch-up daily plan preview -->
+      <div class="relative mt-6 rounded-2xl p-4 grid sm:grid-cols-[auto_1fr] gap-4 items-center" style="background: var(--bg-2);">
+        <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">TODAY · 28 MAY</div>
+        <div class="flex flex-wrap gap-3 text-xs">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" style="background:#FFFFFF; border:1px solid var(--line);">
+            <div class="w-5 h-5 rounded-full overflow-hidden" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+            <span style="color: var(--ink);">Social Ch.1 — The Making of a Global World</span>
+            <span class="mono" style="color: var(--ink-soft);">~30m</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" style="background:#FFFFFF; border:1px solid var(--line);">
+            <div class="w-5 h-5 rounded-full overflow-hidden" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+            <span style="color: var(--ink);">Maths Ch.1 — Real Numbers</span>
+            <span class="mono" style="color: var(--ink-soft);">~30m</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" style="background:#FFFFFF; border:1px solid var(--line);">
+            <div class="w-5 h-5 rounded-full overflow-hidden" style="background:#D1FAE5;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
+            <span style="color: var(--ink);">Science Ch.1 — Chemical Reactions</span>
+            <span class="mono" style="color: var(--ink-soft);">~30m</span>
+          </div>
         </div>
-        <p class="text-[11px] text-slate-500 mt-3 text-center">4 of 8 unlocked — keep going! 🌟</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK ACCESS -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal grid grid-cols-2 md:grid-cols-5 gap-3">
+      <a id="notes" href="#" class="paper-card-strong rounded-2xl p-4 tilt-3d flex flex-col items-start gap-2">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--bg-2);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#1F1611" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="#1F1611" stroke-width="2"/></svg>
+        </div>
+        <div class="serif font-semibold text-sm" style="color: var(--ink);">Notes</div>
+        <div class="text-[11px]" style="color: var(--ink-soft);">47 lessons indexed</div>
+      </a>
+      <a id="materials" href="#" class="paper-card-strong rounded-2xl p-4 tilt-3d flex flex-col items-start gap-2">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--bg-2);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2 7l10-5 10 5-10 5L2 7z" stroke="#1F1611" stroke-width="2" stroke-linejoin="round"/><path d="M2 17l10 5 10-5" stroke="#1F1611" stroke-width="2" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="#1F1611" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="serif font-semibold text-sm" style="color: var(--ink);">Materials</div>
+        <div class="text-[11px]" style="color: var(--ink-soft);">PYQs, worksheets, syllabus</div>
+      </a>
+      <a href="#" class="paper-card-strong rounded-2xl p-4 tilt-3d flex flex-col items-start gap-2">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:#FEF3C7;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#B45309" stroke-width="2.2" stroke-linecap="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#B45309" stroke-width="2.2"/></svg>
+        </div>
+        <div class="serif font-semibold text-sm" style="color: var(--ink);">Today's Quiz</div>
+        <div class="text-[11px]" style="color: var(--amber-deep);">After tonight's class</div>
+      </a>
+      <a href="#" class="paper-card-strong rounded-2xl p-4 tilt-3d flex flex-col items-start gap-2">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:#FEE2E2;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#9F1239" stroke-width="2"/><polyline points="12 6 12 12 16 14" stroke="#9F1239" stroke-width="2"/></svg>
+        </div>
+        <div class="serif font-semibold text-sm" style="color: var(--ink);">Sunday Test</div>
+        <div class="text-[11px]" style="color: var(--ink-soft);">In 5 days · 50 questions</div>
+      </a>
+      <a href="#" class="paper-card-strong rounded-2xl p-4 tilt-3d flex flex-col items-start gap-2">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:#ECFDF5;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#047857" stroke-width="2"/></svg>
+        </div>
+        <div class="serif font-semibold text-sm" style="color: var(--ink);">Doubt Corner</div>
+        <div class="text-[11px]" style="color: var(--ink-soft);">Ask any teacher</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- MEMORY DECK + RECENT -->
+<section id="memory" class="relative z-10 px-5 lg:px-10 mt-10">
+  <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_1fr] gap-5">
+
+    <div class="reveal paper-card-strong rounded-3xl p-7">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— MEMORY DECK</div>
+          <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">12 cards due today</h2>
+          <p class="text-sm mt-1" style="color: var(--ink-soft);">Five-minute review keeps last week's lessons fresh.</p>
+        </div>
+        <div class="text-right">
+          <div class="serif text-3xl font-bold" style="color: var(--amber-deep);">147</div>
+          <div class="text-[11px] mono" style="color: var(--ink-soft);">cards total</div>
+        </div>
+      </div>
+      <div class="flip mt-5 h-44 cursor-pointer mx-auto max-w-sm" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-face paper-card-strong rounded-2xl text-center">
+            <div>
+              <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SCIENCE · CHEMICAL REACTIONS</div>
+              <div class="serif text-xl font-semibold mt-3" style="color: var(--ink);">What happens when magnesium burns in air?</div>
+              <div class="text-[11px] mt-3" style="color: var(--ink-dim);">tap to reveal</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back rounded-2xl text-center" style="background: var(--ink); color: var(--bg);">
+            <div>
+              <div class="text-[10px] mono tracking-widest" style="color: rgba(250,245,235,.6);">ANSWER</div>
+              <div class="serif text-xl font-semibold mt-3">2 Mg + O₂ → 2 MgO + heat + light</div>
+              <div class="text-[11px] mt-3" style="color: rgba(250,245,235,.6);">white powder, bright flame — combustion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mt-5 text-center">
+        <div class="rounded-xl p-3" style="background:#ECFDF5;">
+          <div class="serif font-bold" style="color: var(--emerald-deep);">89</div>
+          <div class="text-[10px] mono" style="color: var(--emerald-deep);">MASTERED</div>
+        </div>
+        <div class="rounded-xl p-3" style="background:#FEF3C7;">
+          <div class="serif font-bold" style="color: var(--amber-deep);">46</div>
+          <div class="text-[10px] mono" style="color: var(--amber-deep);">LEARNING</div>
+        </div>
+        <div class="rounded-xl p-3" style="background:#FEE2E2;">
+          <div class="serif font-bold" style="color: var(--burgundy);">12</div>
+          <div class="text-[10px] mono" style="color: var(--burgundy);">DUE TODAY</div>
+        </div>
+      </div>
+      <button class="mt-5 w-full btn-amber">Start 5-minute review</button>
+    </div>
+
+    <div class="reveal paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— THIS WEEK SO FAR</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">What you've already done</h2>
+      <ul class="mt-5 space-y-4">
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background:#FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-praketa"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);"><b>Maths · Chapter 5</b> — Quadratic Equations</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Attended live · Quiz 9/10 · 6 cards added to Memory Deck</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Mon</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background:#FED7AA;"><svg viewBox="0 0 120 120"><use href="#face-adhvara"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);"><b>Social · Chapter 4</b> — Rise of Nationalism in Europe</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Attended live · Quiz 7/10 · Notes downloaded</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Sun (last week)</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background:#FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-harini"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);"><b>Kannada · ವಚನಗಳು</b> — Basavanna's vachanas</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Watched recording (missed live) · Quiz pending</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Thu</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background:#FEE2E2;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#9F1239"><path d="M12 2 1 21h22L12 2zm0 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1-2h-2V9h2v5z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Weekly test reminder</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Sunday's test will cover Maths Ch.5, Social Ch.4, Kannada vachanas. Start revising tonight.</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">5 days</div>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- SUBJECT PROGRESS -->
+<section id="subjects" class="relative z-10 px-5 lg:px-10 mt-12 pb-20">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal flex items-end justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— YOUR SIX SUBJECTS</div>
+        <h2 class="serif text-3xl md:text-4xl font-semibold mt-1" style="color: var(--ink);">Where each subject stands</h2>
+      </div>
+      <a href="#" class="text-sm link-u" style="color: var(--ink-soft);">See full curriculum →</a>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="reveal subject-card paper-card-strong rounded-3xl overflow-hidden flex flex-col">
+        <div class="relative h-44 overflow-hidden" style="background: var(--bg-2);">
+          <div class="mini-3d" data-subject="maths"></div>
+          <div class="absolute top-3 left-3 paper-card rounded-full px-2.5 py-1 text-[11px] flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full overflow-hidden" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+            <span>Praketa</span>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="serif text-xl font-semibold" style="color: var(--ink);">Mathematics</div>
+            <div class="text-xs mono" style="color: var(--ink-soft);">5 / 15 chapters</div>
+          </div>
+          <div class="h-2 mt-3 rounded-full overflow-hidden" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:33%; background: var(--amber);"></div>
+          </div>
+          <div class="text-xs mt-2" style="color: var(--ink-soft);">Next: Ch.6 — Arithmetic Progressions · Monday</div>
+        </div>
       </div>
 
-      <!-- DOUBT CORNER -->
-      <div class="reveal reveal-d4 bg-gradient-to-br from-teal-600 to-teal-700 rounded-3xl p-6 shadow-pop text-white relative overflow-hidden">
-        <div class="blob blob-anim bg-white/20 w-32 h-32 -top-10 -right-8"></div>
-        <h3 class="font-display font-bold text-lg relative">💬 Got a doubt?</h3>
-        <p class="text-sm text-teal-50 mt-1 relative">Ask any AI teacher right now — type it or record a voice note. They reply in seconds.</p>
-        <button class="relative mt-4 w-full bg-white text-teal-700 font-semibold py-2.5 rounded-xl hover:bg-teal-50 transition">Ask a doubt</button>
+      <div class="reveal subject-card paper-card-strong rounded-3xl overflow-hidden flex flex-col">
+        <div class="relative h-44 overflow-hidden" style="background: var(--bg-2);">
+          <div class="mini-3d" data-subject="science"></div>
+          <div class="absolute top-3 left-3 paper-card rounded-full px-2.5 py-1 text-[11px] flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full overflow-hidden" style="background:#D1FAE5;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
+            <span>Vihaan</span>
+          </div>
+          <div class="absolute top-3 right-3 text-[10px] mono px-2 py-1 rounded-full" style="background: var(--emerald); color:#fff;">LIVE TONIGHT</div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="serif text-xl font-semibold" style="color: var(--ink);">Science</div>
+            <div class="text-xs mono" style="color: var(--ink-soft);">7 / 16 chapters</div>
+          </div>
+          <div class="h-2 mt-3 rounded-full overflow-hidden" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:44%; background: var(--emerald);"></div>
+          </div>
+          <div class="text-xs mt-2" style="color: var(--ink-soft);">Now: Ch.3 — Acids, Bases and Salts · tonight 7 PM</div>
+        </div>
+      </div>
+
+      <div class="reveal subject-card paper-card-strong rounded-3xl overflow-hidden flex flex-col">
+        <div class="relative h-44 overflow-hidden" style="background: var(--bg-2);">
+          <div class="mini-3d" data-subject="social"></div>
+          <div class="absolute top-3 left-3 paper-card rounded-full px-2.5 py-1 text-[11px] flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full overflow-hidden" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+            <span>Adhvara</span>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="serif text-xl font-semibold" style="color: var(--ink);">Social Science</div>
+            <div class="text-xs mono" style="color: var(--ink-soft);">4 / 30 chapters</div>
+          </div>
+          <div class="h-2 mt-3 rounded-full overflow-hidden" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:13%; background: var(--terracotta);"></div>
+          </div>
+          <div class="text-xs mt-2" style="color: var(--ink-soft);">Next: Ch.5 — Federalism · Wednesday</div>
+        </div>
+      </div>
+
+      <div class="reveal subject-card paper-card-strong rounded-3xl overflow-hidden flex flex-col">
+        <div class="relative h-44 overflow-hidden" style="background: var(--bg-2);">
+          <div class="mini-3d" data-subject="kannada"></div>
+          <div class="absolute top-3 left-3 paper-card rounded-full px-2.5 py-1 text-[11px] flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full overflow-hidden" style="background:#FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-harini"/></svg></div>
+            <span>Harini</span>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="serif text-xl font-semibold" style="color: var(--ink);">ಕನ್ನಡ · 1st</div>
+            <div class="text-xs mono" style="color: var(--ink-soft);">6 / 20 chapters</div>
+          </div>
+          <div class="h-2 mt-3 rounded-full overflow-hidden" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:30%; background: var(--gold);"></div>
+          </div>
+          <div class="text-xs mt-2" style="color: var(--ink-soft);">Next: ಪದ್ಯ — Kuvempu · Thursday</div>
+        </div>
+      </div>
+
+      <div class="reveal subject-card paper-card-strong rounded-3xl overflow-hidden flex flex-col">
+        <div class="relative h-44 overflow-hidden" style="background: var(--bg-2);">
+          <div class="mini-3d" data-subject="english"></div>
+          <div class="absolute top-3 left-3 paper-card rounded-full px-2.5 py-1 text-[11px] flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full overflow-hidden" style="background:#ECFCCB;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-anika"/></svg></div>
+            <span>Anika</span>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="serif text-xl font-semibold" style="color: var(--ink);">English · 2nd</div>
+            <div class="text-xs mono" style="color: var(--ink-soft);">5 / 20 chapters</div>
+          </div>
+          <div class="h-2 mt-3 rounded-full overflow-hidden" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:25%; background: var(--sage);"></div>
+          </div>
+          <div class="text-xs mt-2" style="color: var(--ink-soft);">Next: Prose 6 — A Letter to God · Friday</div>
+        </div>
+      </div>
+
+      <div class="reveal subject-card paper-card-strong rounded-3xl overflow-hidden flex flex-col">
+        <div class="relative h-44 overflow-hidden" style="background: var(--bg-2);">
+          <div class="mini-3d" data-subject="hindi"></div>
+          <div class="absolute top-3 left-3 paper-card rounded-full px-2.5 py-1 text-[11px] flex items-center gap-2" style="color: var(--ink);">
+            <div class="w-6 h-6 rounded-full overflow-hidden" style="background:#FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-amita"/></svg></div>
+            <span>Amita</span>
+          </div>
+          <div class="absolute top-3 right-3 text-[10px] mono px-2 py-1 rounded-full" style="background: var(--emerald); color:#fff;">AHEAD OF PLAN</div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="serif text-xl font-semibold" style="color: var(--ink);">हिंदी · 3rd</div>
+            <div class="text-xs mono" style="color: var(--ink-soft);">7 / 15 chapters</div>
+          </div>
+          <div class="h-2 mt-3 rounded-full overflow-hidden" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:47%; background: var(--copper);"></div>
+          </div>
+          <div class="text-xs mt-2" style="color: var(--ink-soft);">Next: कविता 4 — Surdas · Saturday</div>
+        </div>
       </div>
 
     </div>
   </div>
-</div>
+</section>
 
-<footer class="bg-white border-t border-slate-200 py-6 mt-6">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-    <div>© 2026 Ananta · Student Dashboard</div>
-    <div>Need help? support@ananta.in</div>
+<footer class="relative py-10 border-t" style="border-color: var(--line);">
+  <div class="max-w-7xl mx-auto px-5 lg:px-10 flex flex-wrap items-center justify-between text-xs" style="color: var(--ink-dim);">
+    <div>© 2026 Ananta · Made in Karnataka</div>
+    <div class="flex items-center gap-6">
+      <a href="#" class="link-u">Help</a>
+      <a href="#" class="link-u">Parent dashboard</a>
+      <a href="#" class="link-u">Sign out</a>
+    </div>
   </div>
 </footer>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // reveal
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  function fmt(n) { return n.toString().padStart(2, '0'); }
+  function updateCountdown() {
+    const now = new Date();
+    const target = new Date();
+    target.setHours(19, 0, 0, 0);
+    if (now > target) target.setDate(target.getDate() + 1);
+    const ms = target - now;
+    const hh = Math.floor(ms / 36e5);
+    const mm = Math.floor((ms % 36e5) / 6e4);
+    const ss = Math.floor((ms % 6e4) / 1000);
+    const text = `${fmt(hh)}:${fmt(mm)}:${fmt(ss)}`;
+    const a = document.getElementById('countdown');
+    const b = document.getElementById('countdown2');
+    if (a) a.textContent = text;
+    if (b) b.textContent = text;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 
-    // animate progress bars + rings when visible
-    const animObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          if (e.target.classList.contains('bar-fill'))
-            e.target.style.width = e.target.dataset.width + '%';
-          if (e.target.classList.contains('ring-fill')) {
-            const len = 201, pct = parseInt(e.target.dataset.offset,10);
-            e.target.style.strokeDashoffset = len - (len * (87/100));
-          }
-          animObs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    document.querySelectorAll('.bar-fill, .ring-fill').forEach(el => animObs.observe(el));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: .1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-    // counters
-    document.querySelectorAll('.stat-counter[data-target]').forEach(c => {
-      const target = parseInt(c.dataset.target, 10);
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            let cur = 0; const inc = Math.max(1, target/40);
-            const tick = () => { cur += inc;
-              if (cur >= target) { c.textContent = target; return; }
-              c.textContent = Math.floor(cur); requestAnimationFrame(tick); };
-            tick(); obs.unobserve(c);
-          }
-        });
-      });
-      obs.observe(c);
+  function buildMini(el, kind) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(38, el.clientWidth / el.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 5);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(el.clientWidth, el.clientHeight);
+    renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    el.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.65));
+    const sun = new THREE.DirectionalLight(0xFFF5DC, 0.9);
+    sun.position.set(3, 5, 4); sun.castShadow = true; sun.shadow.mapSize.set(512, 512);
+    scene.add(sun);
+
+    const subjectColor = { maths: 0xD97706, science: 0x059669, social: 0xB45309, kannada: 0xB8860B, english: 0x65A30D, hindi: 0x92400E };
+    const c = subjectColor[kind];
+    const mat = new THREE.MeshStandardMaterial({ color: c, roughness: 0.5, metalness: 0.18, flatShading: true });
+    const group = new THREE.Group();
+
+    if (kind === 'maths') {
+      const cube = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), mat); cube.castShadow = true; group.add(cube);
+      const helper = new THREE.Mesh(new THREE.BoxGeometry(1.85, 1.85, 1.85), new THREE.MeshBasicMaterial({ color: c, wireframe: true, transparent: true, opacity: 0.25 }));
+      group.add(helper);
+    } else if (kind === 'science') {
+      const cen = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 16), mat); cen.castShadow = true; group.add(cen);
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        const atom = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 14), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, metalness: 0.2 }));
+        atom.position.set(Math.cos(a) * 1.3, Math.sin(a) * 1.3, 0); atom.castShadow = true; group.add(atom);
+        const bond = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.3, 8), new THREE.MeshStandardMaterial({ color: c, roughness: 0.5 }));
+        bond.position.set(Math.cos(a) * 0.65, Math.sin(a) * 0.65, 0); bond.rotation.z = a - Math.PI / 2; group.add(bond);
+      }
+    } else if (kind === 'social') {
+      const globe = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 24), mat); globe.castShadow = true; group.add(globe);
+      const wire = new THREE.Mesh(new THREE.SphereGeometry(1.13, 24, 16), new THREE.MeshBasicMaterial({ color: 0x6B5D4F, wireframe: true, transparent: true, opacity: 0.25 }));
+      group.add(wire);
+    } else if (kind === 'kannada') {
+      const left = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.1), mat);
+      const right = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.1), mat);
+      left.position.set(-0.5, 0, 0); right.position.set(0.5, 0, 0); left.rotation.y = -0.3; right.rotation.y = 0.3;
+      left.castShadow = true; right.castShadow = true; group.add(left); group.add(right);
+      const letter = new THREE.Mesh(new THREE.TetrahedronGeometry(0.4, 0), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, metalness: 0.2 }));
+      letter.position.set(0, 0.6, 0.4); letter.castShadow = true; group.add(letter);
+    } else if (kind === 'english') {
+      const bubble = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.18, 16, 48), mat); bubble.castShadow = true;
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 12), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, metalness: 0.2 }));
+      dot.castShadow = true; group.add(bubble); group.add(dot);
+    } else {
+      const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.7, 0.22, 100, 16), mat); knot.castShadow = true; group.add(knot);
+    }
+    scene.add(group);
+
+    let mx = 0, my = 0;
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      mx = (e.clientX - r.left) / r.width - 0.5;
+      my = (e.clientY - r.top) / r.height - 0.5;
     });
 
-    // countdown to 7 PM
-    const cd = document.getElementById('countdown');
-    const joinBtn = document.getElementById('joinBtn');
-    function updateCountdown() {
-      const now = new Date();
-      const seven = new Date(now); seven.setHours(19,0,0,0);
-      const eight = new Date(now); eight.setHours(20,0,0,0);
-      if (now >= seven && now < eight) {
-        cd.textContent = 'LIVE NOW';
-        joinBtn.textContent = 'Join Live Class';
-        return;
-      }
-      let target = seven;
-      if (now >= eight) { target = new Date(now); target.setDate(target.getDate()+1); target.setHours(19,0,0,0); }
-      let diff = Math.floor((target - now)/1000);
-      const h = String(Math.floor(diff/3600)).padStart(2,'0');
-      const m = String(Math.floor((diff%3600)/60)).padStart(2,'0');
-      const s = String(diff%60).padStart(2,'0');
-      cd.textContent = `${h}:${m}:${s}`;
+    const clock = new THREE.Clock();
+    function loop() {
+      const t = clock.getElapsedTime();
+      group.rotation.y = t * 0.4 + mx * 1.2;
+      group.rotation.x = Math.sin(t * 0.5) * 0.2 - my * 0.6;
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
     }
-    updateCountdown(); setInterval(updateCountdown, 1000);
+    loop();
+  }
 
-    // confetti
-    const colors = ['#F59E0B','#0D9488','#1E3A8A','#FB7185','#A855F7','#FBBF24'];
-    function confetti(x, y) {
-      for (let i=0;i<36;i++){
-        const p = document.createElement('div');
-        p.className = 'confetti-piece';
-        p.style.left = x+'px'; p.style.top = y+'px';
-        p.style.background = colors[i % colors.length];
-        const ang = Math.random()*Math.PI*2, vel = 70 + Math.random()*150;
-        p.style.setProperty('--dx', Math.cos(ang)*vel + 'px');
-        p.style.setProperty('--dy', (Math.sin(ang)*vel - 90) + 'px');
-        p.style.setProperty('--rot', (Math.random()*900-450) + 'deg');
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 1250);
-      }
-    }
-    [document.getElementById('joinBtn'), document.getElementById('reviseBtn')].forEach(btn => {
-      if (btn) btn.addEventListener('click', () => {
-        const r = btn.getBoundingClientRect();
-        confetti(r.left + r.width/2, r.top + r.height/2);
-      });
-    });
-  });
+  document.querySelectorAll('.mini-3d').forEach(el => buildMini(el, el.dataset.subject));
 </script>
-
 </body>
 </html>

@@ -10,32 +10,34 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 <style>
-  /* ============ WARM ACADEMIC PALETTE — emerald + amber + cream + terracotta ============ */
+  /* ============ EDITORIAL CREAM PALETTE ============ */
   :root {
-    --bg-1: #0A1F1C;
-    --bg-2: #0F2A26;
-    --bg-3: #142E2A;
-    --cream: #FAF5EB;
-    --cream-2: #FEF3C7;
-    --cream-dim: #D6C8A8;
-    --amber: #F59E0B;
-    --amber-deep: #D97706;
-    --emerald: #10B981;
-    --emerald-deep: #059669;
-    --emerald-soft: #34D399;
-    --terracotta: #C2410C;
-    --walnut: #78350F;
-    --sage: #84CC16;
-    --copper: #A16207;
-    --gold: #CA8A04;
+    --bg: #FAF5EB;
+    --bg-2: #F5EDD8;
+    --paper: #FFFFFF;
+    --ink: #1F1611;
+    --ink-2: #3F2E22;
+    --ink-soft: #6B5D4F;
+    --ink-dim: #A89A87;
+    --line: #E8DFCF;
+    --line-2: #EAE1D1;
+    --amber: #D97706;
+    --amber-deep: #B45309;
+    --emerald: #059669;
+    --emerald-deep: #047857;
+    --terracotta: #B45309;
+    --gold: #B8860B;
+    --sage: #65A30D;
+    --copper: #92400E;
+    --burgundy: #9F1239;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   html { scroll-behavior: smooth; }
   body {
     font-family: 'Inter', sans-serif;
-    background: var(--bg-1);
-    color: var(--cream);
+    background: var(--bg);
+    color: var(--ink);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     line-height: 1.55;
@@ -43,97 +45,87 @@
   .serif { font-family: 'Fraunces', serif; }
   .mono { font-family: 'JetBrains Mono', monospace; }
 
-  /* paper grain overlay — subtle warmth */
+  /* very subtle grain */
   body::before {
     content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 5;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .85 0 0 0 0 .75 0 0 0 0 .55 0 0 0 .6 0'/></filter><rect width='100' height='100' filter='url(%23n)' opacity='.45'/></svg>");
-    opacity: .08; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .035;
   }
 
-  /* warm emerald-amber background mesh */
+  /* warm cream gradient mesh — quiet */
   .mesh-bg {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
     background:
-      radial-gradient(900px 600px at 18% 8%, rgba(16, 185, 129, 0.22), transparent 60%),
-      radial-gradient(800px 600px at 86% 5%, rgba(245, 158, 11, 0.22), transparent 60%),
-      radial-gradient(900px 700px at 50% 110%, rgba(120, 53, 15, 0.45), transparent 60%),
-      linear-gradient(180deg, #0A1F1C 0%, #0F2A26 100%);
+      radial-gradient(900px 600px at 18% 8%, rgba(217, 119, 6, 0.05), transparent 60%),
+      radial-gradient(800px 600px at 86% 5%, rgba(5, 150, 105, 0.05), transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, rgba(180, 83, 9, 0.07), transparent 60%);
   }
 
-  /* Three.js canvas containers */
-  #hero-canvas, #pavilion-canvas {
-    position: absolute; inset: 0; z-index: 1;
-  }
-  #hero-canvas canvas, #pavilion-canvas canvas, .mini-3d canvas {
-    display: block; width: 100% !important; height: 100% !important;
-  }
-
-  /* glass surfaces — warm cream tinted */
-  .glass {
-    background: linear-gradient(180deg, rgba(250, 245, 235, 0.06), rgba(250, 245, 235, 0.02));
-    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(254, 243, 199, 0.10);
+  /* paper / glass surfaces */
+  .paper-card {
+    background: #FFFFFFCC;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--line);
     box-shadow:
-      0 1px 0 rgba(250, 245, 235, 0.06) inset,
-      0 30px 60px -30px rgba(10, 31, 28, 0.7);
+      0 1px 0 #FFFFFFcc inset,
+      0 2px 6px rgba(31, 22, 17, 0.03),
+      0 16px 40px -22px rgba(31, 22, 17, 0.10);
   }
-  .glass-strong {
-    background: linear-gradient(180deg, rgba(250, 245, 235, 0.10), rgba(250, 245, 235, 0.04));
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(254, 243, 199, 0.14);
+  .paper-card-strong {
+    background: #FFFFFF;
+    border: 1px solid var(--line);
+    box-shadow:
+      0 1px 0 #FFFFFFff inset,
+      0 6px 16px -8px rgba(31, 22, 17, 0.07),
+      0 22px 60px -28px rgba(31, 22, 17, 0.14);
   }
-  .amber-ring { box-shadow: 0 0 0 1px rgba(254, 243, 199, 0.08), 0 30px 90px -30px rgba(245, 158, 11, 0.45); }
 
-  /* serif headings for warmth */
   h1, h2, h3 { font-family: 'Fraunces', serif; }
-  h1 { font-weight: 700; letter-spacing: -0.02em; }
-  h2 { font-weight: 600; letter-spacing: -0.015em; }
-  h3 { font-weight: 600; letter-spacing: -0.01em; }
+  h1 { font-weight: 700; letter-spacing: -0.025em; }
+  h2 { font-weight: 600; letter-spacing: -0.018em; }
+  h3 { font-weight: 600; letter-spacing: -0.012em; }
 
-  /* warm gradient accent text */
   .accent-warm {
-    background: linear-gradient(120deg, var(--amber) 0%, var(--emerald-soft) 60%, var(--cream-2) 100%);
+    background: linear-gradient(120deg, var(--amber) 0%, var(--terracotta) 60%, var(--burgundy) 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.25));
   }
 
   /* CTAs */
   .btn-primary {
     padding: 13px 26px; border-radius: 999px; font-weight: 600;
-    background: linear-gradient(135deg, var(--amber), var(--terracotta));
-    color: #fff; transition: all .3s ease;
-    box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--ink);
+    color: var(--bg); transition: all .25s ease;
+    box-shadow: 0 8px 24px -8px rgba(31, 22, 17, 0.35);
   }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 50px -14px rgba(217, 119, 6, 0.7); }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--ink-2); box-shadow: 0 14px 36px -10px rgba(31, 22, 17, 0.5); }
+
+  .btn-amber {
+    padding: 13px 26px; border-radius: 999px; font-weight: 600;
+    background: var(--amber); color: #fff; transition: all .25s ease;
+    box-shadow: 0 8px 24px -8px rgba(217, 119, 6, 0.4);
+  }
+  .btn-amber:hover { transform: translateY(-2px); background: var(--amber-deep); }
+
   .btn-ghost {
     padding: 13px 26px; border-radius: 999px; font-weight: 600;
-    background: rgba(254, 243, 199, 0.06); color: var(--cream);
-    border: 1px solid rgba(254, 243, 199, 0.14);
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--ink);
     transition: all .25s ease;
   }
-  .btn-ghost:hover { background: rgba(254, 243, 199, 0.12); transform: translateY(-2px); }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
 
-  /* card 3D */
-  .card-3d {
-    transform: perspective(1200px) rotateX(4deg) rotateY(-4deg);
-    transition: transform .5s cubic-bezier(.2,.7,.2,1);
-  }
-  .card-3d:hover { transform: perspective(1200px) rotateX(0) rotateY(0) translateY(-6px); }
-  .tilt-3d { transition: transform .25s ease; }
-  .tilt-3d:hover { transform: translateY(-6px); }
+  .tilt-3d { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; }
+  .tilt-3d:hover { transform: translateY(-6px); box-shadow: 0 24px 50px -20px rgba(31, 22, 17, 0.22); }
 
-  /* gradient border for featured plan */
   .grad-border {
     position: relative;
-    background: linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
+    background: #FFFFFF padding-box,
                 linear-gradient(135deg, var(--amber), var(--emerald), var(--terracotta)) border-box;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
   }
 
-  /* dot grid */
   .dot-grid {
-    background-image: radial-gradient(rgba(254, 243, 199, 0.08) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(31, 22, 17, 0.06) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
@@ -151,8 +143,7 @@
   /* scroll progress */
   #scroll-progress {
     position: fixed; left: 0; top: 0; height: 2px; z-index: 100;
-    background: linear-gradient(90deg, var(--amber), var(--emerald), var(--terracotta));
-    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    background: linear-gradient(90deg, var(--amber), var(--terracotta));
     width: 0; transition: width .1s;
   }
 
@@ -165,6 +156,7 @@
   .enter-2 { animation: enter .9s .30s both; }
   .enter-3 { animation: enter .9s .48s both; }
   .enter-4 { animation: enter .9s .66s both; }
+  .enter-5 { animation: enter .9s .84s both; }
 
   @keyframes float {
     0%,100% { transform: translateY(0); }
@@ -172,77 +164,211 @@
   }
   .float { animation: float 3.5s ease-in-out infinite; }
 
+  /* blinking eyes for anime portraits */
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    94%, 98%      { transform: scaleY(0.1); }
+  }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
+
   .mini-3d { position: absolute; inset: 0; }
-  .h-screen-vh { height: 100vh; height: 100dvh; }
 
-  /* timeline strip — emerald/amber/terracotta */
-  .timeline-row {
-    display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    gap: 4px;
-  }
+  /* calendar timeline */
+  .timeline-row { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; }
   .timeline-cell {
-    border-radius: 6px;
-    padding: 10px 8px;
-    font-size: 11px;
-    text-align: center;
+    border-radius: 6px; padding: 11px 8px;
+    font-size: 11px; text-align: center; font-weight: 600;
   }
-  .tl-teach { background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.35); color: var(--emerald-soft); }
-  .tl-revise { background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(245, 158, 11, 0.40); color: var(--cream-2); }
-  .tl-exam { background: rgba(194, 65, 12, 0.40); border: 1px solid rgba(194, 65, 12, 0.6); color: var(--cream); }
+  .tl-teach { background: #ECFDF5; border: 1px solid #A7F3D0; color: var(--emerald-deep); }
+  .tl-revise { background: #FEF3C7; border: 1px solid #FCD34D; color: var(--amber-deep); }
+  .tl-exam { background: #FEE2E2; border: 1px solid #FCA5A5; color: var(--burgundy); }
 
-  select { color: var(--cream); }
+  /* link underline animation */
+  .link-u {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size .3s;
+  }
+  .link-u:hover { background-size: 0 1px; }
+
+  nav.scrolled .nav-shell {
+    background: rgba(250, 245, 235, 0.85);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--line);
+  }
+
+  /* teacher portrait gradient halo behind each face */
+  .portrait-halo {
+    position: absolute; inset: -8px; border-radius: 50%;
+    background: radial-gradient(circle, currentColor 0%, transparent 70%);
+    opacity: 0.16; filter: blur(8px); pointer-events: none;
+  }
 </style>
 </head>
 <body>
+
+<!-- shared SVG defs for the six anime teacher faces -->
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <!-- skin gradient -->
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/>
+    </radialGradient>
+
+    <!-- praketa (maths, amber) -->
+    <symbol id="face-praketa" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 60 Q24 20 60 18 Q96 20 98 60 Q96 38 80 36 Q70 56 60 38 Q50 56 40 36 Q24 38 22 60Z" fill="#3F2418"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#1F1611"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#1F1611"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M40 58 Q46 55 52 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M68 58 Q74 55 80 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M60 74 Q58 80 60 84" stroke="#C68B5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="80" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+    </symbol>
+
+    <!-- vihaan (science, emerald) — spiky hair -->
+    <symbol id="face-vihaan" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M20 56 Q24 18 60 16 Q96 18 100 56 Q90 32 78 38 L84 22 L74 36 L66 18 L60 36 L52 18 L46 36 L36 22 L42 38 Q30 32 20 56Z" fill="#2B1410"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#059669"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#059669"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M40 58 Q46 55 52 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M68 58 Q74 55 80 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M60 74 Q58 80 60 84" stroke="#C68B5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="80" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+    </symbol>
+
+    <!-- adhvara (social, terracotta) — swept side hair -->
+    <symbol id="face-adhvara" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 56 Q22 20 60 18 Q96 18 100 56 Q102 44 96 38 Q70 30 50 38 Q44 28 36 34 Q26 38 22 56Z" fill="#1F1611"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B45309"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B45309"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M40 58 Q46 55 52 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M68 58 Q74 55 80 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M60 74 Q58 80 60 84" stroke="#C68B5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="80" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+    </symbol>
+
+    <!-- harini (kannada, gold) — long hair -->
+    <symbol id="face-harini" viewBox="0 0 120 120">
+      <path d="M18 58 Q14 110 60 112 Q106 110 102 58 Q102 18 60 16 Q18 18 18 58Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B8860B"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B8860B"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M40 58 Q46 55 52 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M68 58 Q74 55 80 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M60 74 Q58 80 60 84" stroke="#C68B5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="80" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <!-- bindi -->
+      <circle cx="60" cy="48" r="2" fill="#9F1239"/>
+    </symbol>
+
+    <!-- anika (english, sage) — medium hair + glasses -->
+    <symbol id="face-anika" viewBox="0 0 120 120">
+      <path d="M18 56 Q14 92 60 98 Q106 92 102 56 Q102 16 60 14 Q18 16 18 56Z" fill="#2B1410"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#65A30D"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#65A30D"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <!-- glasses -->
+      <circle cx="46" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <circle cx="74" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <line x1="56" y1="69" x2="64" y2="69" stroke="#B8860B" stroke-width="1.6"/>
+      <path d="M40 56 Q46 53 52 56" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M68 56 Q74 53 80 56" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M60 80 Q58 86 60 90" stroke="#C68B5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M52 96 Q60 102 68 96" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="38" cy="86" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="82" cy="86" r="3.5" fill="#FCA5A5" opacity=".55"/>
+    </symbol>
+
+    <!-- amita (hindi, copper) — bun on top -->
+    <symbol id="face-amita" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="14" rx="14" ry="10" fill="#3F2418"/>
+      <ellipse cx="60" cy="14" rx="14" ry="10" fill="none" stroke="#92400E" stroke-width="1.5"/>
+      <path d="M22 56 Q22 22 60 22 Q98 22 98 56 Q88 36 60 34 Q32 36 22 56Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#92400E"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#92400E"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M40 58 Q46 55 52 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M68 58 Q74 55 80 58" stroke="#1F1611" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M60 74 Q58 80 60 84" stroke="#C68B5C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="80" cy="84" r="3.5" fill="#FCA5A5" opacity=".55"/>
+      <circle cx="60" cy="48" r="1.6" fill="#9F1239"/>
+    </symbol>
+  </defs>
+</svg>
 
 <div id="scroll-progress"></div>
 <div class="mesh-bg"></div>
 
 <!-- ============= NAV ============= -->
-<nav class="fixed top-0 left-0 right-0 z-50 px-5 lg:px-8 pt-5">
-  <div class="max-w-7xl mx-auto glass rounded-2xl px-5 py-3 flex items-center justify-between">
+<nav id="topnav" class="fixed top-0 left-0 right-0 z-50 px-5 lg:px-8 pt-4 transition-all">
+  <div class="max-w-7xl mx-auto nav-shell rounded-2xl px-5 py-3 flex items-center justify-between transition-all">
     <a href="#" class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-           style="background: linear-gradient(135deg, var(--amber), var(--terracotta));">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--ink);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#fff" stroke-width="2"/>
-          <circle cx="12" cy="12" r="3" fill="#FEF3C7"/>
+          <path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/>
+          <circle cx="12" cy="12" r="3" fill="#D97706"/>
         </svg>
       </div>
       <div>
-        <div class="serif font-bold text-lg leading-none">Ananta</div>
-        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--cream-dim);">FOR KARNATAKA STATE BOARD</div>
+        <div class="serif font-bold text-lg leading-none" style="color: var(--ink);">Ananta</div>
+        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--ink-soft);">FOR KARNATAKA STATE BOARD</div>
       </div>
     </a>
-    <div class="hidden md:flex items-center gap-7 text-sm" style="color: var(--cream-dim);">
-      <a class="hover:text-white transition" href="#how">How it works</a>
-      <a class="hover:text-white transition" href="#teachers">Teachers</a>
-      <a class="hover:text-white transition" href="#calendar">Calendar</a>
-      <a class="hover:text-white transition" href="#pricing">Pricing</a>
+    <div class="hidden md:flex items-center gap-7 text-sm" style="color: var(--ink-soft);">
+      <a class="link-u" href="#how">How it works</a>
+      <a class="link-u" href="#teachers">Teachers</a>
+      <a class="link-u" href="#subjects">Lessons</a>
+      <a class="link-u" href="#calendar">Calendar</a>
+      <a class="link-u" href="#pricing">Pricing</a>
     </div>
     <button class="btn-primary text-sm">Join the waitlist</button>
   </div>
 </nav>
 
-<!-- ============= HERO ============= -->
-<section class="relative h-screen-vh overflow-hidden">
-  <div id="hero-canvas"></div>
+<!-- ============= HERO (no 3D, generous top padding so it doesn't tuck under nav) ============= -->
+<section class="relative pt-44 md:pt-48 pb-24 overflow-hidden">
+  <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
 
-  <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-    <div class="enter-1 glass rounded-full px-4 py-1.5 text-xs font-medium tracking-wide mb-7 inline-flex items-center gap-2" style="color: var(--cream);">
-      <span class="w-2 h-2 rounded-full" style="background: var(--emerald-soft); box-shadow: 0 0 10px var(--emerald-soft);"></span>
+    <div class="enter-1 paper-card rounded-full px-4 py-1.5 text-xs font-medium tracking-wide mb-7 inline-flex items-center gap-2" style="color: var(--ink-2);">
+      <span class="w-2 h-2 rounded-full" style="background: var(--emerald);"></span>
       Live classes begin July 2026, once the first ten students have joined.
     </div>
 
-    <h1 class="enter-2 serif font-bold leading-[1.02] text-5xl md:text-7xl lg:text-[5.5rem] max-w-5xl">
-      A tutoring website for the<br/>
-      Karnataka syllabus, <span class="accent-warm italic">taught entirely by AI</span>,<br/>
-      and built in 3D.
+    <h1 class="enter-2 serif font-bold leading-[1.04] text-4xl md:text-6xl lg:text-7xl" style="color: var(--ink);">
+      A tutoring website for the Karnataka syllabus,<br/>
+      <span class="accent-warm italic">taught entirely by AI</span>.
     </h1>
 
-    <p class="enter-3 mt-7 max-w-2xl text-base md:text-lg leading-relaxed" style="color: var(--cream-dim);">
-      Ananta runs daily one-hour live classes for Grades 10, 11 and 12. Each subject has its own AI teacher who explains lessons through 3D scenes you can rotate and interact with — anatomy, geometry, history, language alike. ₹299 a month.
+    <p class="enter-3 mt-6 max-w-2xl mx-auto text-base md:text-lg leading-relaxed" style="color: var(--ink-soft);">
+      Ananta runs daily one-hour live classes for Grades 10, 11 and 12. Each subject has its own AI teacher who explains lessons through clear, interactive 3D scenes — anatomy, geometry, history, language alike. ₹299 a month.
     </p>
 
     <div class="enter-4 mt-8 flex flex-wrap gap-3 justify-center">
@@ -250,37 +376,30 @@
       <button class="btn-ghost">Watch a sample lesson</button>
     </div>
 
-    <div class="enter-4 mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl w-full text-left">
-      <div class="glass rounded-2xl px-4 py-3">
-        <div class="text-[10px] mono tracking-widest" style="color: var(--cream-dim); opacity: .8;">DAILY · 7 — 8 PM</div>
-        <div class="text-sm mt-1" style="color: var(--cream);">One subject per evening, six days a week.</div>
+    <div class="enter-5 mt-14 grid grid-cols-2 md:grid-cols-4 gap-3 text-left">
+      <div class="paper-card rounded-2xl px-4 py-3">
+        <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">DAILY · 7 — 8 PM</div>
+        <div class="text-sm mt-1" style="color: var(--ink);">One subject per evening, six days a week.</div>
       </div>
-      <div class="glass rounded-2xl px-4 py-3">
-        <div class="text-[10px] mono tracking-widest" style="color: var(--cream-dim); opacity: .8;">TWO MEDIUMS</div>
-        <div class="text-sm mt-1" style="color: var(--cream);">English-medium, and Kannada-medium taught in Kanglish.</div>
+      <div class="paper-card rounded-2xl px-4 py-3">
+        <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">TWO MEDIUMS</div>
+        <div class="text-sm mt-1" style="color: var(--ink);">English-medium, and Kannada-medium taught in Kanglish.</div>
       </div>
-      <div class="glass rounded-2xl px-4 py-3">
-        <div class="text-[10px] mono tracking-widest" style="color: var(--cream-dim); opacity: .8;">RECORDED · ON-DEMAND</div>
-        <div class="text-sm mt-1" style="color: var(--cream);">Miss it live, watch later. Same lesson, same notes.</div>
+      <div class="paper-card rounded-2xl px-4 py-3">
+        <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">RECORDED · ON-DEMAND</div>
+        <div class="text-sm mt-1" style="color: var(--ink);">Miss it live, watch later. Same lesson, same notes.</div>
       </div>
-      <div class="glass rounded-2xl px-4 py-3">
-        <div class="text-[10px] mono tracking-widest" style="color: var(--cream-dim); opacity: .8;">SYLLABUS BY JAN 2027</div>
-        <div class="text-sm mt-1" style="color: var(--cream);">February and March are reserved for KSEEB model paper revision.</div>
+      <div class="paper-card rounded-2xl px-4 py-3">
+        <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SYLLABUS BY JAN 2027</div>
+        <div class="text-sm mt-1" style="color: var(--ink);">February and March are reserved for KSEEB model paper revision.</div>
       </div>
-    </div>
-
-    <div class="absolute bottom-7 left-1/2 -translate-x-1/2 text-xs flex flex-col items-center gap-2 float" style="color: rgba(254, 243, 199, 0.4);">
-      <svg width="14" height="20" viewBox="0 0 14 20" fill="none">
-        <rect x="1" y="1" width="12" height="18" rx="6" stroke="currentColor" stroke-width="1.5"/>
-        <circle cx="7" cy="6" r="2" fill="currentColor"/>
-      </svg>
     </div>
   </div>
 </section>
 
 <!-- ============= MARQUEE ============= -->
-<section class="relative z-10 py-5 overflow-hidden border-y" style="border-color: rgba(254, 243, 199, 0.05);">
-  <div class="flex marquee-track whitespace-nowrap gap-12 mono text-sm" style="color: rgba(214, 200, 168, 0.55);">
+<section class="relative z-10 py-5 overflow-hidden border-y" style="border-color: var(--line);">
+  <div class="flex marquee-track whitespace-nowrap gap-12 mono text-sm" style="color: var(--ink-soft);">
     <div class="flex gap-12">
       <span>Six AI teachers</span><span style="color:var(--amber);">·</span>
       <span>Daily live 7 — 8 PM</span><span style="color:var(--amber);">·</span>
@@ -308,170 +427,233 @@
 <section id="how" class="relative py-28 overflow-hidden">
   <div class="relative z-10 max-w-5xl mx-auto px-6">
     <div class="reveal">
-      <div class="text-xs mono tracking-widest mb-3" style="color: var(--cream-dim); opacity: .7;">— HOW IT WORKS</div>
-      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight max-w-3xl">
+      <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">— HOW IT WORKS</div>
+      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight max-w-3xl" style="color: var(--ink);">
         A week of Ananta looks like a week of school — with better teachers and a longer attention span.
       </h2>
-      <p class="mt-5 max-w-3xl leading-relaxed" style="color: var(--cream-dim);">
+      <p class="mt-5 max-w-3xl leading-relaxed text-lg" style="color: var(--ink-soft);">
         Every weekday at 7 PM, one subject is taught for an hour. Monday is Mathematics with Praketa. Tuesday is Science with Vihaan. Wednesday is Social Science with Adhvara. Thursday is Kannada with Harini. Friday is English with Anika. Saturday is Hindi with Amita. On Sunday, there's a one-hour weekly test on what was taught that week, followed by an hour of doubt clearing where the AI teachers answer questions from anyone in the cohort.
       </p>
-      <p class="mt-4 max-w-3xl leading-relaxed" style="color: var(--cream-dim);">
+      <p class="mt-4 max-w-3xl leading-relaxed text-lg" style="color: var(--ink-soft);">
         Every class is recorded the moment it ends. Notes are generated automatically — summary, key formulas, diagrams — and saved to the student's dashboard. A short quiz appears right after the class to reinforce what was just taught. Anything the student gets wrong becomes a flashcard in the Memory Deck, which surfaces it again a few days later on a spaced-repetition schedule.
       </p>
     </div>
   </div>
 </section>
 
-<!-- ============= TEACHERS PAVILION ============= -->
-<section id="teachers" class="relative py-24 overflow-hidden">
-  <div class="absolute inset-0 dot-grid opacity-30"></div>
+<!-- ============= TEACHERS — clean editorial cards with anime SVG portraits (NO 3D) ============= -->
+<section id="teachers" class="relative py-28 overflow-hidden" style="background: var(--bg-2);">
+  <div class="absolute inset-0 dot-grid opacity-40"></div>
 
   <div class="relative z-10 max-w-7xl mx-auto px-6">
-    <div class="reveal mb-10">
-      <div class="text-xs mono tracking-widest mb-3" style="color: var(--cream-dim); opacity: .7;">— THE TEACHERS</div>
-      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight max-w-3xl">
+    <div class="reveal mb-12">
+      <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">— THE TEACHERS</div>
+      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight max-w-3xl" style="color: var(--ink);">
         Six teachers, one for each subject.
       </h2>
-      <p class="mt-4 max-w-2xl" style="color: var(--cream-dim);">
-        Each AI teacher is designed around one subject — its tone, its pace, its pedagogy. Move your cursor across the pavilion to look around.
+      <p class="mt-4 max-w-2xl text-lg" style="color: var(--ink-soft);">
+        Each AI teacher is designed around one subject — its tone, its pace, its pedagogy. You'll see the same teacher every week for that subject, and parent reports come signed by them too.
       </p>
     </div>
 
-    <div class="reveal relative h-[560px] glass-strong rounded-3xl overflow-hidden amber-ring">
-      <div id="pavilion-canvas"></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-6 left-6 glass rounded-full px-3 py-1.5 text-xs flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" style="background:#F59E0B;"></span>
-          Praketa · Mathematics · Monday
+      <!-- PRAKETA -->
+      <div class="reveal paper-card-strong rounded-3xl p-6 tilt-3d">
+        <div class="flex items-start gap-4">
+          <div class="relative w-24 h-24 rounded-full overflow-hidden shrink-0" style="background:#FEF3C7; color:#D97706;">
+            <div class="portrait-halo"></div>
+            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">MATHEMATICS · MONDAY</div>
+            <div class="serif text-2xl font-semibold mt-0.5" style="color: var(--ink);">Praketa</div>
+            <div class="mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full" style="background:#FEF3C7; color:#B45309;">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#D97706;"></span>
+              15 chapters · G10
+            </div>
+          </div>
         </div>
-        <div class="absolute top-6 right-6 glass rounded-full px-3 py-1.5 text-xs flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" style="background:#10B981;"></span>
-          Vihaan · Science · Tuesday
-        </div>
-        <div class="absolute top-1/2 left-6 -translate-y-1/2 glass rounded-full px-3 py-1.5 text-xs flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" style="background:#C2410C;"></span>
-          Adhvara · Social Science · Wednesday
-        </div>
-        <div class="absolute top-1/2 right-6 -translate-y-1/2 glass rounded-full px-3 py-1.5 text-xs flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" style="background:#CA8A04;"></span>
-          Harini · Kannada · Thursday
-        </div>
-        <div class="absolute bottom-6 left-6 glass rounded-full px-3 py-1.5 text-xs flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" style="background:#84CC16;"></span>
-          Anika · English · Friday
-        </div>
-        <div class="absolute bottom-6 right-6 glass rounded-full px-3 py-1.5 text-xs flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" style="background:#A16207;"></span>
-          Amita · Hindi · Saturday
-        </div>
+        <p class="text-sm mt-4 leading-relaxed" style="color: var(--ink-soft);">
+          Makes numbers feel less abstract. Walks through proofs once with full reasoning, then shows the short way. Big on visualising geometry and trigonometry before introducing formulas.
+        </p>
       </div>
+
+      <!-- VIHAAN -->
+      <div class="reveal paper-card-strong rounded-3xl p-6 tilt-3d">
+        <div class="flex items-start gap-4">
+          <div class="relative w-24 h-24 rounded-full overflow-hidden shrink-0" style="background:#D1FAE5; color:#059669;">
+            <div class="portrait-halo"></div>
+            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SCIENCE · TUESDAY</div>
+            <div class="serif text-2xl font-semibold mt-0.5" style="color: var(--ink);">Vihaan</div>
+            <div class="mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full" style="background:#D1FAE5; color:#047857;">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#059669;"></span>
+              16 chapters · G10
+            </div>
+          </div>
+        </div>
+        <p class="text-sm mt-4 leading-relaxed" style="color: var(--ink-soft);">
+          Treats every chapter as a demonstration. Reactions are simulated in front of you, anatomy is opened up layer by layer, physics is shown happening before any equation appears.
+        </p>
+      </div>
+
+      <!-- ADHVARA -->
+      <div class="reveal paper-card-strong rounded-3xl p-6 tilt-3d">
+        <div class="flex items-start gap-4">
+          <div class="relative w-24 h-24 rounded-full overflow-hidden shrink-0" style="background:#FED7AA; color:#B45309;">
+            <div class="portrait-halo"></div>
+            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SOCIAL SCIENCE · WEDNESDAY</div>
+            <div class="serif text-2xl font-semibold mt-0.5" style="color: var(--ink);">Adhvara</div>
+            <div class="mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full" style="background:#FED7AA; color:#9A3412;">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#B45309;"></span>
+              30 chapters · G10
+            </div>
+          </div>
+        </div>
+        <p class="text-sm mt-4 leading-relaxed" style="color: var(--ink-soft);">
+          Teaches history like a story you'd actually remember. Civics and economics are explained with examples from Karnataka and India today, not generic textbook scenarios.
+        </p>
+      </div>
+
+      <!-- HARINI -->
+      <div class="reveal paper-card-strong rounded-3xl p-6 tilt-3d">
+        <div class="flex items-start gap-4">
+          <div class="relative w-24 h-24 rounded-full overflow-hidden shrink-0" style="background:#FEF3C7; color:#B8860B;">
+            <div class="portrait-halo"></div>
+            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-harini"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">KANNADA · THURSDAY</div>
+            <div class="serif text-2xl font-semibold mt-0.5" style="color: var(--ink);">Harini · ಹರಿಣಿ</div>
+            <div class="mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full" style="background:#FEF3C7; color:#854D0E;">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#B8860B;"></span>
+              20 chapters · G10 · 1st language
+            </div>
+          </div>
+        </div>
+        <p class="text-sm mt-4 leading-relaxed" style="color: var(--ink-soft);">
+          Reads vachanas of Basavanna and prose of Kuvempu with the warmth of someone who grew up with them. Explains grammar without making it dreary.
+        </p>
+      </div>
+
+      <!-- ANIKA -->
+      <div class="reveal paper-card-strong rounded-3xl p-6 tilt-3d">
+        <div class="flex items-start gap-4">
+          <div class="relative w-24 h-24 rounded-full overflow-hidden shrink-0" style="background:#ECFCCB; color:#65A30D;">
+            <div class="portrait-halo"></div>
+            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-anika"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">ENGLISH · FRIDAY</div>
+            <div class="serif text-2xl font-semibold mt-0.5" style="color: var(--ink);">Anika</div>
+            <div class="mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full" style="background:#ECFCCB; color:#3F6212;">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#65A30D;"></span>
+              20 chapters · G10 · 2nd language
+            </div>
+          </div>
+        </div>
+        <p class="text-sm mt-4 leading-relaxed" style="color: var(--ink-soft);">
+          Treats English as something to use, not just pass. Listens to your spoken answers and corrects them gently. Drills grammar with examples you'd actually say out loud.
+        </p>
+      </div>
+
+      <!-- AMITA -->
+      <div class="reveal paper-card-strong rounded-3xl p-6 tilt-3d">
+        <div class="flex items-start gap-4">
+          <div class="relative w-24 h-24 rounded-full overflow-hidden shrink-0" style="background:#FED7AA; color:#92400E;">
+            <div class="portrait-halo"></div>
+            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-amita"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">HINDI · SATURDAY</div>
+            <div class="serif text-2xl font-semibold mt-0.5" style="color: var(--ink);">Amita · अमिता</div>
+            <div class="mt-1 inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full" style="background:#FED7AA; color:#7C2D12;">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:#92400E;"></span>
+              15 chapters · G10 · 3rd language
+            </div>
+          </div>
+        </div>
+        <p class="text-sm mt-4 leading-relaxed" style="color: var(--ink-soft);">
+          Speaks slowly and clearly for students who are encountering Hindi as a third language. Stories are read with imagery alongside, poems with their imagery rendered in motion.
+        </p>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ============= EVERY SUBJECT IN 3D ============= -->
+<!-- ============= EVERY SUBJECT IN 3D (the only section that keeps 3D) ============= -->
 <section id="subjects" class="relative py-28 overflow-hidden">
   <div class="relative z-10 max-w-7xl mx-auto px-6">
     <div class="reveal mb-12 max-w-3xl">
-      <div class="text-xs mono tracking-widest mb-3" style="color: var(--cream-dim); opacity: .7;">— LESSONS</div>
-      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight">
+      <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">— LESSONS</div>
+      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight" style="color: var(--ink);">
         3D isn't only for Science. It's how every subject is taught.
       </h2>
-      <p class="mt-4 leading-relaxed" style="color: var(--cream-dim);">
+      <p class="mt-4 leading-relaxed text-lg" style="color: var(--ink-soft);">
         When Adhvara teaches the French Revolution, the Bastille is built around you. When Praketa explains surface area, a cube unfolds in mid-air. When Harini reads a vachana, the scene plays out in a 3D village. The 3D isn't decoration — it's the lesson.
       </p>
     </div>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-      <div class="reveal card-3d relative h-80 rounded-3xl overflow-hidden grad-border tilt-3d">
+      <div class="reveal relative h-80 rounded-3xl overflow-hidden paper-card-strong tilt-3d">
         <div class="mini-3d" data-subject="maths"></div>
-        <div class="absolute inset-0" style="background: linear-gradient(180deg, transparent 50%, rgba(10,31,28,.88) 100%);"></div>
-        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div>
-            <div class="text-xs mono" style="color: var(--cream-dim); opacity: .7;">PRAKETA · MONDAY</div>
-            <div class="serif text-2xl font-semibold mt-1">Mathematics</div>
-          </div>
-          <div>
-            <div class="text-sm" style="color: var(--cream-dim);">Rotating solids for mensuration. Function plots that follow your finger. Angle proofs visualised, not memorised.</div>
-            <div class="text-[11px] mono mt-2" style="color: var(--cream-dim); opacity: .5;">15 chapters · Grade 10</div>
-          </div>
+        <div class="absolute inset-x-0 bottom-0 p-6" style="background: linear-gradient(to top, rgba(255,255,255,.96) 30%, rgba(255,255,255,0));">
+          <div class="text-xs mono" style="color: var(--ink-soft);">PRAKETA · MONDAY</div>
+          <div class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Mathematics</div>
+          <div class="text-sm mt-2" style="color: var(--ink-soft);">Rotating solids for mensuration. Function plots that follow your finger. Angle proofs visualised, not memorised.</div>
         </div>
       </div>
 
-      <div class="reveal card-3d relative h-80 rounded-3xl overflow-hidden grad-border tilt-3d">
+      <div class="reveal relative h-80 rounded-3xl overflow-hidden paper-card-strong tilt-3d">
         <div class="mini-3d" data-subject="science"></div>
-        <div class="absolute inset-0" style="background: linear-gradient(180deg, transparent 50%, rgba(10,31,28,.88) 100%);"></div>
-        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div>
-            <div class="text-xs mono" style="color: var(--cream-dim); opacity: .7;">VIHAAN · TUESDAY</div>
-            <div class="serif text-2xl font-semibold mt-1">Science</div>
-          </div>
-          <div>
-            <div class="text-sm" style="color: var(--cream-dim);">Open the human heart and watch valves working. Walk inside a cell. Build a chemical reaction atom by atom.</div>
-            <div class="text-[11px] mono mt-2" style="color: var(--cream-dim); opacity: .5;">16 chapters · Grade 10</div>
-          </div>
+        <div class="absolute inset-x-0 bottom-0 p-6" style="background: linear-gradient(to top, rgba(255,255,255,.96) 30%, rgba(255,255,255,0));">
+          <div class="text-xs mono" style="color: var(--ink-soft);">VIHAAN · TUESDAY</div>
+          <div class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Science</div>
+          <div class="text-sm mt-2" style="color: var(--ink-soft);">Open the human heart and watch valves working. Walk inside a cell. Build a chemical reaction atom by atom.</div>
         </div>
       </div>
 
-      <div class="reveal card-3d relative h-80 rounded-3xl overflow-hidden grad-border tilt-3d">
+      <div class="reveal relative h-80 rounded-3xl overflow-hidden paper-card-strong tilt-3d">
         <div class="mini-3d" data-subject="social"></div>
-        <div class="absolute inset-0" style="background: linear-gradient(180deg, transparent 50%, rgba(10,31,28,.88) 100%);"></div>
-        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div>
-            <div class="text-xs mono" style="color: var(--cream-dim); opacity: .7;">ADHVARA · WEDNESDAY</div>
-            <div class="serif text-2xl font-semibold mt-1">Social Science</div>
-          </div>
-          <div>
-            <div class="text-sm" style="color: var(--cream-dim);">Stand in the Bastille. Walk through Parliament. Rotate an interactive globe for geography. Drag a supply curve to see prices shift.</div>
-            <div class="text-[11px] mono mt-2" style="color: var(--cream-dim); opacity: .5;">30 chapters · Grade 10</div>
-          </div>
+        <div class="absolute inset-x-0 bottom-0 p-6" style="background: linear-gradient(to top, rgba(255,255,255,.96) 30%, rgba(255,255,255,0));">
+          <div class="text-xs mono" style="color: var(--ink-soft);">ADHVARA · WEDNESDAY</div>
+          <div class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Social Science</div>
+          <div class="text-sm mt-2" style="color: var(--ink-soft);">Stand in the Bastille. Walk through Parliament. Rotate an interactive globe for geography. Drag a supply curve to see prices shift.</div>
         </div>
       </div>
 
-      <div class="reveal card-3d relative h-80 rounded-3xl overflow-hidden grad-border tilt-3d">
+      <div class="reveal relative h-80 rounded-3xl overflow-hidden paper-card-strong tilt-3d">
         <div class="mini-3d" data-subject="kannada"></div>
-        <div class="absolute inset-0" style="background: linear-gradient(180deg, transparent 50%, rgba(10,31,28,.88) 100%);"></div>
-        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div>
-            <div class="text-xs mono" style="color: var(--cream-dim); opacity: .7;">HARINI · THURSDAY</div>
-            <div class="serif text-2xl font-semibold mt-1">ಕನ್ನಡ — ಪ್ರಥಮ ಭಾಷೆ</div>
-          </div>
-          <div>
-            <div class="text-sm" style="color: var(--cream-dim);">Vachanas of Basavanna, prose of Kuvempu — each chapter restaged as a 3D scene with period-correct setting and clothing.</div>
-            <div class="text-[11px] mono mt-2" style="color: var(--cream-dim); opacity: .5;">20 chapters · Grade 10</div>
-          </div>
+        <div class="absolute inset-x-0 bottom-0 p-6" style="background: linear-gradient(to top, rgba(255,255,255,.96) 30%, rgba(255,255,255,0));">
+          <div class="text-xs mono" style="color: var(--ink-soft);">HARINI · THURSDAY</div>
+          <div class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">ಕನ್ನಡ — ಪ್ರಥಮ ಭಾಷೆ</div>
+          <div class="text-sm mt-2" style="color: var(--ink-soft);">Vachanas of Basavanna, prose of Kuvempu — each chapter restaged as a 3D scene with period-correct setting and clothing.</div>
         </div>
       </div>
 
-      <div class="reveal card-3d relative h-80 rounded-3xl overflow-hidden grad-border tilt-3d">
+      <div class="reveal relative h-80 rounded-3xl overflow-hidden paper-card-strong tilt-3d">
         <div class="mini-3d" data-subject="english"></div>
-        <div class="absolute inset-0" style="background: linear-gradient(180deg, transparent 50%, rgba(10,31,28,.88) 100%);"></div>
-        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div>
-            <div class="text-xs mono" style="color: var(--cream-dim); opacity: .7;">ANIKA · FRIDAY</div>
-            <div class="serif text-2xl font-semibold mt-1">English — Second Language</div>
-          </div>
-          <div>
-            <div class="text-sm" style="color: var(--cream-dim);">Prose chapters acted out as 3D shorts. Grammar drilled with moving shapes. Voice practice with Anika listening and correcting.</div>
-            <div class="text-[11px] mono mt-2" style="color: var(--cream-dim); opacity: .5;">20 chapters · Grade 10</div>
-          </div>
+        <div class="absolute inset-x-0 bottom-0 p-6" style="background: linear-gradient(to top, rgba(255,255,255,.96) 30%, rgba(255,255,255,0));">
+          <div class="text-xs mono" style="color: var(--ink-soft);">ANIKA · FRIDAY</div>
+          <div class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">English — Second Language</div>
+          <div class="text-sm mt-2" style="color: var(--ink-soft);">Prose chapters acted out as 3D shorts. Grammar drilled with moving shapes. Voice practice with Anika listening and correcting.</div>
         </div>
       </div>
 
-      <div class="reveal card-3d relative h-80 rounded-3xl overflow-hidden grad-border tilt-3d">
+      <div class="reveal relative h-80 rounded-3xl overflow-hidden paper-card-strong tilt-3d">
         <div class="mini-3d" data-subject="hindi"></div>
-        <div class="absolute inset-0" style="background: linear-gradient(180deg, transparent 50%, rgba(10,31,28,.88) 100%);"></div>
-        <div class="relative z-10 p-6 h-full flex flex-col justify-between">
-          <div>
-            <div class="text-xs mono" style="color: var(--cream-dim); opacity: .7;">AMITA · SATURDAY</div>
-            <div class="serif text-2xl font-semibold mt-1">हिंदी — तीसरी भाषा</div>
-          </div>
-          <div>
-            <div class="text-sm" style="color: var(--cream-dim);">Stories with 3D characters. Poems read with the imagery beside them. Dictation that pauses when you need it.</div>
-            <div class="text-[11px] mono mt-2" style="color: var(--cream-dim); opacity: .5;">15 chapters · Grade 10</div>
-          </div>
+        <div class="absolute inset-x-0 bottom-0 p-6" style="background: linear-gradient(to top, rgba(255,255,255,.96) 30%, rgba(255,255,255,0));">
+          <div class="text-xs mono" style="color: var(--ink-soft);">AMITA · SATURDAY</div>
+          <div class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">हिंदी — तीसरी भाषा</div>
+          <div class="text-sm mt-2" style="color: var(--ink-soft);">Stories with 3D characters. Poems read with the imagery beside them. Dictation that pauses when you need it.</div>
         </div>
       </div>
 
@@ -480,20 +662,20 @@
 </section>
 
 <!-- ============= CALENDAR ============= -->
-<section id="calendar" class="relative py-28 overflow-hidden">
+<section id="calendar" class="relative py-28 overflow-hidden" style="background: var(--bg-2);">
   <div class="relative z-10 max-w-6xl mx-auto px-6">
     <div class="reveal mb-12 max-w-3xl">
-      <div class="text-xs mono tracking-widest mb-3" style="color: var(--cream-dim); opacity: .7;">— THE CALENDAR</div>
-      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight">
+      <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">— THE CALENDAR</div>
+      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight" style="color: var(--ink);">
         Full syllabus by January. Then revision until the board exam.
       </h2>
-      <p class="mt-4 leading-relaxed" style="color: var(--cream-dim);">
+      <p class="mt-4 leading-relaxed text-lg" style="color: var(--ink-soft);">
         Live teaching begins in July 2026 and runs through January 2027. By the end of January, every chapter of every subject has been taught at least once. February and March are reserved entirely for revising KSEEB previous-year question papers and model question papers, so students walk into the board exam already practiced.
       </p>
     </div>
 
-    <div class="reveal glass-strong rounded-3xl p-7 amber-ring">
-      <div class="text-[11px] mono tracking-widest mb-4 flex justify-between" style="color: var(--cream-dim); opacity: .7;">
+    <div class="reveal paper-card-strong rounded-3xl p-7">
+      <div class="text-[11px] mono tracking-widest mb-4 flex justify-between" style="color: var(--ink-soft);">
         <span>2026</span>
         <span>2027</span>
       </div>
@@ -510,40 +692,40 @@
       </div>
       <div class="grid md:grid-cols-3 gap-5 mt-7 text-sm">
         <div>
-          <div class="flex items-center gap-2 font-medium" style="color: var(--emerald-soft);">
-            <span class="w-3 h-3 rounded" style="background: rgba(16, 185, 129, 0.4);"></span>
+          <div class="flex items-center gap-2 font-semibold" style="color: var(--emerald-deep);">
+            <span class="w-3 h-3 rounded" style="background: #A7F3D0;"></span>
             Teaching — Jul to Jan
           </div>
-          <p class="mt-2 leading-relaxed" style="color: var(--cream-dim);">
+          <p class="mt-2 leading-relaxed" style="color: var(--ink-soft);">
             Six live classes a week, plus Sunday's test and doubt session. Each subject's chapters move forward at their own pace.
           </p>
         </div>
         <div>
-          <div class="flex items-center gap-2 font-medium" style="color: var(--cream-2);">
-            <span class="w-3 h-3 rounded" style="background: rgba(245, 158, 11, 0.45);"></span>
+          <div class="flex items-center gap-2 font-semibold" style="color: var(--amber-deep);">
+            <span class="w-3 h-3 rounded" style="background: #FCD34D;"></span>
             Revision — Feb to Mar
           </div>
-          <p class="mt-2 leading-relaxed" style="color: var(--cream-dim);">
+          <p class="mt-2 leading-relaxed" style="color: var(--ink-soft);">
             Daily slots become full revision sessions: KSEEB model papers, past five years' questions, exam strategy, doubt cleanup.
           </p>
         </div>
         <div>
-          <div class="flex items-center gap-2 font-medium" style="color: var(--cream);">
-            <span class="w-3 h-3 rounded" style="background: rgba(194, 65, 12, 0.6);"></span>
+          <div class="flex items-center gap-2 font-semibold" style="color: var(--burgundy);">
+            <span class="w-3 h-3 rounded" style="background: #FCA5A5;"></span>
             Board exam — late March / April
           </div>
-          <p class="mt-2 leading-relaxed" style="color: var(--cream-dim);">
+          <p class="mt-2 leading-relaxed" style="color: var(--ink-soft);">
             By the time the KSEEB board exam arrives, every chapter has been taught, revised, and tested at least three times.
           </p>
         </div>
       </div>
     </div>
 
-    <div class="reveal mt-7 glass rounded-3xl p-6 grid md:grid-cols-[140px_1fr] gap-5 items-start">
-      <div class="text-[10px] mono tracking-widest" style="color: var(--cream-dim); opacity: .7;">SCHEDULING RULE</div>
+    <div class="reveal mt-7 paper-card-strong rounded-3xl p-6 grid md:grid-cols-[160px_1fr] gap-5 items-start">
+      <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SCHEDULING RULE</div>
       <div>
-        <h3 class="serif text-xl font-semibold">When one subject finishes early, the slot helps another</h3>
-        <p class="mt-2 leading-relaxed" style="color: var(--cream-dim);">
+        <h3 class="serif text-xl font-semibold" style="color: var(--ink);">When one subject finishes early, the slot helps another</h3>
+        <p class="mt-2 leading-relaxed" style="color: var(--ink-soft);">
           Hindi has fifteen chapters; Social Science has thirty. If Hindi wraps up its syllabus in early December, Saturday evenings don't go to waste — they automatically redirect to Social Science, which still has chapters to cover. The student dashboard shows clearly when a slot has been redirected, so nobody is confused about whose class is on tonight.
         </p>
       </div>
@@ -555,25 +737,25 @@
 <section id="pricing" class="relative py-28 overflow-hidden">
   <div class="relative z-10 max-w-6xl mx-auto px-6">
     <div class="reveal mb-10 max-w-3xl">
-      <div class="text-xs mono tracking-widest mb-3" style="color: var(--cream-dim); opacity: .7;">— PRICING</div>
-      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight">
+      <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">— PRICING</div>
+      <h2 class="serif text-4xl md:text-5xl font-semibold leading-tight" style="color: var(--ink);">
         Priced low so most families don't have to think twice.
       </h2>
-      <p class="mt-4 leading-relaxed" style="color: var(--cream-dim);">
+      <p class="mt-4 leading-relaxed text-lg" style="color: var(--ink-soft);">
         Pay through UPI Auto-Pay, which most Indian banks support. Cancel or pause anytime — no fee, no questions, no follow-up calls.
       </p>
     </div>
 
     <div class="grid md:grid-cols-3 gap-5">
-      <div class="reveal card-3d glass rounded-3xl p-7 amber-ring">
-        <div class="text-xs mono tracking-widest" style="color: var(--cream-dim); opacity: .7;">MONTHLY</div>
+      <div class="reveal paper-card-strong rounded-3xl p-7 tilt-3d">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">MONTHLY</div>
         <div class="mt-3 flex items-baseline gap-1">
-          <span class="serif text-5xl font-semibold">₹299</span>
-          <span class="text-sm" style="color: var(--cream-dim);">per month</span>
+          <span class="serif text-5xl font-semibold" style="color: var(--ink);">₹299</span>
+          <span class="text-sm" style="color: var(--ink-soft);">per month</span>
         </div>
-        <div class="text-xs mt-1" style="color: var(--cream-dim); opacity: .8;">UPI Auto-Pay · cancel or pause anytime</div>
-        <hr class="my-5" style="border-color: rgba(254, 243, 199, 0.1);"/>
-        <ul class="text-sm space-y-2" style="color: var(--cream-dim);">
+        <div class="text-xs mt-1" style="color: var(--ink-soft);">UPI Auto-Pay · cancel or pause anytime</div>
+        <hr class="my-5" style="border-color: var(--line);"/>
+        <ul class="text-sm space-y-2" style="color: var(--ink-2);">
           <li>All six subjects, both mediums</li>
           <li>Daily live class and full recordings</li>
           <li>Auto-generated notes and quizzes</li>
@@ -583,35 +765,35 @@
         <button class="mt-6 w-full btn-ghost">Choose monthly</button>
       </div>
 
-      <div class="reveal card-3d grad-border rounded-3xl p-7" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(16, 185, 129, 0.10)) padding-box, linear-gradient(135deg, var(--amber), var(--emerald), var(--terracotta)) border-box;">
+      <div class="reveal grad-border rounded-3xl p-7 tilt-3d">
         <div class="flex items-center justify-between">
-          <div class="text-xs mono tracking-widest" style="color: var(--cream);">YEARLY · MOST PEOPLE CHOOSE THIS</div>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background: var(--cream-2); color: var(--walnut);">SAVE ₹1,089</span>
+          <div class="text-xs mono tracking-widest" style="color: var(--ink);">YEARLY · MOST PEOPLE CHOOSE THIS</div>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background: var(--ink); color: var(--bg);">SAVE ₹1,089</span>
         </div>
         <div class="mt-3 flex items-baseline gap-1">
-          <span class="serif text-5xl font-semibold">₹2,499</span>
-          <span class="text-sm" style="color: var(--cream);">per year</span>
+          <span class="serif text-5xl font-semibold" style="color: var(--ink);">₹2,499</span>
+          <span class="text-sm" style="color: var(--ink-soft);">per year</span>
         </div>
-        <div class="text-xs mt-1" style="color: var(--cream-dim);">Effective ₹208/month. Covers the full academic year and revision period.</div>
-        <hr class="my-5" style="border-color: rgba(254, 243, 199, 0.18);"/>
-        <ul class="text-sm space-y-2" style="color: var(--cream);">
+        <div class="text-xs mt-1" style="color: var(--ink-soft);">Effective ₹208/month. Covers the full academic year and revision period.</div>
+        <hr class="my-5" style="border-color: var(--line);"/>
+        <ul class="text-sm space-y-2" style="color: var(--ink-2);">
           <li>Everything in monthly</li>
           <li>Priority answers in Sunday doubt clearing</li>
           <li>Downloadable archive of all KSEEB previous papers</li>
           <li>Memory Deck export to Anki and Quizlet</li>
         </ul>
-        <button class="mt-6 w-full btn-primary">Choose yearly</button>
+        <button class="mt-6 w-full btn-amber">Choose yearly</button>
       </div>
 
-      <div class="reveal card-3d glass rounded-3xl p-7 amber-ring">
-        <div class="text-xs mono tracking-widest" style="color: var(--cream-dim); opacity: .7;">SIBLING PACK</div>
+      <div class="reveal paper-card-strong rounded-3xl p-7 tilt-3d">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">SIBLING PACK</div>
         <div class="mt-3 flex items-baseline gap-1">
-          <span class="serif text-5xl font-semibold">₹499</span>
-          <span class="text-sm" style="color: var(--cream-dim);">per month · two children</span>
+          <span class="serif text-5xl font-semibold" style="color: var(--ink);">₹499</span>
+          <span class="text-sm" style="color: var(--ink-soft);">per month · two children</span>
         </div>
-        <div class="text-xs mt-1" style="color: var(--cream-dim); opacity: .8;">Roughly ₹250 per child, from the same household.</div>
-        <hr class="my-5" style="border-color: rgba(254, 243, 199, 0.1);"/>
-        <ul class="text-sm space-y-2" style="color: var(--cream-dim);">
+        <div class="text-xs mt-1" style="color: var(--ink-soft);">Roughly ₹250 per child, from the same household.</div>
+        <hr class="my-5" style="border-color: var(--line);"/>
+        <ul class="text-sm space-y-2" style="color: var(--ink-2);">
           <li>Two separate student profiles</li>
           <li>Different grades allowed (10 + 11, 10 + 12, etc.)</li>
           <li>One combined parent dashboard</li>
@@ -621,32 +803,32 @@
       </div>
     </div>
 
-    <p class="reveal mt-7 text-center text-xs mono" style="color: var(--cream-dim); opacity: .55;">
+    <p class="reveal mt-7 text-center text-xs mono" style="color: var(--ink-soft);">
       Refer a friend, and both of you get ₹100 off the next month.  All prices include GST.
     </p>
   </div>
 </section>
 
 <!-- ============= WHY THE WAIT ============= -->
-<section class="relative py-28 overflow-hidden">
-  <div class="absolute inset-0 dot-grid opacity-20"></div>
+<section class="relative py-28 overflow-hidden" style="background: var(--bg-2);">
+  <div class="absolute inset-0 dot-grid opacity-30"></div>
   <div class="relative z-10 max-w-4xl mx-auto px-6">
-    <div class="reveal glass-strong rounded-3xl p-10 amber-ring">
-      <div class="text-xs mono tracking-widest mb-3" style="color: var(--cream-dim); opacity: .7;">— WHY WE WAIT FOR TEN</div>
-      <h2 class="serif text-3xl md:text-4xl font-semibold leading-tight">
+    <div class="reveal paper-card-strong rounded-3xl p-10">
+      <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">— WHY WE WAIT FOR TEN</div>
+      <h2 class="serif text-3xl md:text-4xl font-semibold leading-tight" style="color: var(--ink);">
         Live classes start the day the tenth student joins.
       </h2>
-      <p class="mt-5 leading-relaxed" style="color: var(--cream-dim);">
+      <p class="mt-5 leading-relaxed text-lg" style="color: var(--ink-soft);">
         The Sunday doubt session, the weekly test rankings, the cohort feel — none of it works well with just one or two students. So Ananta holds back from launching live classes until ten people have signed up. Until then, your seat is reserved, your subscription doesn't start, and you get early access to whatever Ananta is building that week.
       </p>
 
       <div class="mt-7 max-w-md">
-        <div class="flex items-center justify-between text-xs mb-2 mono" style="color: var(--cream-dim); opacity: .8;">
+        <div class="flex items-center justify-between text-xs mb-2 mono" style="color: var(--ink-soft);">
           <span>STUDENTS RESERVED</span>
-          <span><b style="color: var(--cream);">3</b> of 10</span>
+          <span><b style="color: var(--ink);">3</b> of 10</span>
         </div>
-        <div class="h-3 rounded-full overflow-hidden" style="background: rgba(254, 243, 199, 0.08);">
-          <div class="h-full rounded-full transition-all" style="width:30%; background: linear-gradient(90deg, var(--amber), var(--emerald), var(--terracotta));"></div>
+        <div class="h-3 rounded-full overflow-hidden" style="background: var(--line);">
+          <div class="h-full rounded-full" style="width:30%; background: linear-gradient(90deg, var(--amber), var(--terracotta));"></div>
         </div>
       </div>
 
@@ -659,35 +841,35 @@
 </section>
 
 <!-- ============= FOOTER ============= -->
-<footer class="relative py-14 border-t" style="border-color: rgba(254, 243, 199, 0.05);">
+<footer class="relative py-14 border-t" style="border-color: var(--line);">
   <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-10">
     <div>
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-             style="background: linear-gradient(135deg, var(--amber), var(--terracotta));">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--ink);">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#fff" stroke-width="2"/>
-            <circle cx="12" cy="12" r="3" fill="#FEF3C7"/>
+            <path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/>
+            <circle cx="12" cy="12" r="3" fill="#D97706"/>
           </svg>
         </div>
-        <div class="serif font-bold text-lg">Ananta</div>
+        <div class="serif font-bold text-lg" style="color: var(--ink);">Ananta</div>
       </div>
-      <p class="text-xs mt-3 leading-relaxed" style="color: var(--cream-dim); opacity: .6;">
+      <p class="text-xs mt-3 leading-relaxed" style="color: var(--ink-soft);">
         An AI tutoring service for the Karnataka State Board, built by a small team in Karnataka.
       </p>
     </div>
     <div>
-      <div class="text-xs mono mb-3" style="color: var(--cream-dim); opacity: .5;">EXPLORE</div>
-      <ul class="text-sm space-y-2" style="color: var(--cream-dim);">
-        <li><a href="#how" class="hover:text-white">How it works</a></li>
-        <li><a href="#teachers" class="hover:text-white">Teachers</a></li>
-        <li><a href="#calendar" class="hover:text-white">Calendar</a></li>
-        <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
+      <div class="text-xs mono mb-3" style="color: var(--ink-dim);">EXPLORE</div>
+      <ul class="text-sm space-y-2" style="color: var(--ink-soft);">
+        <li><a href="#how" class="link-u">How it works</a></li>
+        <li><a href="#teachers" class="link-u">Teachers</a></li>
+        <li><a href="#subjects" class="link-u">Lessons</a></li>
+        <li><a href="#calendar" class="link-u">Calendar</a></li>
+        <li><a href="#pricing" class="link-u">Pricing</a></li>
       </ul>
     </div>
     <div>
-      <div class="text-xs mono mb-3" style="color: var(--cream-dim); opacity: .5;">ANANTA</div>
-      <ul class="text-sm space-y-2" style="color: var(--cream-dim);">
+      <div class="text-xs mono mb-3" style="color: var(--ink-dim);">ANANTA</div>
+      <ul class="text-sm space-y-2" style="color: var(--ink-soft);">
         <li>About</li>
         <li>Founder's note</li>
         <li>Privacy policy</li>
@@ -695,26 +877,29 @@
       </ul>
     </div>
     <div>
-      <div class="text-xs mono mb-3" style="color: var(--cream-dim); opacity: .5;">REACH US</div>
-      <ul class="text-sm space-y-2" style="color: var(--cream-dim);">
+      <div class="text-xs mono mb-3" style="color: var(--ink-dim);">REACH US</div>
+      <ul class="text-sm space-y-2" style="color: var(--ink-soft);">
         <li>help@ananta.app</li>
         <li>WhatsApp · +91 ××××× ×××××</li>
         <li>Founder · Priyanka</li>
       </ul>
     </div>
   </div>
-  <div class="max-w-7xl mx-auto mt-10 px-6 flex flex-wrap items-center justify-between text-xs" style="color: var(--cream-dim); opacity: .4;">
+  <div class="max-w-7xl mx-auto mt-10 px-6 flex flex-wrap items-center justify-between text-xs" style="color: var(--ink-dim);">
     <div>© 2026 Ananta · Made in Karnataka</div>
     <div class="mono">Live classes begin July 2026</div>
   </div>
 </footer>
 
 <script>
-  // -------- Scroll progress --------
+  // -------- Scroll progress + nav scroll --------
   const progressBar = document.getElementById('scroll-progress');
+  const nav = document.getElementById('topnav');
   window.addEventListener('scroll', () => {
     const max = document.documentElement.scrollHeight - window.innerHeight;
     progressBar.style.width = `${(window.scrollY / max) * 100}%`;
+    if (window.scrollY > 30) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
   });
 
   // -------- Scroll reveal --------
@@ -724,424 +909,7 @@
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   // ============================================================
-  // HUMANOID FIGURE BUILDER — reusable across hero and pavilion
-  // ============================================================
-  function buildTeacherFigure(teacher) {
-    // teacher = { color, kind: 'praketa'|'vihaan'|... }
-    const fig = new THREE.Group();
-    const robeColor = teacher.color;
-    const skinTone = 0xE8C6A0;  // warm tan/cream
-
-    // ---------- Body (tapered cone/cylinder = robe) ----------
-    const body = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.34, 0.62, 1.05, 18, 1),
-      new THREE.MeshStandardMaterial({
-        color: robeColor, emissive: robeColor, emissiveIntensity: 0.25,
-        roughness: 0.55, metalness: 0.18, flatShading: false,
-      })
-    );
-    body.position.y = -0.25;
-    fig.add(body);
-
-    // ---------- Shoulder collar (small disc/ring) ----------
-    const collar = new THREE.Mesh(
-      new THREE.TorusGeometry(0.36, 0.05, 8, 24),
-      new THREE.MeshStandardMaterial({
-        color: 0xFEF3C7, emissive: 0xFEF3C7, emissiveIntensity: 0.4,
-        roughness: 0.4, metalness: 0.6,
-      })
-    );
-    collar.position.y = 0.28;
-    collar.rotation.x = Math.PI / 2;
-    fig.add(collar);
-
-    // ---------- Head (sphere with skin tone) ----------
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.42, 28, 22),
-      new THREE.MeshStandardMaterial({
-        color: skinTone, roughness: 0.5, metalness: 0.05,
-      })
-    );
-    head.position.y = 0.78;
-    fig.add(head);
-
-    // ---------- Eyes (two small dark spheres on the front of head) ----------
-    const eyeMat = new THREE.MeshStandardMaterial({
-      color: 0x1F1611, emissive: 0x1F1611, emissiveIntensity: 0.1, roughness: 0.4,
-    });
-    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), eyeMat);
-    eyeL.position.set(-0.13, 0.79, 0.38);
-    fig.add(eyeL);
-    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), eyeMat);
-    eyeR.position.set(0.13, 0.79, 0.38);
-    fig.add(eyeR);
-
-    // ---------- Hair (varies by teacher) ----------
-    const hairColor = 0x2B1410; // dark brown for all
-    const hairMat = new THREE.MeshStandardMaterial({
-      color: hairColor, roughness: 0.7, metalness: 0.1,
-    });
-
-    if (teacher.kind === 'praketa') {
-      // short neat hair — cap (half sphere)
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.43, 24, 18, 0, Math.PI * 2, 0, Math.PI / 2), hairMat);
-      cap.position.y = 0.83;
-      fig.add(cap);
-    } else if (teacher.kind === 'vihaan') {
-      // spiky hair — small cones cluster
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.43, 24, 18, 0, Math.PI * 2, 0, Math.PI / 2.4), hairMat);
-      cap.position.y = 0.85;
-      fig.add(cap);
-      // a few spikes
-      for (let i = 0; i < 4; i++) {
-        const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 6), hairMat);
-        const a = (i / 4) * Math.PI * 2;
-        spike.position.set(Math.cos(a) * 0.22, 1.05, Math.sin(a) * 0.22 - 0.05);
-        spike.rotation.x = Math.PI / 6 * (Math.random() - 0.5);
-        spike.rotation.z = Math.PI / 6 * (Math.random() - 0.5);
-        fig.add(spike);
-      }
-    } else if (teacher.kind === 'adhvara') {
-      // swept hair — cap + side wave
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 18, 0, Math.PI * 2, 0, Math.PI / 2), hairMat);
-      cap.position.y = 0.84;
-      fig.add(cap);
-      const sweep = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.08, 8, 16, Math.PI), hairMat);
-      sweep.position.set(0.15, 0.95, 0.08);
-      sweep.rotation.set(0.3, 0.2, -0.6);
-      fig.add(sweep);
-    } else if (teacher.kind === 'harini') {
-      // long hair — cap + cylinder behind body
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.45, 24, 18, 0, Math.PI * 2, 0, Math.PI / 1.7), hairMat);
-      cap.position.y = 0.85;
-      fig.add(cap);
-      const long = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.32, 0.18, 0.95, 12),
-        hairMat
-      );
-      long.position.set(0, 0.25, -0.18);
-      fig.add(long);
-    } else if (teacher.kind === 'anika') {
-      // medium hair — fuller cap, slight sphere
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.48, 28, 22, 0, Math.PI * 2, 0, Math.PI / 1.6), hairMat);
-      cap.position.y = 0.85;
-      fig.add(cap);
-      // glasses hint — small torus around eyes
-      const glassMat = new THREE.MeshStandardMaterial({ color: 0xFEF3C7, metalness: 0.8, roughness: 0.2, emissive: 0xFEF3C7, emissiveIntensity: 0.15 });
-      const glassL = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.012, 8, 24), glassMat);
-      glassL.position.set(-0.13, 0.79, 0.38);
-      glassL.rotation.x = 0;
-      fig.add(glassL);
-      const glassR = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.012, 8, 24), glassMat);
-      glassR.position.set(0.13, 0.79, 0.38);
-      glassR.rotation.x = 0;
-      fig.add(glassR);
-      // bridge
-      const bridge = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.07, 6), glassMat);
-      bridge.position.set(0, 0.79, 0.39);
-      bridge.rotation.z = Math.PI / 2;
-      fig.add(bridge);
-    } else if (teacher.kind === 'amita') {
-      // bun on top — cap + sphere on top
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 18, 0, Math.PI * 2, 0, Math.PI / 2), hairMat);
-      cap.position.y = 0.84;
-      fig.add(cap);
-      const bun = new THREE.Mesh(new THREE.SphereGeometry(0.18, 18, 14), hairMat);
-      bun.position.y = 1.15;
-      fig.add(bun);
-      const bunBand = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.025, 8, 24), new THREE.MeshStandardMaterial({
-        color: 0xC2410C, emissive: 0xC2410C, emissiveIntensity: 0.4, roughness: 0.4,
-      }));
-      bunBand.position.y = 1.15;
-      bunBand.rotation.x = Math.PI / 2;
-      fig.add(bunBand);
-    }
-
-    return fig;
-  }
-
-  // ============================================================
-  // HERO — particle field + central nucleus + light orbs (warm)
-  // ============================================================
-  (function buildHero() {
-    const container = document.getElementById('hero-canvas');
-    if (!container) return;
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0A1F1C, 0.025);
-
-    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(0, 0, 18);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
-
-    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.35));
-    const key = new THREE.PointLight(0xF59E0B, 1.8, 30);
-    key.position.set(-8, 6, 8); scene.add(key);
-    const rim = new THREE.PointLight(0x10B981, 1.4, 30);
-    rim.position.set(8, -4, 4); scene.add(rim);
-    const fill = new THREE.PointLight(0xC2410C, 1.0, 30);
-    fill.position.set(0, 6, -4); scene.add(fill);
-
-    // particles — cream/gold
-    const pGeom = new THREE.BufferGeometry();
-    const PARTICLES = 500;
-    const pPos = new Float32Array(PARTICLES * 3);
-    for (let i = 0; i < PARTICLES; i++) {
-      pPos[i*3]     = (Math.random() - 0.5) * 42;
-      pPos[i*3 + 1] = (Math.random() - 0.5) * 28;
-      pPos[i*3 + 2] = (Math.random() - 0.5) * 32 - 4;
-    }
-    pGeom.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    const pMat = new THREE.PointsMaterial({
-      size: 0.07, color: 0xFEF3C7, transparent: true, opacity: 0.5,
-      blending: THREE.AdditiveBlending, sizeAttenuation: true,
-    });
-    const particles = new THREE.Points(pGeom, pMat);
-    scene.add(particles);
-
-    // hero orbs — kept abstract here (decoration), warm palette
-    const heroColors = [0xF59E0B, 0x10B981, 0xC2410C, 0xCA8A04, 0x84CC16, 0xA16207];
-    const orbs = [];
-    heroColors.forEach((c, i) => {
-      const angle = (i / heroColors.length) * Math.PI * 2;
-
-      const glow = new THREE.Mesh(
-        new THREE.SphereGeometry(1.5, 22, 18),
-        new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending })
-      );
-
-      const core = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.85, 1),
-        new THREE.MeshStandardMaterial({
-          color: c, emissive: c, emissiveIntensity: 0.55,
-          roughness: 0.35, metalness: 0.45, flatShading: true,
-        })
-      );
-
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(1.3, 0.035, 10, 42),
-        new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.4 })
-      );
-      ring.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.6;
-
-      const group = new THREE.Group();
-      group.add(glow); group.add(core); group.add(ring);
-      group.position.set(Math.cos(angle) * 7, Math.sin(angle) * 2.5, Math.sin(angle) * 3.5 - 2);
-      group.userData = { baseAngle: angle, baseY: group.position.y, core, ring, phase: i * 0.7 };
-      orbs.push(group); scene.add(group);
-    });
-
-    // central nucleus — warm chrome
-    const nucleus = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.4, 2),
-      new THREE.MeshStandardMaterial({
-        color: 0xFAF5EB, emissive: 0xF59E0B, emissiveIntensity: 0.4,
-        roughness: 0.2, metalness: 0.85,
-      })
-    );
-    scene.add(nucleus);
-
-    const nucleusWire = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.65, 2),
-      new THREE.MeshBasicMaterial({ color: 0xFEF3C7, wireframe: true, transparent: true, opacity: 0.16 })
-    );
-    scene.add(nucleusWire);
-
-    const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
-    window.addEventListener('mousemove', (e) => {
-      mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-    window.addEventListener('resize', () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-
-    let scrollY = 0;
-    window.addEventListener('scroll', () => { scrollY = window.scrollY; });
-
-    const clock = new THREE.Clock();
-    function loop() {
-      const t = clock.getElapsedTime();
-      mouse.x += (mouse.tx - mouse.x) * 0.05;
-      mouse.y += (mouse.ty - mouse.y) * 0.05;
-
-      camera.position.x = mouse.x * 1.6;
-      camera.position.y = -mouse.y * 1.3 + Math.min(scrollY * 0.005, 4);
-      camera.lookAt(0, 0, 0);
-
-      particles.rotation.y = t * 0.02;
-      particles.rotation.x = Math.sin(t * 0.1) * 0.04;
-
-      orbs.forEach((g, i) => {
-        const a = g.userData.baseAngle + t * 0.15;
-        g.position.x = Math.cos(a) * 7;
-        g.position.z = Math.sin(a) * 5 - 2;
-        g.position.y = g.userData.baseY + Math.sin(t * 1.2 + g.userData.phase) * 0.5;
-        g.userData.core.rotation.x = t * 0.6 + i;
-        g.userData.core.rotation.y = t * 0.4 + i;
-        g.userData.ring.rotation.z = t * 0.5;
-      });
-
-      nucleus.rotation.x = t * 0.3;
-      nucleus.rotation.y = t * 0.4;
-      nucleusWire.rotation.x = -t * 0.2;
-      nucleusWire.rotation.y = -t * 0.3;
-
-      renderer.render(scene, camera);
-      requestAnimationFrame(loop);
-    }
-    loop();
-  })();
-
-  // ============================================================
-  // PAVILION — six HUMAN figures standing on glowing discs
-  // ============================================================
-  (function buildPavilion() {
-    const container = document.getElementById('pavilion-canvas');
-    if (!container) return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(0, 3, 12);
-    camera.lookAt(0, 0, 0);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
-
-    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.5));
-    const overheadLight = new THREE.DirectionalLight(0xFEF3C7, 0.5);
-    overheadLight.position.set(0, 10, 5);
-    scene.add(overheadLight);
-
-    const teachers = [
-      { kind: 'praketa', color: 0xF59E0B },
-      { kind: 'vihaan',  color: 0x10B981 },
-      { kind: 'adhvara', color: 0xC2410C },
-      { kind: 'harini',  color: 0xCA8A04 },
-      { kind: 'anika',   color: 0x84CC16 },
-      { kind: 'amita',   color: 0xA16207 },
-    ];
-
-    const figures = [];
-    teachers.forEach((t, i) => {
-      const angle = (i / teachers.length) * Math.PI * 2;
-      const r = 4.2;
-
-      // glowing disc
-      const disc = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.95, 1.05, 0.15, 36),
-        new THREE.MeshStandardMaterial({
-          color: t.color, emissive: t.color, emissiveIntensity: 0.6,
-          roughness: 0.4, metalness: 0.3,
-        })
-      );
-      disc.position.set(Math.cos(angle) * r, -1.7, Math.sin(angle) * r);
-      scene.add(disc);
-
-      // light ring above disc (glow ring)
-      const halo = new THREE.Mesh(
-        new THREE.TorusGeometry(1.05, 0.025, 10, 48),
-        new THREE.MeshBasicMaterial({ color: t.color, transparent: true, opacity: 0.6 })
-      );
-      halo.position.set(disc.position.x, -1.55, disc.position.z);
-      halo.rotation.x = Math.PI / 2;
-      scene.add(halo);
-
-      // point light at figure
-      const pt = new THREE.PointLight(t.color, 1.3, 5);
-      pt.position.set(disc.position.x, 0.2, disc.position.z);
-      scene.add(pt);
-
-      // human figure
-      const fig = buildTeacherFigure(t);
-      fig.position.set(disc.position.x, -1.05, disc.position.z);
-      // face the center
-      fig.rotation.y = Math.atan2(-disc.position.x, -disc.position.z);
-      scene.add(fig);
-
-      figures.push({ fig, disc, halo, baseAngle: angle, phase: i });
-    });
-
-    // center artifact — small warm glowing book/orb
-    const center = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.7, 1),
-      new THREE.MeshStandardMaterial({
-        color: 0xFAF5EB, emissive: 0xF59E0B, emissiveIntensity: 0.5,
-        roughness: 0.2, metalness: 0.85,
-      })
-    );
-    scene.add(center);
-
-    const centerRing = new THREE.Mesh(
-      new THREE.TorusGeometry(1.1, 0.025, 14, 80),
-      new THREE.MeshBasicMaterial({ color: 0xFEF3C7, transparent: true, opacity: 0.55 })
-    );
-    centerRing.rotation.x = Math.PI / 2;
-    scene.add(centerRing);
-
-    // floor grid — warm
-    const grid = new THREE.GridHelper(20, 20, 0xF59E0B, 0x1F4A40);
-    grid.position.y = -1.85;
-    grid.material.opacity = 0.18;
-    grid.material.transparent = true;
-    scene.add(grid);
-
-    const m = { x: 0, y: 0, tx: 0, ty: 0 };
-    container.addEventListener('mousemove', (e) => {
-      const r = container.getBoundingClientRect();
-      m.tx = (e.clientX - r.left) / r.width - 0.5;
-      m.ty = (e.clientY - r.top) / r.height - 0.5;
-    });
-
-    window.addEventListener('resize', () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-
-    const clock = new THREE.Clock();
-    function loop() {
-      const t = clock.getElapsedTime();
-      m.x += (m.tx - m.x) * 0.06;
-      m.y += (m.ty - m.y) * 0.06;
-
-      // slow orbital camera + mouse influence
-      const cAngle = t * 0.10 + m.x * 1.2;
-      camera.position.x = Math.sin(cAngle) * 11;
-      camera.position.z = Math.cos(cAngle) * 11;
-      camera.position.y = 3 - m.y * 1.5;
-      camera.lookAt(0, -0.3, 0);
-
-      // gentle floating + slight rotation on figures
-      figures.forEach((f, i) => {
-        f.fig.position.y = -1.05 + Math.sin(t * 1.1 + f.phase) * 0.06;
-        f.fig.rotation.y += 0.003; // gentle sway
-        f.disc.rotation.y = t * 0.25;
-        f.halo.rotation.z = t * 0.4;
-      });
-
-      center.rotation.x = t * 0.4;
-      center.rotation.y = t * 0.5;
-      centerRing.rotation.z = t * 0.6;
-
-      renderer.render(scene, camera);
-      requestAnimationFrame(loop);
-    }
-    loop();
-  })();
-
-  // ============================================================
-  // SUBJECT MINI 3D
+  // SUBJECT MINI 3D — the only 3D scenes on this page
   // ============================================================
   function buildMini(el, kind) {
     const scene = new THREE.Scene();
@@ -1152,82 +920,92 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(el.clientWidth, el.clientHeight);
     renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     el.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.5));
-    const p1 = new THREE.PointLight(0xF59E0B, 1.6, 12);
-    p1.position.set(3, 3, 4); scene.add(p1);
-    const p2 = new THREE.PointLight(0x10B981, 1.0, 12);
-    p2.position.set(-3, -2, 3); scene.add(p2);
+    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.65));
+    const sun = new THREE.DirectionalLight(0xFFF5DC, 0.9);
+    sun.position.set(3, 5, 4);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(512, 512);
+    scene.add(sun);
 
     const subjectColor = {
-      maths: 0xF59E0B, science: 0x10B981, social: 0xC2410C,
-      kannada: 0xCA8A04, english: 0x84CC16, hindi: 0xA16207,
+      maths: 0xD97706, science: 0x059669, social: 0xB45309,
+      kannada: 0xB8860B, english: 0x65A30D, hindi: 0x92400E,
     };
     const c = subjectColor[kind];
     const mat = new THREE.MeshStandardMaterial({
-      color: c, emissive: c, emissiveIntensity: 0.45,
-      roughness: 0.3, metalness: 0.55, flatShading: true,
+      color: c, roughness: 0.5, metalness: 0.18, flatShading: true,
     });
 
     const group = new THREE.Group();
-    let mesh;
 
     if (kind === 'maths') {
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), mat);
+      const cube = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), mat);
+      cube.castShadow = true;
+      group.add(cube);
       const helper = new THREE.Mesh(
         new THREE.BoxGeometry(1.85, 1.85, 1.85),
-        new THREE.MeshBasicMaterial({ color: c, wireframe: true, transparent: true, opacity: 0.3 })
+        new THREE.MeshBasicMaterial({ color: c, wireframe: true, transparent: true, opacity: 0.25 })
       );
-      group.add(mesh); group.add(helper);
+      group.add(helper);
     } else if (kind === 'science') {
       const cen = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 16), mat);
-      group.add(cen);
+      cen.castShadow = true; group.add(cen);
       for (let i = 0; i < 5; i++) {
         const a = (i / 5) * Math.PI * 2;
         const atom = new THREE.Mesh(
           new THREE.SphereGeometry(0.32, 20, 14),
-          new THREE.MeshStandardMaterial({ color: 0xFAF5EB, emissive: c, emissiveIntensity: 0.4, roughness: 0.4 })
+          new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, metalness: 0.2 })
         );
         atom.position.set(Math.cos(a) * 1.3, Math.sin(a) * 1.3, 0);
+        atom.castShadow = true;
         group.add(atom);
         const bond = new THREE.Mesh(
           new THREE.CylinderGeometry(0.04, 0.04, 1.3, 8),
-          new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.5 })
+          new THREE.MeshStandardMaterial({ color: c, roughness: 0.5 })
         );
         bond.position.set(Math.cos(a) * 0.65, Math.sin(a) * 0.65, 0);
         bond.rotation.z = a - Math.PI / 2;
         group.add(bond);
       }
     } else if (kind === 'social') {
-      mesh = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 24), mat);
+      const globe = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 24), mat);
+      globe.castShadow = true; group.add(globe);
       const wire = new THREE.Mesh(
         new THREE.SphereGeometry(1.13, 24, 16),
-        new THREE.MeshBasicMaterial({ color: 0xFEF3C7, wireframe: true, transparent: true, opacity: 0.28 })
+        new THREE.MeshBasicMaterial({ color: 0x6B5D4F, wireframe: true, transparent: true, opacity: 0.25 })
       );
-      group.add(mesh); group.add(wire);
+      group.add(wire);
     } else if (kind === 'kannada') {
       const left = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.1), mat);
       const right = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.1), mat);
       left.position.set(-0.5, 0, 0); right.position.set(0.5, 0, 0);
       left.rotation.y = -0.3; right.rotation.y = 0.3;
+      left.castShadow = true; right.castShadow = true;
       group.add(left); group.add(right);
       const letter = new THREE.Mesh(
         new THREE.TetrahedronGeometry(0.4, 0),
-        new THREE.MeshStandardMaterial({ color: 0xFAF5EB, emissive: c, emissiveIntensity: 0.6 })
+        new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, metalness: 0.2 })
       );
       letter.position.set(0, 0.6, 0.4);
+      letter.castShadow = true;
       group.add(letter);
     } else if (kind === 'english') {
       const bubble = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.18, 16, 48), mat);
+      bubble.castShadow = true;
       const dot = new THREE.Mesh(
         new THREE.SphereGeometry(0.25, 16, 12),
-        new THREE.MeshStandardMaterial({ color: 0xFAF5EB, emissive: c, emissiveIntensity: 0.6 })
+        new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, metalness: 0.2 })
       );
+      dot.castShadow = true;
       group.add(bubble); group.add(dot);
     } else {
-      mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(0.7, 0.22, 100, 16), mat);
-      group.add(mesh);
+      const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.7, 0.22, 100, 16), mat);
+      knot.castShadow = true;
+      group.add(knot);
     }
     scene.add(group);
 

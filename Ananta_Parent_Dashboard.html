@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parent dashboard · Ananta</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
+    --whatsapp:#25D366;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background: var(--bg); color: var(--ink);
+    overflow-x:hidden; -webkit-font-smoothing:antialiased; line-height:1.55;
+  }
+  .serif{font-family:'Fraunces',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .035;
+  }
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(900px 600px at 18% 8%, rgba(217,119,6,.05), transparent 60%),
+      radial-gradient(800px 600px at 86% 5%, rgba(5,150,105,.05), transparent 60%);
+  }
+  .paper-card { background: #FFFFFFCC; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); box-shadow: 0 1px 0 #FFFFFFcc inset, 0 2px 6px rgba(31,22,17,.03), 0 16px 40px -22px rgba(31,22,17,.10); }
+  .paper-card-strong { background: #FFFFFF; border: 1px solid var(--line); box-shadow: 0 1px 0 #FFFFFFff inset, 0 6px 16px -8px rgba(31,22,17,.07), 0 22px 60px -28px rgba(31,22,17,.14); }
+  h1,h2,h3{font-family:'Fraunces',serif}
+  h1{font-weight:700;letter-spacing:-.025em}
+  h2{font-weight:600;letter-spacing:-.018em}
+  h3{font-weight:600;letter-spacing:-.012em}
+  .accent-warm { background: linear-gradient(120deg, var(--amber) 0%, var(--terracotta) 60%, var(--burgundy) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn-primary { padding: 10px 20px; border-radius: 999px; font-weight: 600; background: var(--ink); color: var(--bg); transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(31,22,17,.35); font-size: 13px; }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--ink-2); }
+  .btn-ghost { padding: 10px 20px; border-radius: 999px; font-weight: 600; background: transparent; color: var(--ink); border: 1px solid var(--ink); transition: all .25s ease; font-size: 13px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  .btn-whatsapp { padding: 10px 18px; border-radius: 999px; font-weight: 600; background: var(--whatsapp); color: #fff; transition: all .25s ease; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-whatsapp:hover { transform: translateY(-2px); background: #128C7E; }
+  .tilt-3d { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; }
+  .tilt-3d:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -20px rgba(31,22,17,.18); }
+  .link-u { background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .3s; }
+  .link-u:hover { background-size: 0 1px; }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94%, 98% { transform: scaleY(.1); } }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
+  .reveal { opacity: 0; transform: translateY(20px); transition: all .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  @keyframes fillBar { from { width: 0; } }
+  .bar-fill { animation: fillBar 1.3s cubic-bezier(.2,.7,.2,1) both; }
+
+  /* whatsapp message bubble */
+  .wa-bubble {
+    background: #DCF8C6; border-radius: 14px 14px 14px 4px;
+    padding: 10px 14px; max-width: 260px; font-size: 13px; color: #1F2937;
+    box-shadow: 0 1px 1px rgba(0,0,0,.08);
+    position: relative;
+  }
+  .wa-time { font-size: 10px; color: #6B7280; margin-top: 4px; text-align: right; }
+  .wa-bubble.system { background: #FFFFFF; }
+
+  /* test bar chart */
+  .test-bar { position: relative; transition: all .25s; }
+  .test-bar:hover { opacity: .8; cursor: pointer; }
+  .test-bar .lbl { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+  /* child switcher */
+  .child-chip { transition: all .2s; }
+  .child-chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* status pill */
+  .pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .03em; display: inline-flex; align-items: center; gap: 4px; }
+  .pill-green { background: #ECFDF5; color: var(--emerald-deep); }
+  .pill-amber { background: #FEF3C7; color: var(--amber-deep); }
+  .pill-red { background: #FEE2E2; color: var(--burgundy); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/></radialGradient>
+    <symbol id="face-praketa" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 60 Q24 20 60 18 Q96 20 98 60 Q96 38 80 36 Q70 56 60 38 Q50 56 40 36 Q24 38 22 60Z" fill="#3F2418"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#1F1611"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#1F1611"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-vihaan" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M20 56 Q24 18 60 16 Q96 18 100 56 Q90 32 78 38 L84 22 L74 36 L66 18 L60 36 L52 18 L46 36 L36 22 L42 38 Q30 32 20 56Z" fill="#2B1410"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#059669"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#059669"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-adhvara" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 56 Q22 20 60 18 Q96 18 100 56 Q102 44 96 38 Q70 30 50 38 Q44 28 36 34 Q26 38 22 56Z" fill="#1F1611"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B45309"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B45309"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-harini" viewBox="0 0 120 120">
+      <path d="M18 58 Q14 110 60 112 Q106 110 102 58 Q102 18 60 16 Q18 18 18 58Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B8860B"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B8860B"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="48" r="2" fill="#9F1239"/>
+    </symbol>
+    <symbol id="face-anika" viewBox="0 0 120 120">
+      <path d="M18 56 Q14 92 60 98 Q106 92 102 56 Q102 16 60 14 Q18 16 18 56Z" fill="#2B1410"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#65A30D"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#65A30D"/></g>
+      <circle cx="46" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <circle cx="74" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <line x1="56" y1="69" x2="64" y2="69" stroke="#B8860B" stroke-width="1.6"/>
+      <path d="M52 96 Q60 102 68 96" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-amita" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="14" rx="14" ry="10" fill="#3F2418"/>
+      <path d="M22 56 Q22 22 60 22 Q98 22 98 56 Q88 36 60 34 Q32 36 22 56Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#92400E"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#92400E"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="mesh-bg"></div>
+
+<!-- HEADER -->
+<header class="relative z-20 px-5 lg:px-10 pt-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D97706"/></svg>
+      </div>
+      <div>
+        <div class="serif font-bold text-lg leading-none" style="color: var(--ink);">Ananta</div>
+        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--ink-soft);">PARENT</div>
+      </div>
+    </a>
+    <nav class="hidden lg:flex items-center gap-7 text-sm" style="color: var(--ink-soft);">
+      <a class="font-semibold" style="color: var(--ink);" href="#">Overview</a>
+      <a class="link-u" href="#progress">Progress</a>
+      <a class="link-u" href="#tests">Weekly tests</a>
+      <a class="link-u" href="#billing">Billing</a>
+      <a class="link-u" href="#notifications">Notifications</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex paper-card rounded-full px-3 py-1.5 items-center gap-2 text-xs" style="color: var(--ink-2);">
+        <span class="serif font-semibold" style="color: var(--ink);">Mrs. R.</span>
+        <span style="color: var(--ink-soft);">parent</span>
+      </div>
+      <div class="w-10 h-10 rounded-full flex items-center justify-center ring-2 ring-offset-2" style="background: #FED7AA; --tw-ring-color: var(--terracotta); --tw-ring-offset-color: var(--bg);">
+        <span class="serif font-bold text-sm" style="color: var(--terracotta);">SR</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- GREETING + CHILD SWITCH -->
+<section class="relative z-10 px-5 lg:px-10 mt-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— TUESDAY EVENING · 28 MAY 2026</div>
+      <h1 class="serif text-4xl md:text-5xl font-bold mt-2" style="color: var(--ink);">
+        Good evening, Mrs. R. <br class="hidden md:block"/>
+        Priya is doing <span class="accent-warm italic">well</span> this week.
+      </h1>
+      <p class="mt-3 max-w-2xl" style="color: var(--ink-soft);">
+        Three classes attended, 88% average on the post-class quizzes, 12 Memory Deck cards reviewed. She joined Vihaan's Science class on time this evening.
+      </p>
+    </div>
+
+    <!-- Sibling switcher -->
+    <div class="reveal mt-7 flex items-center flex-wrap gap-2">
+      <span class="text-xs mono tracking-widest mr-2" style="color: var(--ink-soft);">VIEWING CHILD —</span>
+      <button class="child-chip active px-4 py-2 rounded-full border text-sm flex items-center gap-2" style="border-color: var(--line);">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center serif font-bold text-xs" style="background: #FED7AA; color: var(--terracotta);">PR</div>
+        <span>Priya · Grade 10</span>
+      </button>
+      <button class="child-chip px-4 py-2 rounded-full border text-sm flex items-center gap-2" style="border-color: var(--line); background: var(--paper); color: var(--ink-2);">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center serif font-bold text-xs" style="background: #D1FAE5; color: var(--emerald-deep);">AR</div>
+        <span>Arjun · Grade 8 (preview)</span>
+      </button>
+      <button class="text-xs link-u ml-2" style="color: var(--ink-soft);">+ Add another child</button>
+    </div>
+  </div>
+</section>
+
+<!-- THIS WEEK SNAPSHOT -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal grid lg:grid-cols-[1.5fr_1fr] gap-5">
+
+      <!-- Week's classes -->
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="flex items-end justify-between flex-wrap gap-3 mb-5">
+          <div>
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— THIS WEEK</div>
+            <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">What Priya did this week</h2>
+          </div>
+          <span class="pill pill-green">
+            <span class="w-1.5 h-1.5 rounded-full" style="background: var(--emerald);"></span>
+            ALL CAUGHT UP
+          </span>
+        </div>
+
+        <ul class="space-y-3">
+          <li class="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-3 rounded-xl border" style="background: var(--bg-2); border-color: var(--line);">
+            <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-praketa"/></svg></div>
+            <div>
+              <div class="text-sm font-semibold" style="color: var(--ink);">Mathematics — Quadratic Equations</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Mon · attended live · quiz <b style="color:var(--emerald-deep);">9/10</b></div>
+            </div>
+            <span class="pill pill-green">✓ DONE</span>
+          </li>
+          <li class="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-3 rounded-xl border" style="background: var(--bg-2); border-color: var(--line);">
+            <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #D1FAE5;"><svg viewBox="0 0 120 120"><use href="#face-vihaan"/></svg></div>
+            <div>
+              <div class="text-sm font-semibold" style="color: var(--ink);">Science — Acids, Bases and Salts</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Tue · attended live (tonight) · quiz <b style="color:var(--emerald-deep);">6/7</b></div>
+            </div>
+            <span class="pill pill-green">✓ DONE</span>
+          </li>
+          <li class="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-3 rounded-xl border" style="background: var(--paper); border-color: var(--line);">
+            <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FED7AA;"><svg viewBox="0 0 120 120"><use href="#face-adhvara"/></svg></div>
+            <div>
+              <div class="text-sm font-semibold" style="color: var(--ink);">Social Science — Federalism</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Wed · scheduled · 7 PM tomorrow</div>
+            </div>
+            <span class="pill" style="background: var(--bg-2); color: var(--ink-soft);">UPCOMING</span>
+          </li>
+          <li class="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-3 rounded-xl border" style="background: var(--paper); border-color: var(--line);">
+            <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-harini"/></svg></div>
+            <div>
+              <div class="text-sm font-semibold" style="color: var(--ink);">ಕನ್ನಡ — Kuvempu's poetry</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Thu · scheduled · 7 PM</div>
+            </div>
+            <span class="pill" style="background: var(--bg-2); color: var(--ink-soft);">UPCOMING</span>
+          </li>
+        </ul>
+
+        <div class="mt-5 p-4 rounded-2xl border-l-4" style="background: #ECFDF5; border-color: var(--emerald);">
+          <div class="text-xs font-bold uppercase mb-1" style="color: var(--emerald-deep);">Teacher's note</div>
+          <p class="text-sm" style="color: var(--ink-2);">
+            <span class="serif font-semibold">Vihaan</span> noted that Priya answered a doubt about magnesium burning correctly in tonight's class and helped another student. Confidence in chemistry has gone up over the last two weeks.
+          </p>
+        </div>
+      </div>
+
+      <!-- Year ring + flags -->
+      <div class="space-y-4">
+        <div class="paper-card-strong rounded-3xl p-7 text-center">
+          <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— THE YEAR</div>
+          <h3 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">On pace for January</h3>
+          <div class="relative w-36 h-36 mx-auto mt-4">
+            <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+              <circle cx="50" cy="50" r="44" stroke="var(--line)" stroke-width="8" fill="none"/>
+              <circle cx="50" cy="50" r="44" stroke="url(#progGrad)" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="237"/>
+              <defs>
+                <linearGradient id="progGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#D97706"/>
+                  <stop offset="100%" stop-color="#059669"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">DAY</div>
+              <div class="serif font-bold text-3xl" style="color: var(--ink);">32</div>
+              <div class="text-[10px] mono" style="color: var(--ink-soft);">of academic year</div>
+            </div>
+          </div>
+          <p class="text-xs mt-3" style="color: var(--ink-soft);">Teaching ends January 2027. Then KSEEB model paper revision through Feb–March.</p>
+        </div>
+
+        <div class="paper-card-strong rounded-3xl p-5">
+          <div class="text-xs mono tracking-widest mb-2" style="color: var(--ink-soft);">— ATTENTION NEEDED</div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: #FEF3C7;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#B45309"><path d="M12 2 1 21h22L12 2zm0 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1-2h-2V9h2v5z"/></svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold" style="color: var(--ink);">Social Science is behind</div>
+              <p class="text-xs mt-1" style="color: var(--ink-soft);">Priya has watched 4 of 30 chapters; the cohort is at 5. Adhvara may add extra Saturday slots once Hindi finishes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUBJECT PROGRESS (parent-simplified) -->
+<section id="progress" class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal paper-card-strong rounded-3xl p-7">
+    <div class="flex items-end justify-between flex-wrap gap-3 mb-5">
+      <div>
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— SUBJECT PROGRESS</div>
+        <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">All six subjects, at a glance</h2>
+      </div>
+      <a href="#" class="text-sm link-u" style="color: var(--ink-soft);">Detailed report (PDF) →</a>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-praketa"/></svg></div>
+          <div class="flex-1">
+            <div class="serif font-semibold" style="color: var(--ink);">Mathematics</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Praketa · Monday</div>
+          </div>
+          <span class="pill pill-green">ON PACE</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:33%; background: var(--amber);"></div></div>
+        <div class="text-xs mt-2 flex justify-between" style="color: var(--ink-soft);">
+          <span>5 of 15 chapters</span>
+          <span>Quiz avg <b style="color: var(--amber-deep);">88%</b></span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #D1FAE5;"><svg viewBox="0 0 120 120"><use href="#face-vihaan"/></svg></div>
+          <div class="flex-1">
+            <div class="serif font-semibold" style="color: var(--ink);">Science</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Vihaan · Tuesday</div>
+          </div>
+          <span class="pill pill-green">ON PACE</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:44%; background: var(--emerald);"></div></div>
+        <div class="text-xs mt-2 flex justify-between" style="color: var(--ink-soft);">
+          <span>7 of 16 chapters</span>
+          <span>Quiz avg <b style="color: var(--emerald-deep);">91%</b></span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FED7AA;"><svg viewBox="0 0 120 120"><use href="#face-adhvara"/></svg></div>
+          <div class="flex-1">
+            <div class="serif font-semibold" style="color: var(--ink);">Social Science</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Adhvara · Wednesday</div>
+          </div>
+          <span class="pill pill-amber">CATCHING UP</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:13%; background: var(--terracotta);"></div></div>
+        <div class="text-xs mt-2 flex justify-between" style="color: var(--ink-soft);">
+          <span>4 of 30 chapters</span>
+          <span>Quiz avg <b style="color: var(--burgundy);">72%</b></span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-harini"/></svg></div>
+          <div class="flex-1">
+            <div class="serif font-semibold" style="color: var(--ink);">ಕನ್ನಡ · 1st</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Harini · Thursday</div>
+          </div>
+          <span class="pill pill-green">ON PACE</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:30%; background: var(--gold);"></div></div>
+        <div class="text-xs mt-2 flex justify-between" style="color: var(--ink-soft);">
+          <span>6 of 20 chapters</span>
+          <span>Quiz avg <b style="color: var(--amber-deep);">86%</b></span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #ECFCCB;"><svg viewBox="0 0 120 120"><use href="#face-anika"/></svg></div>
+          <div class="flex-1">
+            <div class="serif font-semibold" style="color: var(--ink);">English · 2nd</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Anika · Friday</div>
+          </div>
+          <span class="pill pill-green">ON PACE</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:25%; background: var(--sage);"></div></div>
+        <div class="text-xs mt-2 flex justify-between" style="color: var(--ink-soft);">
+          <span>5 of 20 chapters</span>
+          <span>Quiz avg <b style="color: var(--emerald-deep);">82%</b></span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FED7AA;"><svg viewBox="0 0 120 120"><use href="#face-amita"/></svg></div>
+          <div class="flex-1">
+            <div class="serif font-semibold" style="color: var(--ink);">हिंदी · 3rd</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Amita · Saturday</div>
+          </div>
+          <span class="pill pill-green">AHEAD</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:47%; background: var(--copper);"></div></div>
+        <div class="text-xs mt-2 flex justify-between" style="color: var(--ink-soft);">
+          <span>7 of 15 chapters</span>
+          <span>Quiz avg <b style="color: var(--emerald-deep);">89%</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEEKLY TESTS + WHATSAPP PREVIEW -->
+<section id="tests" class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal grid lg:grid-cols-[1.3fr_1fr] gap-5">
+
+    <!-- Weekly test bar chart -->
+    <div class="paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— SUNDAY WEEKLY TESTS</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Last four weekly tests</h2>
+      <p class="text-sm mt-1" style="color: var(--ink-soft);">Each Sunday 6 PM, 50 questions across the week's chapters. The grey line is the cohort average; orange bars are Priya.</p>
+
+      <div class="mt-6 relative h-56">
+        <!-- y-axis labels -->
+        <div class="absolute inset-y-0 left-0 w-8 flex flex-col justify-between text-[10px] mono" style="color: var(--ink-soft);">
+          <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
+        </div>
+        <!-- chart area -->
+        <div class="absolute inset-y-0 left-10 right-0 flex items-end gap-6 border-l border-b" style="border-color: var(--line);">
+          <!-- week 1: 28%, cohort 64% -->
+          <div class="flex-1 h-full flex items-end gap-1 relative">
+            <div class="test-bar w-1/2 rounded-t" style="height: 56%; background: var(--amber);">
+              <div class="lbl">28/50</div>
+            </div>
+            <div class="absolute" style="left: 0; right: 0; bottom: 64%; height: 2px; background: var(--ink-dim); opacity: .4;"></div>
+          </div>
+          <!-- week 2: 60%, cohort 66% -->
+          <div class="flex-1 h-full flex items-end gap-1 relative">
+            <div class="test-bar w-1/2 rounded-t" style="height: 60%; background: var(--amber);">
+              <div class="lbl">30/50</div>
+            </div>
+            <div class="absolute" style="left: 0; right: 0; bottom: 66%; height: 2px; background: var(--ink-dim); opacity: .4;"></div>
+          </div>
+          <!-- week 3: 64%, cohort 68% -->
+          <div class="flex-1 h-full flex items-end gap-1 relative">
+            <div class="test-bar w-1/2 rounded-t" style="height: 64%; background: var(--amber);">
+              <div class="lbl">32/50</div>
+            </div>
+            <div class="absolute" style="left: 0; right: 0; bottom: 68%; height: 2px; background: var(--ink-dim); opacity: .4;"></div>
+          </div>
+          <!-- week 4: 68%, cohort 70% -->
+          <div class="flex-1 h-full flex items-end gap-1 relative">
+            <div class="test-bar w-1/2 rounded-t" style="height: 68%; background: var(--terracotta);">
+              <div class="lbl">34/50 · #14</div>
+            </div>
+            <div class="absolute" style="left: 0; right: 0; bottom: 70%; height: 2px; background: var(--ink-dim); opacity: .4;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between text-[11px] mono mt-2 pl-10" style="color: var(--ink-soft);">
+        <span>Week 1 · 4 May</span><span>Week 2 · 11 May</span><span>Week 3 · 18 May</span><span>Week 4 · 25 May</span>
+      </div>
+
+      <div class="mt-5 grid sm:grid-cols-3 gap-3 text-center">
+        <div class="rounded-xl p-3" style="background: var(--bg-2);">
+          <div class="serif font-bold text-2xl" style="color: var(--ink);">+6</div>
+          <div class="text-[10px] mono" style="color: var(--ink-soft);">PLACES IMPROVED</div>
+        </div>
+        <div class="rounded-xl p-3" style="background: var(--bg-2);">
+          <div class="serif font-bold text-2xl" style="color: var(--ink);">#14</div>
+          <div class="text-[10px] mono" style="color: var(--ink-soft);">CURRENT RANK / 142</div>
+        </div>
+        <div class="rounded-xl p-3" style="background: var(--bg-2);">
+          <div class="serif font-bold text-2xl" style="color: var(--emerald-deep);">↑</div>
+          <div class="text-[10px] mono" style="color: var(--ink-soft);">TRENDING UP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp preview -->
+    <div class="paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— RECENT WHATSAPP UPDATES</div>
+      <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">What we sent you this week</h2>
+      <p class="text-sm mt-1" style="color: var(--ink-soft);">Sent to +91 ××××× ×9854 in your preferred language.</p>
+
+      <div class="mt-5 space-y-4">
+        <div>
+          <div class="wa-bubble">
+            <div class="font-semibold" style="color: var(--emerald-deep);">Ananta · Daily update</div>
+            <div class="mt-1">Priya joined Maths class on time. Quiz score: 9/10. ⭐</div>
+            <div class="wa-time">Mon 8:14 PM</div>
+          </div>
+        </div>
+        <div>
+          <div class="wa-bubble">
+            <div class="font-semibold" style="color: var(--emerald-deep);">Ananta · Daily update</div>
+            <div class="mt-1">Priya joined Science class on time. Quiz score: 6/7. Vihaan said she answered a doubt clearly.</div>
+            <div class="wa-time">Tue 8:08 PM</div>
+          </div>
+        </div>
+        <div>
+          <div class="wa-bubble system">
+            <div class="font-semibold" style="color: var(--ink);">Ananta · Weekly digest</div>
+            <div class="mt-1">3 of 6 classes attended this week. Avg quiz: 84%. Sunday test rank: #14 of 142 (↑6).</div>
+            <div class="wa-time">Sun 9:00 PM</div>
+          </div>
+        </div>
+        <div>
+          <div class="wa-bubble">
+            <div class="font-semibold" style="color: var(--emerald-deep);">Ananta · Payment</div>
+            <div class="mt-1">Receipt for ₹2,499 yearly · paid via UPI. Next billing 28 Apr 2027.</div>
+            <div class="wa-time">28 Apr</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-2">
+        <button class="btn-whatsapp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4l-.6-.3c-.2-.1-1.1-.6-1.3-.6-.2-.1-.3-.1-.4.1-.1.2-.5.6-.6.7-.1.1-.2.1-.4 0-1.4-.7-2.3-1.2-3.2-2.7-.2-.4.2-.4.6-1.2.1-.1 0-.2 0-.4-.1-.1-.4-1.1-.6-1.5-.2-.4-.3-.3-.4-.4h-.4c-.1 0-.4 0-.5.2-.2.2-.7.7-.7 1.7s.7 2 .8 2.2c.1.1 1.4 2.3 3.6 3.3 1.4.5 1.9.6 2.6.5.4-.1 1.1-.5 1.3-.9.2-.4.2-.8.1-.9-.1-.1-.2-.1-.4-.2zM12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.6 1.4 5.1L2 22l5-1.4c1.4.8 3.1 1.4 5 1.4 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+          Open WhatsApp chat
+        </button>
+        <a href="#notifications" class="btn-ghost">Change preferences</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BILLING + NOTIFICATIONS -->
+<section id="billing" class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal grid lg:grid-cols-2 gap-5">
+
+    <!-- Billing -->
+    <div class="paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— BILLING</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Your subscription</h2>
+
+      <div class="mt-5 rounded-2xl p-5 border" style="background: linear-gradient(135deg, #FEF3C7, #FFFFFF); border-color: #FCD34D;">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div>
+            <div class="text-[10px] mono tracking-widest" style="color: var(--amber-deep);">YEARLY PLAN · ACTIVE</div>
+            <div class="serif font-bold text-2xl mt-1" style="color: var(--ink);">₹2,499 / year</div>
+            <div class="text-xs mt-1" style="color: var(--ink-soft);">Effective ₹208/month · covers full academic year and revision</div>
+          </div>
+          <span class="pill pill-green">ACTIVE</span>
+        </div>
+        <hr class="my-4" style="border-color: rgba(252, 211, 77, .5);"/>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">NEXT BILLING</div>
+            <div class="font-semibold mt-0.5" style="color: var(--ink);">28 Apr 2027</div>
+          </div>
+          <div>
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">PAYMENT METHOD</div>
+            <div class="font-semibold mt-0.5" style="color: var(--ink);">UPI Auto-Pay (·· 9854)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="text-[10px] mono tracking-widest mb-2" style="color: var(--ink-soft);">RECENT INVOICES</div>
+        <ul class="text-sm divide-y" style="color: var(--ink-2);">
+          <li class="flex items-center justify-between py-3" style="border-color: var(--line);">
+            <div>
+              <div class="font-semibold" style="color: var(--ink);">₹2,499 — Yearly plan</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Paid via UPI · 28 Apr 2026</div>
+            </div>
+            <button class="text-xs link-u" style="color: var(--ink);">Download</button>
+          </li>
+        </ul>
+        <button class="mt-3 text-sm link-u" style="color: var(--ink-soft);">View all invoices →</button>
+      </div>
+
+      <div class="mt-5 flex gap-2 flex-wrap">
+        <button class="btn-ghost">Switch to monthly</button>
+        <button class="btn-ghost">Pause subscription</button>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— NOTIFICATIONS</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">What we send you</h2>
+
+      <div class="mt-4">
+        <div class="text-[10px] mono tracking-widest mb-2" style="color: var(--ink-soft);">PREFERRED LANGUAGE</div>
+        <div class="flex gap-2 flex-wrap">
+          <button class="px-4 py-2 rounded-full text-sm font-semibold border" style="background: var(--ink); color: var(--bg); border-color: var(--ink);">English</button>
+          <button class="px-4 py-2 rounded-full text-sm font-semibold border" style="background: var(--paper); color: var(--ink-2); border-color: var(--line);">ಕನ್ನಡ</button>
+          <button class="px-4 py-2 rounded-full text-sm font-semibold border" style="background: var(--paper); color: var(--ink-2); border-color: var(--line);">हिंदी</button>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="text-[10px] mono tracking-widest mb-2" style="color: var(--ink-soft);">DAILY · AFTER EACH CLASS</div>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">Did Priya attend? Quiz score?</span>
+          <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+        </label>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">If Priya missed today's class</span>
+          <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+        </label>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] mono tracking-widest mb-2" style="color: var(--ink-soft);">WEEKLY · SUNDAY EVENING</div>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">Weekly digest (attendance, scores, rank)</span>
+          <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+        </label>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">Detailed PDF report (email only)</span>
+          <input type="checkbox" class="w-4 h-4 accent-amber-600">
+        </label>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] mono tracking-widest mb-2" style="color: var(--ink-soft);">OCCASIONAL</div>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">Payment receipts</span>
+          <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+        </label>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">Teacher's note when something stands out</span>
+          <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+        </label>
+        <label class="flex items-center justify-between p-2.5 rounded-lg hover:bg-stone-50">
+          <span class="text-sm" style="color: var(--ink-2);">Ananta product updates</span>
+          <input type="checkbox" class="w-4 h-4 accent-amber-600">
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TALK TO ANANTA -->
+<section class="relative z-10 px-5 lg:px-10 mt-8 mb-16">
+  <div class="max-w-7xl mx-auto reveal paper-card-strong rounded-3xl p-7 grid lg:grid-cols-[1fr_auto] gap-5 items-center">
+    <div>
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— TALK TO US</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">A real person reads every message.</h2>
+      <p class="text-sm mt-1 max-w-2xl" style="color: var(--ink-soft);">
+        If you have a concern about Priya's progress, the schedule, or how something works — message us. Priyanka (founder) reads every message and replies, usually within a few hours.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button class="btn-whatsapp">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4l-.6-.3c-.2-.1-1.1-.6-1.3-.6-.2-.1-.3-.1-.4.1-.1.2-.5.6-.6.7-.1.1-.2.1-.4 0-1.4-.7-2.3-1.2-3.2-2.7-.2-.4.2-.4.6-1.2.1-.1 0-.2 0-.4-.1-.1-.4-1.1-.6-1.5-.2-.4-.3-.3-.4-.4h-.4c-.1 0-.4 0-.5.2-.2.2-.7.7-.7 1.7s.7 2 .8 2.2c.1.1 1.4 2.3 3.6 3.3 1.4.5 1.9.6 2.6.5.4-.1 1.1-.5 1.3-.9.2-.4.2-.8.1-.9-.1-.1-.2-.1-.4-.2zM12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.6 1.4 5.1L2 22l5-1.4c1.4.8 3.1 1.4 5 1.4 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+        WhatsApp Priyanka
+      </button>
+      <button class="btn-ghost">Email instead</button>
+    </div>
+  </div>
+</section>
+
+<footer class="relative py-10 border-t" style="border-color: var(--line);">
+  <div class="max-w-7xl mx-auto px-5 lg:px-10 flex flex-wrap items-center justify-between text-xs" style="color: var(--ink-dim);">
+    <div>© 2026 Ananta · Made in Karnataka</div>
+    <div class="flex items-center gap-6">
+      <a href="#" class="link-u">Privacy</a>
+      <a href="#" class="link-u">Refund policy</a>
+      <a href="#" class="link-u">Switch to student view</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: .1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // child switcher
+  document.querySelectorAll('.child-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.child-chip').forEach(x => {
+        x.classList.remove('active');
+        x.style.background = 'var(--paper)';
+        x.style.color = 'var(--ink-2)';
+      });
+      b.classList.add('active');
+      b.style.background = 'var(--ink)';
+      b.style.color = 'var(--bg)';
+    });
+  });
+</script>
+</body>
+</html>

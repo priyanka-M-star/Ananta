@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Live · Social Science with Adhvara · Ananta</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --terracotta-deep:#9A3412;
+    --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+  .serif { font-family: 'Fraunces', serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .03;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "top top"
+      "stage chat"
+      "bottom chat";
+    height: 100vh; height: 100dvh;
+    gap: 0;
+  }
+  @media (max-width: 900px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-areas: "top" "stage" "chat" "bottom";
+      grid-template-rows: auto 50vh 1fr auto;
+    }
+  }
+  .top-bar { grid-area: top; padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 14px; background: rgba(250,245,235,.85); backdrop-filter: blur(14px); z-index: 20; }
+  .stage   { grid-area: stage; position: relative; overflow: hidden; }
+  .chat    { grid-area: chat; border-left: 1px solid var(--line); background: var(--paper); display: flex; flex-direction: column; overflow: hidden; }
+  .bottom-bar { grid-area: bottom; padding: 10px 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper); }
+  h1, h2, h3 { font-family: 'Fraunces', serif; }
+
+  #scene { position: absolute; inset: 0; z-index: 1; }
+  #scene canvas { display: block; width: 100% !important; height: 100% !important; }
+
+  .pip {
+    position: absolute; bottom: 18px; left: 18px; z-index: 5;
+    display: flex; align-items: center; gap: 10px;
+    background: #FFFFFFEE; border: 1px solid var(--line);
+    box-shadow: 0 12px 30px -14px rgba(31,22,17,.25);
+    border-radius: 999px; padding: 6px 14px 6px 6px;
+  }
+  .pip-face {
+    width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+    background: #FED7AA; border: 2px solid var(--terracotta);
+  }
+  .pip-meta .name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; color: var(--ink); line-height: 1; }
+  .pip-meta .sub { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .wave { display: flex; align-items: flex-end; gap: 2px; height: 14px; margin-left: 6px; }
+  .wave span { display: inline-block; width: 3px; background: var(--terracotta); border-radius: 2px; animation: bar 1.1s ease-in-out infinite; }
+  .wave span:nth-child(1) { animation-delay: 0s; height: 5px; }
+  .wave span:nth-child(2) { animation-delay: .15s; height: 13px; }
+  .wave span:nth-child(3) { animation-delay: .3s; height: 9px; }
+  .wave span:nth-child(4) { animation-delay: .45s; height: 14px; }
+  .wave span:nth-child(5) { animation-delay: .6s; height: 7px; }
+  @keyframes bar { 0%,100% { transform: scaleY(.5); } 50% { transform: scaleY(1.4); } }
+
+  .caption {
+    position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 5;
+    max-width: 720px; text-align: center;
+    background: rgba(31,22,17,.88); color: #FED7AA;
+    padding: 12px 22px; border-radius: 14px;
+    font-size: 17px; line-height: 1.5;
+    font-family: 'Fraunces', serif; font-weight: 500;
+    backdrop-filter: blur(8px);
+    transition: opacity .35s ease;
+  }
+
+  /* Timeline card (replaces formula card) */
+  .timeline {
+    position: absolute; top: 18px; right: 18px; z-index: 5;
+    background: #FFFFFFEE; border: 1px solid var(--line);
+    padding: 14px 16px; border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 12px 30px -14px rgba(31,22,17,.18);
+    width: 280px;
+  }
+  .timeline .label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; }
+  .timeline .head { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; color: var(--ink); margin-top: 4px; }
+  .timeline ul { margin: 12px 0 0 0; padding: 0; list-style: none; position: relative; }
+  .timeline ul::before {
+    content: ''; position: absolute; left: 7px; top: 6px; bottom: 6px;
+    width: 2px; background: linear-gradient(180deg, var(--terracotta), transparent);
+  }
+  .timeline li { padding: 5px 0 5px 24px; position: relative; font-size: 12.5px; color: var(--ink-2); line-height: 1.4; }
+  .timeline li::before {
+    content: ''; position: absolute; left: 3px; top: 11px; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--cream); border: 2px solid var(--terracotta);
+  }
+  .timeline li.active::before { background: var(--terracotta); box-shadow: 0 0 0 4px rgba(194,65,12,.18); }
+  .timeline li.active { color: var(--ink); font-weight: 600; }
+  .timeline li .yr { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); display: block; }
+
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    background: #FEE2E2; color: var(--burgundy); letter-spacing: .05em;
+  }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--burgundy); position: relative; }
+  .live-dot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: var(--burgundy); opacity: .4; animation: ping 1.4s ease-out infinite; }
+  @keyframes ping { 0% { transform: scale(.6); opacity: .7; } 100% { transform: scale(1.8); opacity: 0; } }
+
+  .btn-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-2); border: 1px solid var(--line);
+    transition: all .2s; color: var(--ink);
+  }
+  .btn-icon:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn-icon.active { background: var(--terracotta); color: #fff; border-color: var(--terracotta); }
+  .btn-leave {
+    padding: 10px 18px; border-radius: 12px;
+    background: var(--burgundy); color: #fff; font-weight: 600; font-size: 14px;
+    transition: all .2s; border: 1px solid var(--burgundy);
+  }
+  .btn-leave:hover { background: #7F1D1D; }
+
+  .chat-head { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+  .chat-list { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .chat-list::-webkit-scrollbar { width: 6px; }
+  .chat-list::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg .who { font-size: 11px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+  .msg.student .body { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 9px 13px; font-size: 14px; color: var(--ink-2); }
+  .msg.teacher .body { background: #FED7AA; border: 1px solid #FDBA74; border-radius: 14px; padding: 9px 13px; font-size: 14px; color: var(--ink); }
+  .msg .avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #FED7AA; }
+  .msg-fade-in { animation: slideUp .35s ease both; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .typing-dots { display: inline-flex; gap: 3px; padding: 6px 0; }
+  .typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft); animation: dotPulse 1.2s ease-in-out infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: .2s; }
+  .typing-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes dotPulse { 0%, 100% { opacity: .3; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
+
+  .chat-input { padding: 12px 14px; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
+  .chat-input input {
+    flex: 1; padding: 10px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--bg);
+    font-size: 14px; outline: none; color: var(--ink);
+    transition: border-color .2s;
+  }
+  .chat-input input:focus { border-color: var(--terracotta); background: #fff; }
+  .chat-input button { padding: 10px 14px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 13px; }
+  .chat-input button:hover { background: var(--terracotta); }
+
+  .mic-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-2); border: 1px solid var(--line); color: var(--ink);
+  }
+  .mic-btn.recording { background: var(--burgundy); color: #fff; animation: pulseMic 1.4s ease-in-out infinite; }
+  @keyframes pulseMic { 0%, 100% { box-shadow: 0 0 0 0 rgba(159,18,57,.5); } 50% { box-shadow: 0 0 0 8px rgba(159,18,57,0); } }
+
+  .poll-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.9);
+    background: #FFFFFF; border: 1px solid var(--line);
+    border-radius: 22px; padding: 24px 28px; z-index: 15;
+    width: min(440px, 90vw); opacity: 0; pointer-events: none;
+    transition: all .4s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 30px 80px -20px rgba(31,22,17,.45);
+  }
+  .poll-overlay.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+  .poll-overlay .head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .poll-overlay .head .pill { background: var(--terracotta); color: #fff; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-family: 'JetBrains Mono', monospace; letter-spacing: .05em; font-weight: 700; }
+  .poll-q { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; color: var(--ink); margin: 10px 0 16px; line-height: 1.35; }
+  .poll-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; margin: 8px 0; cursor: pointer; transition: all .2s; background: var(--paper); font-size: 14px; color: var(--ink-2); }
+  .poll-opt:hover { border-color: var(--terracotta); transform: translateX(4px); }
+  .poll-opt .key { width: 28px; height: 28px; border-radius: 8px; background: var(--bg-2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: var(--ink-soft); }
+  .poll-opt.correct { background: #ECFDF5; border-color: #A7F3D0; color: var(--emerald-deep); }
+  .poll-opt.correct .key { background: var(--emerald); color: #fff; }
+  .poll-opt.wrong { background: #FEE2E2; border-color: #FCA5A5; color: var(--burgundy); }
+  .poll-opt.wrong .key { background: var(--burgundy); color: #fff; }
+
+  .reaction {
+    position: absolute; bottom: 80px; font-size: 28px;
+    animation: floatUp 3.5s ease-out forwards;
+    pointer-events: none; z-index: 6;
+  }
+  @keyframes floatUp { 0% { transform: translateY(0) scale(.6); opacity: 0; } 20% { opacity: 1; transform: translateY(-20px) scale(1.1); } 100% { transform: translateY(-360px) scale(.9); opacity: 0; } }
+
+  .confetti { position: fixed; top: -10px; width: 8px; height: 12px; pointer-events: none; z-index: 999; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+  .cap-toggle { display: inline-flex; align-items: center; gap: 4px; background: var(--bg-2); border-radius: 999px; padding: 3px; border: 1px solid var(--line); }
+  .cap-toggle button { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); }
+  .cap-toggle button.on { background: var(--ink); color: var(--bg); }
+
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94%, 98% { transform: scaleY(.1); } }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
+
+  /* "On this day" badge */
+  .date-badge {
+    position: absolute; top: 18px; left: 18px; z-index: 5;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--ink); color: #FED7AA;
+    border-radius: 14px; padding: 10px 14px;
+    font-family: 'Fraunces', serif;
+  }
+  .date-badge .day { font-size: 26px; font-weight: 700; line-height: 1; }
+  .date-badge .my { font-size: 11px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .05em; color: rgba(254,215,170,.7); }
+  .date-badge .ev { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- Adhvara SVG portrait -->
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/></radialGradient>
+    <symbol id="face-adhvara" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 56 Q22 20 60 18 Q96 18 100 56 Q102 44 96 38 Q70 30 50 38 Q44 28 36 34 Q26 38 22 56Z" fill="#1F1611"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B45309"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B45309"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FED7AA" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#C2410C"/></svg>
+      </div>
+      <div>
+        <div class="serif font-bold leading-none" style="color: var(--ink);">Social Science with Adhvara</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Chapter 1 · The Rise of Nationalism in Europe · Grade 10</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="live-pill"><span class="live-dot"></span> LIVE</span>
+      <span class="mono text-xs" style="color: var(--ink-soft);"><b id="elapsed" style="color:var(--ink);">12:18</b> / 60:00</span>
+      <span class="hidden sm:flex items-center gap-1 text-xs" style="color: var(--ink-soft);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M5 21v-2a7 7 0 0 1 14 0v2" stroke="currentColor" stroke-width="2"/></svg>
+        <b id="viewers" style="color: var(--ink);">923</b> watching
+      </span>
+    </div>
+  </div>
+
+  <!-- 3D STAGE -->
+  <div class="stage">
+    <div id="scene"></div>
+
+    <!-- On-this-day badge -->
+    <div class="date-badge">
+      <div>
+        <div class="day">14</div>
+      </div>
+      <div>
+        <div class="my">July · 1789</div>
+        <div class="ev">Storming of the Bastille</div>
+      </div>
+    </div>
+
+    <!-- Timeline card -->
+    <div class="timeline">
+      <div class="label">— Timeline of the Revolution</div>
+      <div class="head">Six dates to remember</div>
+      <ul>
+        <li><span class="yr">May 1789</span>Estates-General convened</li>
+        <li><span class="yr">20 Jun 1789</span>Tennis Court Oath</li>
+        <li class="active"><span class="yr">14 Jul 1789</span>Bastille is stormed</li>
+        <li><span class="yr">Aug 1789</span>Declaration of the Rights of Man</li>
+        <li><span class="yr">Jan 1793</span>Louis XVI executed</li>
+        <li><span class="yr">Nov 1799</span>Napoleon takes power</li>
+      </ul>
+    </div>
+
+    <!-- Caption -->
+    <div class="caption" id="caption">On July 14th, 1789, Parisians stormed the Bastille — a royal fortress.</div>
+
+    <!-- Teacher PiP -->
+    <div class="pip">
+      <div class="pip-face"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+      <div class="pip-meta">
+        <div class="name">Adhvara</div>
+        <div class="sub">Social Science · live</div>
+      </div>
+      <div class="wave"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- Live poll overlay -->
+    <div class="poll-overlay" id="poll">
+      <div class="head">
+        <span class="pill">LIVE POLL · 30 SEC</span>
+      </div>
+      <div class="poll-q">On what date did Parisians storm the Bastille, marking the start of the French Revolution?</div>
+      <div class="poll-opt" data-correct="false"><div class="key">A</div><span>4 July 1789</span></div>
+      <div class="poll-opt" data-correct="true"><div class="key">B</div><span>14 July 1789</span></div>
+      <div class="poll-opt" data-correct="false"><div class="key">C</div><span>14 July 1798</span></div>
+      <div class="poll-opt" data-correct="false"><div class="key">D</div><span>14 May 1789</span></div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat">
+    <div class="chat-head">
+      <div>
+        <div class="serif font-semibold" style="color: var(--ink);">Ask Adhvara</div>
+        <div class="text-[11px]" style="color: var(--ink-soft);">Type a doubt — answered live</div>
+      </div>
+      <div class="text-[11px] mono px-2 py-1 rounded-full" style="background: #ECFDF5; color: var(--emerald-deep);">
+        <b id="doubt-count">23</b> answered
+      </div>
+    </div>
+
+    <div class="chat-list" id="chat-list">
+      <div class="msg student msg-fade-in">
+        <div class="avatar flex items-center justify-center serif font-bold text-xs" style="color: var(--terracotta);">AK</div>
+        <div>
+          <div class="who">Akash · 7:23 PM</div>
+          <div class="body">Ma'am, what did the colours of the flag mean?</div>
+        </div>
+      </div>
+      <div class="msg teacher msg-fade-in">
+        <div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+        <div>
+          <div class="who">Adhvara</div>
+          <div class="body">Three colours, three ideas. <b>Blue and red</b> were the colours of Paris; <b>white</b> was the colour of the king. Putting them together meant the people and the monarchy now shared power — that was the new France. <i>Liberté, égalité, fraternité.</i></div>
+        </div>
+      </div>
+      <div class="msg student msg-fade-in">
+        <div class="avatar flex items-center justify-center serif font-bold text-xs" style="color: var(--terracotta);">MN</div>
+        <div>
+          <div class="who">Meena · 7:25 PM</div>
+          <div class="body">how is this connected to India ma'am?</div>
+        </div>
+      </div>
+      <div class="msg teacher msg-fade-in">
+        <div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+        <div>
+          <div class="who">Adhvara</div>
+          <div class="body">Read our Constitution's Preamble — "we, the people…" and "liberty, equality, fraternity." Those exact words come from the French Revolution. Tilak, Gandhi, Nehru all read these texts in school. The idea that a government must answer to its people travelled from Paris in 1789 to India over the next 150 years.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" id="doubt-input" placeholder="Type your doubt for Adhvara..." />
+      <button class="mic-btn" id="mic-btn" title="Record voice doubt">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="2"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button id="send-btn">Ask</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="flex items-center gap-2">
+      <button class="btn-icon active" title="Audio on">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="cap-toggle">
+        <button class="on" data-lang="en">EN</button>
+        <button data-lang="kn">Kanglish</button>
+      </div>
+      <button class="btn-icon" title="Reactions" id="react-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="btn-icon" title="Fullscreen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <div class="text-xs flex items-center gap-3" style="color: var(--ink-soft);">
+      <span class="hidden sm:inline">After class: notes auto-generated, quiz in your dashboard.</span>
+      <button class="btn-leave">Leave class</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ============== Elapsed time ==============
+  let secs = 12 * 60 + 18;
+  function tickTime() {
+    secs++;
+    const mm = Math.floor(secs / 60).toString().padStart(2, '0');
+    const ss = (secs % 60).toString().padStart(2, '0');
+    document.getElementById('elapsed').textContent = `${mm}:${ss}`;
+  }
+  setInterval(tickTime, 1000);
+
+  setInterval(() => {
+    const cur = parseInt(document.getElementById('viewers').textContent);
+    const delta = Math.floor(Math.random() * 7) - 3;
+    document.getElementById('viewers').textContent = Math.max(880, cur + delta);
+  }, 4000);
+
+  // ============== Captions rotation ==============
+  const captionsEN = [
+    "On July 14th, 1789, Parisians stormed the Bastille — a royal fortress.",
+    "The Bastille held political prisoners and weapons. To the people, it symbolised the King's tyranny.",
+    "Within hours, the fortress fell. It marked the start of the French Revolution.",
+    "The crowd freed the prisoners — only seven, but the symbolism was enormous.",
+    "That same day, the people raised a new flag — blue, white, and red. Liberty. Equality. Fraternity.",
+    "France was no longer ruled by a king alone. The Estates-General would write a constitution.",
+    "Why does this matter for India? Look at the opening lines of our own Constitution.",
+  ];
+  const captionsKN = [
+    "1789, July 14-ge, Paris-da janaru Bastille fortress-na storm maadidru.",
+    "Bastille-alli political prisoners mattu weapons iddvu. Janarige adu King-na tyranny-na symbol.",
+    "Few hours-alli, fortress fall aaytu. French Revolution start aaytu.",
+    "Crowd prisoners-na free maadidru — only seven jana, aadre symbolic value bahala doddu.",
+    "Same day, blue-white-red flag raise maadidru. Liberty, equality, fraternity.",
+    "France ee mele king ne sole ruler alla. People-ge voice itta hosa Constitution barita ide.",
+    "Idu India-ge enu sambandha? Namma Constitution-na opening lines nodi.",
+  ];
+  let capIdx = 0;
+  let capLang = 'en';
+  function rotateCaption() {
+    const list = capLang === 'en' ? captionsEN : captionsKN;
+    const el = document.getElementById('caption');
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = list[capIdx % list.length];
+      el.style.opacity = '1';
+      capIdx++;
+    }, 350);
+  }
+  rotateCaption();
+  setInterval(rotateCaption, 5500);
+
+  document.querySelectorAll('.cap-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.cap-toggle button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      capLang = b.dataset.lang;
+      rotateCaption();
+    });
+  });
+
+  // ============== Reactions ==============
+  const REACTIONS = ['👏', '🔥', '💡', '🙌', '✨', '🏛️', '🇫🇷', '🧠'];
+  document.getElementById('react-btn').addEventListener('click', () => {
+    spawnReaction(REACTIONS[Math.floor(Math.random() * REACTIONS.length)]);
+  });
+  function spawnReaction(emoji) {
+    const stage = document.querySelector('.stage');
+    const r = document.createElement('div');
+    r.className = 'reaction';
+    r.textContent = emoji;
+    r.style.left = (20 + Math.random() * 70) + '%';
+    stage.appendChild(r);
+    setTimeout(() => r.remove(), 3500);
+  }
+  setInterval(() => {
+    if (Math.random() < .5) spawnReaction(REACTIONS[Math.floor(Math.random() * REACTIONS.length)]);
+  }, 3000);
+
+  // ============== Mic button ==============
+  const micBtn = document.getElementById('mic-btn');
+  let recording = false;
+  micBtn.addEventListener('click', () => {
+    recording = !recording;
+    micBtn.classList.toggle('recording', recording);
+    if (!recording) {
+      addStudentDoubt("(voice) Ma'am why did they execute the king?", true);
+      setTimeout(() => addTeacherAnswer("After he tried to flee France in 1791 and was caught, Louis XVI was put on trial for treason. The new National Convention voted — by a tiny majority — to execute him. He went to the guillotine on 21 January 1793. The revolution had decided that a king was no different from any other citizen who broke the law."), 1500);
+    }
+  });
+
+  // ============== Doubt submit ==============
+  const input = document.getElementById('doubt-input');
+  const sendBtn = document.getElementById('send-btn');
+  function submit() {
+    const text = input.value.trim();
+    if (!text) return;
+    addStudentDoubt(text);
+    input.value = '';
+    setTimeout(() => addTeacherAnswer(canAnswer(text)), 1500);
+  }
+  sendBtn.addEventListener('click', submit);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+
+  function addStudentDoubt(text, isVoice=false) {
+    const list = document.getElementById('chat-list');
+    const div = document.createElement('div');
+    div.className = 'msg student msg-fade-in';
+    div.innerHTML = `<div class="avatar flex items-center justify-center serif font-bold text-xs" style="color: var(--terracotta);">PR</div>
+      <div><div class="who">Priya · just now${isVoice ? ' · voice' : ''}</div><div class="body">${escapeHtml(text)}</div></div>`;
+    list.appendChild(div);
+    list.scrollTop = list.scrollHeight;
+    const t = document.createElement('div');
+    t.className = 'msg teacher msg-fade-in';
+    t.id = 'typing-indicator';
+    t.innerHTML = `<div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+      <div><div class="who">Adhvara is thinking</div><div class="body"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+    list.appendChild(t);
+    list.scrollTop = list.scrollHeight;
+  }
+  function addTeacherAnswer(text) {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+    const list = document.getElementById('chat-list');
+    const div = document.createElement('div');
+    div.className = 'msg teacher msg-fade-in';
+    div.innerHTML = `<div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+      <div><div class="who">Adhvara · just now</div><div class="body">${text}</div></div>`;
+    list.appendChild(div);
+    list.scrollTop = list.scrollHeight;
+    const dc = document.getElementById('doubt-count');
+    dc.textContent = (parseInt(dc.textContent) + 1);
+  }
+
+  function canAnswer(text) {
+    const t = text.toLowerCase();
+    if (t.includes('napoleon')) return "Napoleon Bonaparte was an army officer who rose during the revolution. By 1799 he had taken power as First Consul, and by 1804 he crowned himself Emperor. He spread revolutionary ideas — civil code, equality before law — across Europe through his wars. He's a complex figure: a dictator who carried democratic ideas.";
+    if (t.includes('guillotine')) return "The guillotine was a tall blade-machine designed to behead quickly and painlessly — meant to be 'humane' compared to earlier methods. It became the dark symbol of the revolution's most violent phase (the 'Reign of Terror', 1793–94). Over 16,000 people were executed by it, including Louis XVI and Marie Antoinette.";
+    if (t.includes('louis')) return "Louis XVI inherited a France that was already bankrupt. He wasn't a cruel king, but he was indecisive and out of touch — he kept summoning the Estates-General to raise taxes, then dismissing it when it pushed back. After trying to flee in June 1791, he lost any remaining trust. Executed by guillotine, 21 January 1793.";
+    if (t.includes('estate')) return "France had three Estates: <b>1st</b> — clergy (church), <b>2nd</b> — nobility, <b>3rd</b> — everyone else (97% of the population: peasants, workers, the bourgeoisie). The 1st and 2nd paid almost no tax. The 3rd paid for everything but had only 1/3 of the votes. That imbalance is what cracked open in 1789.";
+    if (t.includes('india')) return "India's freedom movement drew directly on French ideas — liberty, equality, fraternity. These three words appear in our Constitution's Preamble. Tilak, Gokhale, Gandhi, Nehru all studied the French Revolution. When India became a republic in 1950, the principles were Indian, but the language was learnt partly from 1789.";
+    if (t.includes('tricolor') || t.includes('flag')) return "The tricolour — blue, white, red — replaced the royal white flag. Blue and red were Paris's colours; white was the king's. Together: the people and the monarchy share power. Today it's still the French flag.";
+    if (t.includes('rights')) return "The Declaration of the Rights of Man and of the Citizen (August 1789) said all men are born free and equal in rights. It became the foundation of modern human rights — and was directly cited in the 1948 UN Universal Declaration of Human Rights.";
+    if (t.includes('marie')) return "Marie Antoinette, the queen, was Austrian by birth — already mistrusted for that. She was unfairly blamed for France's hunger. The famous 'let them eat cake' line was almost certainly never actually said by her. Tried and executed by guillotine, October 1793.";
+    if (t.includes('cause') || t.includes('why')) return "Three main causes: <b>(1) Bankruptcy</b> — France was broke from wars; the king kept raising taxes. <b>(2) Inequality</b> — clergy and nobles paid no tax; everyone else paid everything. <b>(3) Ideas</b> — Voltaire, Rousseau, Montesquieu had been writing for decades that power must come from the people. The bad harvest of 1788 was the spark; these were the dry wood.";
+    if (t.includes('bastille')) return "The Bastille was a medieval fortress in Paris used as a prison — but by 1789 it held just seven people. What mattered wasn't the prisoners; it was the symbol. The Bastille meant arbitrary royal power. Bringing down its walls meant bringing down that power.";
+    return "Good question. Let's hold this and I'll come back to it — write it down in your dashboard's doubt corner and I'll answer in the next 24 hours with sources.";
+  }
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ============== Live poll appears mid-class ==============
+  setTimeout(() => {
+    const poll = document.getElementById('poll');
+    poll.classList.add('show');
+    document.querySelectorAll('.poll-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const correct = opt.dataset.correct === 'true';
+        document.querySelectorAll('.poll-opt').forEach(o => {
+          if (o.dataset.correct === 'true') o.classList.add('correct');
+        });
+        if (!correct) opt.classList.add('wrong');
+        if (correct) burstConfetti(80);
+        setTimeout(() => poll.classList.remove('show'), 2200);
+      });
+    });
+  }, 8000);
+
+  function burstConfetti(count) {
+    const colors = ['#0055A4', '#FFFFFF', '#EF4135', '#C2410C', '#B45309', '#D97706'];
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (1 + Math.random() * 1.4) + 's';
+      c.style.animationDelay = (Math.random() * 0.3) + 's';
+      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 2800);
+    }
+  }
+
+  // ====================================================
+  // THREE.JS — The Storming of the Bastille
+  // Stylised stone fortress that crumbles on a 14-second cycle,
+  // then a tricolour flag rises in its place, then it rebuilds.
+  // ====================================================
+  (function buildScene() {
+    const container = document.getElementById('scene');
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0xFAF5EB, 14, 32);
+
+    const W = container.clientWidth, H = container.clientHeight;
+    const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 100);
+    camera.position.set(7, 4, 9);
+    camera.lookAt(0, 1, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.55));
+    const sun = new THREE.DirectionalLight(0xFFE9C2, 1.1);
+    sun.position.set(6, 10, 5);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.left = -10; sun.shadow.camera.right = 10;
+    sun.shadow.camera.top = 10; sun.shadow.camera.bottom = -10;
+    scene.add(sun);
+    const rim = new THREE.DirectionalLight(0xFB923C, 0.3);
+    rim.position.set(-6, 4, 6); scene.add(rim);
+
+    // Ground
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(14, 64),
+      new THREE.MeshStandardMaterial({ color: 0xF5EDD8, roughness: 0.9, metalness: 0.02 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Cobble grid
+    const grid = new THREE.GridHelper(20, 20, 0xB45309, 0xEAE1D1);
+    grid.position.y = 0.01;
+    grid.material.opacity = 0.18; grid.material.transparent = true;
+    scene.add(grid);
+
+    // Materials
+    const stoneLight = new THREE.MeshStandardMaterial({ color: 0xC9B59B, roughness: 0.85, metalness: 0.0, flatShading: true });
+    const stoneDark = new THREE.MeshStandardMaterial({ color: 0xA08566, roughness: 0.9, metalness: 0.0, flatShading: true });
+    const stoneShadow = new THREE.MeshStandardMaterial({ color: 0x7B6347, roughness: 0.9, metalness: 0.0, flatShading: true });
+
+    // ----- Build the Bastille -----
+    const fortress = new THREE.Group();
+    scene.add(fortress);
+
+    // Central keep
+    const keep = new THREE.Mesh(
+      new THREE.BoxGeometry(3.2, 3.0, 3.2),
+      stoneLight
+    );
+    keep.position.y = 1.5;
+    keep.castShadow = true; keep.receiveShadow = true;
+    fortress.add(keep);
+
+    // Central tower (taller, on top of keep)
+    const centerTower = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.9, 1.0, 1.8, 16),
+      stoneLight
+    );
+    centerTower.position.y = 3.9;
+    centerTower.castShadow = true;
+    fortress.add(centerTower);
+
+    // Center tower roof (cone)
+    const centerRoof = new THREE.Mesh(
+      new THREE.ConeGeometry(1.05, 0.9, 16),
+      stoneDark
+    );
+    centerRoof.position.y = 5.25;
+    centerRoof.castShadow = true;
+    fortress.add(centerRoof);
+
+    // 4 corner towers
+    const towers = [];
+    const cornerPositions = [
+      [-2.2, 0, -2.2], [2.2, 0, -2.2],
+      [-2.2, 0, 2.2], [2.2, 0, 2.2],
+    ];
+    cornerPositions.forEach((p) => {
+      const tower = new THREE.Group();
+
+      const body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.7, 0.85, 3.6, 14),
+        stoneLight
+      );
+      body.position.y = 1.8;
+      body.castShadow = true; body.receiveShadow = true;
+      tower.add(body);
+
+      // battlements (small cubes on top)
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const b = new THREE.Mesh(
+          new THREE.BoxGeometry(0.22, 0.25, 0.22),
+          stoneDark
+        );
+        b.position.set(Math.cos(angle) * 0.78, 3.75, Math.sin(angle) * 0.78);
+        b.castShadow = true;
+        tower.add(b);
+      }
+
+      // conical roof
+      const roof = new THREE.Mesh(
+        new THREE.ConeGeometry(0.78, 0.9, 14),
+        stoneDark
+      );
+      roof.position.y = 4.25;
+      roof.castShadow = true;
+      tower.add(roof);
+
+      // small window slit
+      const window = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.12, 0.4),
+        new THREE.MeshStandardMaterial({ color: 0x1F1611, side: THREE.DoubleSide })
+      );
+      window.position.set(0.71, 2.4, 0);
+      window.rotation.y = Math.PI / 2;
+      tower.add(window);
+
+      tower.position.set(p[0], 0, p[2]);
+      // Used for animation: pivot at base
+      tower.userData = {
+        basePos: tower.position.clone(),
+        fallAngle: Math.atan2(p[2], p[0]) + (Math.random() - 0.5) * 0.4, // direction away from center
+      };
+      fortress.add(tower);
+      towers.push(tower);
+    });
+
+    // Outer wall (ring)
+    const wallRing = new THREE.Group();
+    const wallSegments = 16;
+    for (let i = 0; i < wallSegments; i++) {
+      const a = (i / wallSegments) * Math.PI * 2;
+      const r = 4.6;
+      const seg = new THREE.Mesh(
+        new THREE.BoxGeometry(1.0, 1.6, 0.5),
+        stoneShadow
+      );
+      seg.position.set(Math.cos(a) * r, 0.8, Math.sin(a) * r);
+      seg.rotation.y = -a - Math.PI / 2;
+      seg.castShadow = true; seg.receiveShadow = true;
+      // every 4th seg is a battlement notch (slightly shorter)
+      if (i % 4 === 2) seg.scale.y = 0.6;
+      wallRing.add(seg);
+    }
+    fortress.add(wallRing);
+
+    // Gate at front
+    const gate = new THREE.Mesh(
+      new THREE.BoxGeometry(1.2, 1.3, 0.55),
+      new THREE.MeshStandardMaterial({ color: 0x4A2C1A, roughness: 0.85 })
+    );
+    gate.position.set(0, 0.7, 4.6);
+    gate.castShadow = true;
+    fortress.add(gate);
+
+    // ----- Crowd (silhouettes around the fortress) -----
+    const crowd = new THREE.Group();
+    const crowdMat = new THREE.MeshStandardMaterial({ color: 0x3F2E22, roughness: 0.6, metalness: 0.1 });
+    for (let i = 0; i < 32; i++) {
+      const a = (i / 32) * Math.PI * 2;
+      const r = 6.8 + Math.random() * 1.4;
+      const person = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.16, 0.22, 0.7, 10),
+        crowdMat
+      );
+      body.position.y = 0.35;
+      body.castShadow = true;
+      person.add(body);
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.13, 12, 10),
+        crowdMat
+      );
+      head.position.y = 0.82;
+      head.castShadow = true;
+      person.add(head);
+      person.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      person.userData = {
+        basePhase: i * 0.27,
+        baseY: 0,
+      };
+      crowd.add(person);
+    }
+    scene.add(crowd);
+
+    // ----- Tricolour flag (initially hidden, rises during the "fall" phase) -----
+    const flagGroup = new THREE.Group();
+    // Pole
+    const pole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 5.5, 8),
+      new THREE.MeshStandardMaterial({ color: 0x4A2C1A, roughness: 0.7 })
+    );
+    pole.position.y = 2.75;
+    pole.castShadow = true;
+    flagGroup.add(pole);
+    // Three flag stripes
+    const stripeWidth = 0.5;
+    const stripeHeight = 1.2;
+    const stripeMatBlue = new THREE.MeshStandardMaterial({ color: 0x0055A4, side: THREE.DoubleSide, roughness: 0.5 });
+    const stripeMatWhite = new THREE.MeshStandardMaterial({ color: 0xF5F5F5, side: THREE.DoubleSide, roughness: 0.5 });
+    const stripeMatRed = new THREE.MeshStandardMaterial({ color: 0xEF4135, side: THREE.DoubleSide, roughness: 0.5 });
+    [stripeMatBlue, stripeMatWhite, stripeMatRed].forEach((mat, i) => {
+      const s = new THREE.Mesh(new THREE.PlaneGeometry(stripeWidth, stripeHeight), mat);
+      s.position.set(0.07 + stripeWidth / 2 + i * stripeWidth, 4.8, 0);
+      s.castShadow = true;
+      flagGroup.add(s);
+    });
+    flagGroup.position.set(0, -6, 0); // hidden below ground initially
+    flagGroup.scale.set(0.001, 0.001, 0.001);
+    scene.add(flagGroup);
+
+    // ----- Smoke/dust particles -----
+    const dust = new THREE.Group();
+    const dustCount = 30;
+    const dustMeshes = [];
+    for (let i = 0; i < dustCount; i++) {
+      const d = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18 + Math.random() * 0.2, 8, 6),
+        new THREE.MeshBasicMaterial({ color: 0xC9B59B, transparent: true, opacity: 0 })
+      );
+      d.position.set((Math.random() - 0.5) * 6, 1, (Math.random() - 0.5) * 6);
+      dust.add(d);
+      dustMeshes.push(d);
+    }
+    scene.add(dust);
+
+    // Mouse-orbit
+    const m = { x: 0, y: 0, tx: 0, ty: 0 };
+    container.addEventListener('mousemove', (e) => {
+      const r = container.getBoundingClientRect();
+      m.tx = (e.clientX - r.left) / r.width - 0.5;
+      m.ty = (e.clientY - r.top) / r.height - 0.5;
+    });
+    window.addEventListener('resize', () => {
+      const W = container.clientWidth, H = container.clientHeight;
+      camera.aspect = W / H; camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+    });
+
+    // Animation cycle: 14 seconds total
+    // 0-4s:  Fortress stands, crowd approaches
+    // 4-7s:  Towers fall outward, dust rises
+    // 7-10s: Flag rises from center
+    // 10-14s: Fortress reassembles, flag retracts
+    const clock = new THREE.Clock();
+    function loop() {
+      const t = clock.getElapsedTime();
+      m.x += (m.tx - m.x) * 0.05;
+      m.y += (m.ty - m.y) * 0.05;
+
+      const cycle = (t % 14) / 14; // 0..1
+      let standProg = 0, fallProg = 0, flagProg = 0;
+
+      if (cycle < 0.29) { // 0-4s standing
+        standProg = 1; fallProg = 0; flagProg = 0;
+      } else if (cycle < 0.50) { // 4-7s falling
+        const p = (cycle - 0.29) / 0.21;
+        standProg = 1 - p; fallProg = p; flagProg = 0;
+      } else if (cycle < 0.71) { // 7-10s flag rising
+        const p = (cycle - 0.50) / 0.21;
+        standProg = 0; fallProg = 1; flagProg = p;
+      } else { // 10-14s reassembling
+        const p = (cycle - 0.71) / 0.29;
+        standProg = p; fallProg = 1 - p; flagProg = Math.max(0, 1 - p * 1.3);
+      }
+
+      // Towers: fall outward
+      towers.forEach((tw) => {
+        const fa = tw.userData.fallAngle;
+        const tilt = fallProg * (Math.PI / 2.2);
+        // rotate around base — translate to base, rotate, translate back
+        tw.rotation.x = -Math.sin(fa) * tilt;
+        tw.rotation.z = Math.cos(fa) * tilt;
+        // drift outward slightly
+        tw.position.x = tw.userData.basePos.x + Math.cos(fa) * fallProg * 0.8;
+        tw.position.z = tw.userData.basePos.z + Math.sin(fa) * fallProg * 0.8;
+        tw.position.y = -fallProg * 0.5; // sink a bit
+      });
+      // Keep + center tower: shake and crumble (scale down)
+      const scaleK = 1 - fallProg * 0.7;
+      keep.scale.set(scaleK, scaleK, scaleK);
+      keep.rotation.z = Math.sin(t * 8) * fallProg * 0.05; // tremor
+      centerTower.scale.set(scaleK, scaleK, scaleK);
+      centerTower.position.y = 3.9 - fallProg * 2.5;
+      centerRoof.scale.set(scaleK, scaleK, scaleK);
+      centerRoof.position.y = 5.25 - fallProg * 3.5;
+      centerRoof.rotation.z = fallProg * 1.2; // topples over
+      // Walls: sink
+      wallRing.position.y = -fallProg * 0.6;
+      wallRing.children.forEach((seg, i) => {
+        seg.rotation.x = fallProg * (Math.sin(i) * 0.5 + 0.2);
+      });
+      gate.scale.y = 1 - fallProg * 0.8;
+
+      // Dust
+      dustMeshes.forEach((d, i) => {
+        const opacity = fallProg * (1 - cycle * 0.6) * (0.35 + Math.random() * 0.15);
+        d.material.opacity = Math.max(0, opacity);
+        d.position.y = 0.5 + (fallProg * (1 + Math.sin(t * 2 + i) * 0.3)) * 2;
+        d.scale.setScalar(1 + fallProg * 0.5);
+      });
+
+      // Flag rises
+      const flagScale = flagProg;
+      flagGroup.scale.set(flagScale, flagScale, flagScale);
+      flagGroup.position.y = -6 + flagProg * 6;
+      // gentle waving of stripes
+      flagGroup.children.forEach((child, i) => {
+        if (i > 0) {
+          child.rotation.z = Math.sin(t * 2 + i) * 0.04;
+        }
+      });
+
+      // Crowd: gentle bob + slight raise during fall (cheering)
+      crowd.children.forEach((p) => {
+        const phase = p.userData.basePhase;
+        const bob = Math.sin(t * 2 + phase) * 0.08;
+        const cheer = fallProg * 0.3 * Math.abs(Math.sin(t * 4 + phase));
+        p.position.y = p.userData.baseY + bob + cheer;
+      });
+
+      // Camera orbit + mouse
+      const cAngle = t * 0.13 + m.x * 1.1;
+      const radius = 10 - flagProg * 1.5;
+      camera.position.x = Math.sin(cAngle) * radius;
+      camera.position.z = Math.cos(cAngle) * radius;
+      camera.position.y = 3.5 - m.y * 1.5 + flagProg * 0.5;
+      camera.lookAt(0, 1.5 + flagProg * 1, 0);
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    }
+    loop();
+  })();
+</script>
+</body>
+</html>

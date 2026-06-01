@@ -3,336 +3,273 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Post-Class Hub · Ananta</title>
+<title>Post-Class · Science with Vihaan · Ananta</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --indigo: #1E3A8A;
-    --indigo-2: #3B82F6;
-    --saffron: #F59E0B;
-    --teal: #0D9488;
-    --rose: #E11D48;
-    --ink: #0F172A;
-    --paper: #FAFAF9;
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    font-family: 'Inter', sans-serif;
-    background:
-      radial-gradient(900px 600px at 80% -10%, #fde68a55 0%, transparent 60%),
-      radial-gradient(800px 600px at -10% 30%, #c7d2fe55 0%, transparent 55%),
-      radial-gradient(700px 500px at 110% 80%, #99f6e455 0%, transparent 55%),
-      var(--paper);
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background: var(--bg);
     color: var(--ink);
-    min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
   }
-  .display { font-family: 'Plus Jakarta Sans', sans-serif; }
-  .shadow-soft { box-shadow: 0 6px 16px -8px rgba(15,23,42,.15), 0 4px 8px -6px rgba(15,23,42,.08); }
-  .shadow-pop { box-shadow: 0 14px 40px -12px rgba(30,58,138,.30), 0 4px 12px -6px rgba(30,58,138,.18); }
-  .shadow-deep { box-shadow: 0 24px 60px -20px rgba(15,23,42,.35); }
+  .serif{font-family:'Fraunces',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
 
-  /* Floating blobs */
-  .blob { position: absolute; border-radius: 50%; filter: blur(40px); opacity: .35; pointer-events: none; animation: blobFloat 18s ease-in-out infinite; }
-  @keyframes blobFloat {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%     { transform: translate(40px,-30px) scale(1.08); }
-    66%     { transform: translate(-30px,20px) scale(0.95); }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .035;
   }
-  @keyframes floatSoft {
-    0%,100% { transform: translateY(0); }
-    50%     { transform: translateY(-8px); }
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(900px 600px at 18% 8%, rgba(5,150,105,.06), transparent 60%),
+      radial-gradient(800px 600px at 86% 5%, rgba(217,119,6,.05), transparent 60%);
   }
-  @keyframes blink {
-    0%, 92%, 100% { transform: scaleY(1); }
-    94%, 98%      { transform: scaleY(0.1); }
-  }
-  @keyframes shimmer {
-    0%   { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  @keyframes gradShift {
-    0%,100% { background-position: 0% 50%; }
-    50%     { background-position: 100% 50%; }
-  }
-  @keyframes pulseGlow {
-    0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,.55); }
-    50%     { box-shadow: 0 0 0 16px rgba(245,158,11,0); }
-  }
-  @keyframes pop {
-    0%   { transform: scale(.8); opacity: 0; }
-    60%  { transform: scale(1.05); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
-  }
-  @keyframes wiggle {
-    0%,100% { transform: rotate(-2deg); }
-    50%     { transform: rotate(2deg); }
-  }
-  .float-soft { animation: floatSoft 4s ease-in-out infinite; }
-  .blink-eye  { transform-origin: center; animation: blink 5s infinite; }
-  .pulse-glow { animation: pulseGlow 2.4s ease-in-out infinite; }
-  .pop-in     { animation: pop .45s ease-out both; }
-  .slide-up   { animation: slideUp .5s ease-out both; }
-  .wiggle     { animation: wiggle 1.6s ease-in-out infinite; }
 
-  .grad-text {
-    background: linear-gradient(90deg, var(--indigo), var(--teal), var(--saffron), var(--indigo));
-    background-size: 300% 100%;
+  .paper-card {
+    background: #FFFFFFCC; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--line);
+    box-shadow: 0 1px 0 #FFFFFFcc inset, 0 2px 6px rgba(31,22,17,.03), 0 16px 40px -22px rgba(31,22,17,.10);
+  }
+  .paper-card-strong {
+    background: #FFFFFF; border: 1px solid var(--line);
+    box-shadow: 0 1px 0 #FFFFFFff inset, 0 6px 16px -8px rgba(31,22,17,.07), 0 22px 60px -28px rgba(31,22,17,.14);
+  }
+
+  h1,h2,h3{font-family:'Fraunces',serif}
+  h1{font-weight:700;letter-spacing:-.025em}
+  h2{font-weight:600;letter-spacing:-.018em}
+  h3{font-weight:600;letter-spacing:-.012em}
+
+  .accent-warm {
+    background: linear-gradient(120deg, var(--amber) 0%, var(--terracotta) 60%, var(--burgundy) 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: gradShift 8s ease-in-out infinite;
-  }
-  .shimmer-bar {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2.2s linear infinite;
   }
 
-  /* 3D tilt cards */
-  .tilt { transition: transform .35s ease, box-shadow .35s ease; transform-style: preserve-3d; }
-  .tilt:hover { transform: perspective(800px) rotateX(3deg) rotateY(-3deg) translateY(-4px); }
+  .btn-primary { padding: 11px 22px; border-radius: 999px; font-weight: 600; background: var(--ink); color: var(--bg); transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(31,22,17,.35); font-size: 14px; }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--ink-2); }
+  .btn-emerald { padding: 11px 22px; border-radius: 999px; font-weight: 600; background: var(--emerald); color: #fff; transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(5,150,105,.4); font-size: 14px; }
+  .btn-emerald:hover { transform: translateY(-2px); background: var(--emerald-deep); }
+  .btn-ghost { padding: 11px 22px; border-radius: 999px; font-weight: 600; background: transparent; color: var(--ink); border: 1px solid var(--ink); transition: all .25s ease; font-size: 14px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
 
-  /* Tabs */
-  .tab-btn { transition: all .25s ease; }
-  .tab-btn.active {
-    background: linear-gradient(135deg, var(--indigo), var(--indigo-2));
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px -10px rgba(30,58,138,.55);
+  .tilt-3d { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; }
+  .tilt-3d:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -20px rgba(31,22,17,.18); }
+
+  .dot-grid {
+    background-image: radial-gradient(rgba(31,22,17,.06) 1px, transparent 1px);
+    background-size: 28px 28px;
   }
-  .tab-btn:not(.active):hover { background: #eef2ff; }
+  .link-u { background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .3s; }
+  .link-u:hover { background-size: 0 1px; }
 
-  /* Quiz options */
+  /* tabs */
+  .tab-btn { padding: 10px 18px; border-radius: 12px; transition: all .25s; font-weight: 600; font-size: 14px; color: var(--ink-soft); }
+  .tab-btn.active { background: var(--ink); color: var(--bg); transform: translateY(-1px); box-shadow: 0 8px 20px -8px rgba(31,22,17,.35); }
+  .tab-btn:not(.active):hover { background: var(--bg-2); color: var(--ink); }
+
+  /* quiz */
   .opt {
     transition: all .2s ease;
-    border: 2px solid #e5e7eb;
-    background: #fff;
+    border: 2px solid var(--line);
+    background: #FFFFFF;
+    color: var(--ink-2);
   }
-  .opt:hover:not(.locked) {
-    border-color: var(--indigo-2);
-    transform: translateX(4px);
-    box-shadow: 0 8px 18px -10px rgba(59,130,246,.45);
-  }
-  .opt.selected {
-    border-color: var(--indigo);
-    background: #eef2ff;
-  }
-  .opt.correct {
-    border-color: var(--teal);
-    background: #ccfbf1;
-    animation: pop .35s ease-out;
-  }
-  .opt.wrong {
-    border-color: var(--rose);
-    background: #fee2e2;
-    animation: wiggle .3s ease-in-out 2;
-  }
+  .opt:hover:not(.locked) { border-color: var(--ink); transform: translateX(4px); box-shadow: 0 8px 18px -10px rgba(31,22,17,.18); }
+  .opt.selected { border-color: var(--ink); background: var(--bg-2); }
+  .opt.correct { border-color: var(--emerald); background: #ECFDF5; color: var(--emerald-deep); }
+  .opt.wrong { border-color: var(--burgundy); background: #FEE2E2; color: var(--burgundy); animation: wiggle .35s ease-in-out 2; }
   .opt .badge {
     width: 36px; height: 36px; border-radius: 10px;
     display:flex; align-items:center; justify-content:center;
-    font-weight: 800; background:#f1f5f9; color:#475569;
+    font-weight: 800; background: var(--bg-2); color: var(--ink-soft);
     transition: all .2s ease;
   }
-  .opt:hover:not(.locked) .badge { background: var(--indigo); color:#fff; }
-  .opt.correct .badge { background: var(--teal); color:#fff; }
-  .opt.wrong   .badge { background: var(--rose); color:#fff; }
+  .opt:hover:not(.locked) .badge { background: var(--ink); color: #fff; }
+  .opt.correct .badge { background: var(--emerald); color: #fff; }
+  .opt.wrong .badge { background: var(--burgundy); color: #fff; }
 
-  /* progress ring for quiz */
-  .ring-bg { stroke: #e2e8f0; }
-  .ring-fg { stroke: url(#ringGrad); transition: stroke-dashoffset .6s ease; }
+  @keyframes wiggle { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
-  /* Confetti */
-  .confetti {
-    position: fixed; top: -10px; width: 10px; height: 14px;
-    pointer-events: none; z-index: 999;
-    animation: fall linear forwards;
-  }
-  @keyframes fall {
-    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-  }
+  /* score ring */
+  .ring-bg { stroke: var(--line); }
+  .ring-fg { stroke: url(#scoreGrad); transition: stroke-dashoffset .6s ease; }
 
-  /* Material card */
-  .mat-card { transition: all .25s ease; }
-  .mat-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px -16px rgba(15,23,42,.25); }
+  /* confetti */
+  .confetti { position: fixed; top: -10px; width: 8px; height: 12px; pointer-events: none; z-index: 999; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
 
-  /* Notes paper */
+  /* notes paper */
   .paper {
     background:
-      repeating-linear-gradient(180deg, transparent 0 31px, #e2e8f0 31px 32px),
-      #fffdf8;
+      repeating-linear-gradient(180deg, transparent 0 31px, var(--line-2) 31px 32px),
+      #FFFEF6;
     border-radius: 14px;
-    box-shadow: inset 0 0 0 1px #e7e5e4, 0 8px 20px -12px rgba(15,23,42,.18);
+    box-shadow: inset 0 0 0 1px var(--line), 0 8px 20px -12px rgba(31,22,17,.10);
   }
 
-  /* sound wave bars for teacher PiP */
+  /* materials filter pills */
+  .filter-pill {
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    transition: all .2s; cursor: pointer;
+    background: var(--bg-2); color: var(--ink-soft); border: 1px solid var(--line);
+  }
+  .filter-pill.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .filter-pill:not(.active):hover { background: var(--paper); }
+
+  /* chip */
+  .chip { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .03em; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* sound wave (vihaan's PiP) */
+  .wave { display:inline-flex; align-items:flex-end; gap:2px; height:14px; }
   .wave span {
-    display:inline-block; width:3px; margin:0 1px; background: var(--saffron); border-radius:2px;
+    display:inline-block; width:3px; background: var(--emerald); border-radius:2px;
     animation: bar 1.1s ease-in-out infinite;
   }
-  .wave span:nth-child(1){ animation-delay: 0s;    height: 6px; }
-  .wave span:nth-child(2){ animation-delay: .15s; height: 14px; }
-  .wave span:nth-child(3){ animation-delay: .3s;  height: 10px; }
-  .wave span:nth-child(4){ animation-delay: .45s; height: 16px; }
-  .wave span:nth-child(5){ animation-delay: .6s;  height: 8px; }
-  @keyframes bar {
-    0%,100% { transform: scaleY(.5); }
-    50%     { transform: scaleY(1.4); }
-  }
+  .wave span:nth-child(1){ animation-delay:0s; height:6px;}
+  .wave span:nth-child(2){ animation-delay:.15s; height:14px;}
+  .wave span:nth-child(3){ animation-delay:.3s; height:10px;}
+  .wave span:nth-child(4){ animation-delay:.45s; height:16px;}
+  .wave span:nth-child(5){ animation-delay:.6s; height:8px;}
+  @keyframes bar { 0%,100% { transform: scaleY(.5); } 50% { transform: scaleY(1.4); } }
 
-  /* scroll reveal */
-  .reveal { opacity: 0; transform: translateY(20px); transition: all .7s ease; }
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(20px); transition: all .8s cubic-bezier(.2,.7,.2,1); }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
-  /* difficulty chips */
-  .chip { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .03em; }
+  /* slide up animation for quiz body when changing question */
+  @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .slide-up { animation: slideUp .35s ease both; }
 
-  /* mock check icon */
-  .check { color: var(--teal); }
-  .cross { color: var(--rose); }
+  /* blink eye for portrait */
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94%, 98% { transform: scaleY(.1); } }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
 
-  /* download button shimmer */
-  .btn-shine {
-    position: relative; overflow: hidden;
-  }
+  /* download button hover shine */
+  .btn-shine { position: relative; overflow: hidden; }
   .btn-shine::after {
-    content:''; position:absolute; inset:0;
-    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%);
-    transform: translateX(-100%);
-    transition: transform .8s ease;
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.4) 50%, transparent 70%);
+    transform: translateX(-100%); transition: transform .8s ease;
   }
   .btn-shine:hover::after { transform: translateX(100%); }
 </style>
 </head>
 <body>
 
-<!-- Anime face symbols (Vihaan = Science teacher for today's demo) -->
+<!-- SVG portrait -->
 <svg width="0" height="0" style="position:absolute;">
   <defs>
-    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="100%" stop-color="#0D9488"/>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/></radialGradient>
+    <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
-
-    <!-- Vihaan (Science) -->
     <symbol id="face-vihaan" viewBox="0 0 120 120">
-      <defs>
-        <radialGradient id="skinV" cx="50%" cy="40%" r="55%">
-          <stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/>
-        </radialGradient>
-      </defs>
-      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skinV)"/>
-      <!-- hair -->
-      <path d="M22 60 Q24 22 60 20 Q96 22 98 60 Q96 40 80 36 Q70 56 60 38 Q50 56 40 36 Q24 40 22 60Z" fill="#1E293B"/>
-      <!-- ears -->
-      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skinV)"/>
-      <ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skinV)"/>
-      <!-- eyes -->
-      <g class="blink-eye">
-        <ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/>
-        <ellipse cx="46" cy="69" rx="4" ry="6" fill="#0D9488"/>
-        <circle cx="47" cy="67" r="1.6" fill="#fff"/>
-      </g>
-      <g class="blink-eye" style="animation-delay:.2s;">
-        <ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/>
-        <ellipse cx="74" cy="69" rx="4" ry="6" fill="#0D9488"/>
-        <circle cx="75" cy="67" r="1.6" fill="#fff"/>
-      </g>
-      <!-- brows -->
-      <path d="M40 58 Q46 55 52 58" stroke="#1E293B" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <path d="M68 58 Q74 55 80 58" stroke="#1E293B" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <!-- nose -->
-      <path d="M60 74 Q58 80 60 84" stroke="#C68B5C" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <!-- mouth -->
-      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <!-- blush -->
-      <circle cx="40" cy="82" r="4" fill="#FCA5A5" opacity=".6"/>
-      <circle cx="80" cy="82" r="4" fill="#FCA5A5" opacity=".6"/>
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M20 56 Q24 18 60 16 Q96 18 100 56 Q90 32 78 38 L84 22 L74 36 L66 18 L60 36 L52 18 L46 36 L36 22 L42 38 Q30 32 20 56Z" fill="#2B1410"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#059669"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#059669"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
     </symbol>
   </defs>
 </svg>
 
-<!-- Floating blobs -->
-<div class="blob" style="background:#fcd34d;width:260px;height:260px;top:-80px;right:-60px;"></div>
-<div class="blob" style="background:#a7f3d0;width:300px;height:300px;bottom:-120px;left:-80px;animation-delay:-6s;"></div>
-<div class="blob" style="background:#c7d2fe;width:220px;height:220px;top:40%;left:50%;animation-delay:-12s;"></div>
+<div class="mesh-bg"></div>
 
-<!-- ===== HEADER ===== -->
-<header class="relative z-10 px-6 lg:px-12 py-5 flex items-center justify-between">
-  <a href="#" class="flex items-center gap-3">
-    <div class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-pop"
-         style="background:linear-gradient(135deg,#1E3A8A,#0D9488);">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#fff" stroke-width="2" fill="none"/>
-        <circle cx="12" cy="12" r="3" fill="#F59E0B"/>
-      </svg>
+<!-- HEADER -->
+<header class="relative z-10 px-5 lg:px-10 pt-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D97706"/></svg>
+      </div>
+      <div>
+        <div class="serif font-bold text-lg leading-none" style="color: var(--ink);">Ananta</div>
+        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--ink-soft);">POST-CLASS HUB</div>
+      </div>
+    </a>
+    <div class="hidden md:flex paper-card rounded-full px-3 py-1.5 items-center gap-2 text-xs" style="color: var(--ink-2);">
+      <span style="color: var(--ink-soft);">Today's class</span>
+      <span class="serif font-semibold" style="color: var(--ink);">Science · Ch.3 · Acids, Bases and Salts</span>
     </div>
-    <div>
-      <div class="display font-extrabold text-xl leading-none">Ananta</div>
-      <div class="text-[11px] text-slate-500 font-medium tracking-wide">POST-CLASS HUB</div>
-    </div>
-  </a>
-
-  <div class="flex items-center gap-3">
-    <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-full bg-white shadow-soft">
-      <span class="text-xs text-slate-500">Today</span>
-      <span class="text-xs font-semibold">Tue · Science · Ch.2 Chemical Reactions</span>
-    </div>
-    <div class="w-10 h-10 rounded-full overflow-hidden bg-amber-100 shadow-soft">
-      <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex paper-card rounded-full px-3 py-1.5 items-center gap-2 text-xs">
+        <span class="serif font-bold" style="color: var(--amber-deep);">🔥 7</span>
+        <span style="color: var(--ink-soft);">day streak</span>
+      </div>
+      <div class="w-10 h-10 rounded-full overflow-hidden" style="background:#D1FAE5;">
+        <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- ===== HERO BANNER ===== -->
-<section class="relative z-10 px-6 lg:px-12 mt-2">
-  <div class="rounded-3xl p-6 md:p-8 shadow-deep relative overflow-hidden"
-       style="background: linear-gradient(135deg, #1E3A8A 0%, #0D9488 60%, #F59E0B 130%);">
-    <div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-white/10 blur-2xl"></div>
-    <div class="absolute -left-10 -bottom-10 w-56 h-56 rounded-full bg-white/10 blur-2xl"></div>
+<!-- HERO BANNER -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal paper-card-strong rounded-3xl p-7 md:p-8 relative overflow-hidden">
+      <div class="absolute -right-12 -top-12 w-52 h-52 rounded-full" style="background: radial-gradient(circle, rgba(5,150,105,.16), transparent 70%);"></div>
 
-    <div class="grid md:grid-cols-[1fr_auto] gap-6 items-center relative">
-      <div class="text-white">
-        <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold mb-3">
-          <span class="w-2 h-2 rounded-full bg-emerald-300 inline-block animate-pulse"></span>
-          Class ended · 8:02 PM · Recording ready
+      <div class="relative grid md:grid-cols-[1fr_auto] gap-6 items-center">
+        <div>
+          <div class="inline-flex items-center gap-2 chip" style="background: #ECFDF5; color: var(--emerald-deep);">
+            <span class="w-2 h-2 rounded-full" style="background: var(--emerald);"></span>
+            CLASS ENDED · 8:02 PM · RECORDING READY
+          </div>
+          <h1 class="serif text-3xl md:text-4xl font-bold mt-3 leading-tight" style="color: var(--ink);">
+            Good work today. <span class="accent-warm italic">Three things</span> to lock it in.
+          </h1>
+          <p class="mt-3 max-w-xl" style="color: var(--ink-soft);">
+            Take tonight's short quiz, read the auto-generated notes, and browse chapter materials. Everything from today's class lives here.
+          </p>
+          <div class="flex flex-wrap gap-3 mt-5">
+            <div class="rounded-2xl px-4 py-2.5 border" style="background: var(--bg-2); border-color: var(--line);">
+              <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">LESSON</div>
+              <div class="font-semibold" style="color: var(--ink);">Ch.3 · Acids, Bases and Salts</div>
+            </div>
+            <div class="rounded-2xl px-4 py-2.5 border" style="background: var(--bg-2); border-color: var(--line);">
+              <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">TEACHER</div>
+              <div class="font-semibold" style="color: var(--ink);">Vihaan · Science</div>
+            </div>
+            <div class="rounded-2xl px-4 py-2.5 border" style="background: var(--bg-2); border-color: var(--line);">
+              <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">DURATION</div>
+              <div class="font-semibold" style="color: var(--ink);">58 min</div>
+            </div>
+            <div class="rounded-2xl px-4 py-2.5 border" style="background: var(--bg-2); border-color: var(--line);">
+              <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">STREAK</div>
+              <div class="font-semibold" style="color: var(--ink);">7 days</div>
+            </div>
+          </div>
         </div>
-        <h1 class="display text-3xl md:text-4xl font-extrabold leading-tight">Nice work, Priya. <span class="text-amber-200">Let's lock it in.</span></h1>
-        <p class="text-white/85 mt-2 max-w-xl">Take today's quick quiz, grab your auto-generated notes, and explore chapter materials. Everything from today's class lives here.</p>
 
-        <div class="flex flex-wrap gap-3 mt-5">
-          <div class="bg-white/15 backdrop-blur rounded-2xl px-4 py-2.5">
-            <div class="text-[11px] uppercase tracking-wider text-white/70">Lesson</div>
-            <div class="font-semibold">Ch.2 · Chemical Reactions</div>
+        <div class="flex flex-col items-center">
+          <div class="relative">
+            <div class="w-32 h-32 rounded-full overflow-hidden ring-2 ring-offset-2" style="background:#D1FAE5; --tw-ring-color: var(--emerald); --tw-ring-offset-color: var(--paper);">
+              <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
+            </div>
           </div>
-          <div class="bg-white/15 backdrop-blur rounded-2xl px-4 py-2.5">
-            <div class="text-[11px] uppercase tracking-wider text-white/70">Teacher</div>
-            <div class="font-semibold">Vihaan · Science</div>
-          </div>
-          <div class="bg-white/15 backdrop-blur rounded-2xl px-4 py-2.5">
-            <div class="text-[11px] uppercase tracking-wider text-white/70">Duration</div>
-            <div class="font-semibold">58 min</div>
-          </div>
-          <div class="bg-white/15 backdrop-blur rounded-2xl px-4 py-2.5">
-            <div class="text-[11px] uppercase tracking-wider text-white/70">Streak</div>
-            <div class="font-semibold">7 days</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Teacher PiP -->
-      <div class="float-soft">
-        <div class="relative">
-          <div class="w-44 h-44 rounded-3xl overflow-hidden bg-white shadow-deep flex items-center justify-center pulse-glow">
-            <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
-          </div>
-          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white rounded-full px-3 py-1.5 shadow-pop flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-800">Vihaan</span>
-            <div class="wave flex items-end h-4"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="mt-3 paper-card rounded-full px-3 py-1.5 flex items-center gap-2">
+            <span class="text-xs font-bold" style="color: var(--ink);">Vihaan</span>
+            <div class="wave"><span></span><span></span><span></span><span></span><span></span></div>
           </div>
         </div>
       </div>
@@ -340,217 +277,219 @@
   </div>
 </section>
 
-<!-- ===== TABS ===== -->
-<nav class="relative z-10 px-6 lg:px-12 mt-8">
-  <div class="bg-white rounded-2xl p-2 shadow-soft inline-flex gap-1 flex-wrap">
-    <button class="tab-btn active px-5 py-2.5 rounded-xl font-semibold text-sm" data-tab="quiz">
-      <span class="inline-flex items-center gap-2">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-        Today's Quiz
-      </span>
-    </button>
-    <button class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-sm text-slate-700" data-tab="notes">
-      <span class="inline-flex items-center gap-2">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Notes
-      </span>
-    </button>
-    <button class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-sm text-slate-700" data-tab="materials">
-      <span class="inline-flex items-center gap-2">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 7l10-5 10 5-10 5L2 7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-        Materials
-      </span>
-    </button>
+<!-- TABS -->
+<nav class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="paper-card-strong rounded-2xl p-2 inline-flex gap-1 flex-wrap">
+      <button class="tab-btn active" data-tab="quiz">
+        <span class="inline-flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2.2"/></svg>
+          Today's Quiz
+        </span>
+      </button>
+      <button class="tab-btn" data-tab="notes">
+        <span class="inline-flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2"/><line x1="8" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="2"/></svg>
+          Notes
+        </span>
+      </button>
+      <button class="tab-btn" data-tab="materials">
+        <span class="inline-flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 7l10-5 10 5-10 5L2 7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          Materials
+        </span>
+      </button>
+    </div>
   </div>
 </nav>
 
-<!-- ===== QUIZ PANEL ===== -->
-<section id="panel-quiz" class="tab-panel relative z-10 px-6 lg:px-12 mt-6 pb-12">
-  <div class="grid lg:grid-cols-[1fr_320px] gap-6">
+<!-- QUIZ PANEL -->
+<section id="panel-quiz" class="tab-panel relative z-10 px-5 lg:px-10 mt-6 pb-16">
+  <div class="max-w-7xl mx-auto grid lg:grid-cols-[1fr_320px] gap-5">
 
-    <!-- Quiz card -->
-    <div class="bg-white rounded-3xl shadow-pop p-6 md:p-8 relative overflow-hidden">
-      <!-- header -->
-      <div class="flex items-center justify-between mb-4">
+    <div class="paper-card-strong rounded-3xl p-7">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div>
-          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quick Quiz · Chemical Reactions</div>
-          <h2 class="display text-2xl font-extrabold mt-1">Question <span id="qNum">1</span> of <span id="qTotal">6</span></h2>
+          <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">QUICK QUIZ · ACIDS, BASES AND SALTS</div>
+          <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Question <span id="qNum">1</span> of <span id="qTotal">7</span></h2>
         </div>
-        <div class="flex items-center gap-3">
-          <span class="chip" style="background:#fef3c7;color:#92400e;" id="qDifficulty">Easy</span>
-          <span class="chip" style="background:#dbeafe;color:#1e40af;">+10 XP</span>
+        <div class="flex items-center gap-2">
+          <span class="chip" id="qDifficulty" style="background: #ECFDF5; color: var(--emerald-deep);">Easy</span>
+          <span class="chip" style="background: var(--bg-2); color: var(--ink-soft);">+10 XP</span>
         </div>
       </div>
 
-      <!-- progress bar -->
-      <div class="h-2 bg-slate-100 rounded-full overflow-hidden mb-6">
-        <div id="qProgress" class="h-full transition-all duration-500" style="width:16.66%;background:linear-gradient(90deg,#1E3A8A,#0D9488);"></div>
+      <div class="h-2 rounded-full overflow-hidden mb-6" style="background: var(--line);">
+        <div id="qProgress" class="h-full transition-all duration-500" style="width:14.28%; background: linear-gradient(90deg, var(--amber), var(--emerald));"></div>
       </div>
 
-      <!-- question -->
       <div id="quizBody" class="slide-up">
-        <p id="qText" class="text-xl md:text-2xl font-semibold leading-snug mb-6"></p>
+        <p id="qText" class="serif text-xl md:text-2xl font-semibold leading-snug mb-6" style="color: var(--ink);"></p>
         <div id="qOptions" class="space-y-3"></div>
       </div>
 
-      <!-- explanation -->
-      <div id="qExplain" class="hidden mt-5 rounded-2xl p-4 border-2 border-dashed pop-in" style="border-color:#a7f3d0; background:#ecfdf5;">
+      <div id="qExplain" class="hidden mt-5 rounded-2xl p-4 border-2 border-dashed slide-up" style="border-color: #A7F3D0; background: #ECFDF5;">
         <div class="flex items-start gap-3">
-          <div class="w-9 h-9 rounded-xl bg-emerald-500 text-white font-extrabold flex items-center justify-center">!</div>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold" style="background: var(--emerald); color:#fff;">✓</div>
           <div>
-            <div class="font-bold text-emerald-900">Why this is right</div>
-            <p id="qExplainText" class="text-sm text-emerald-900/80 mt-1"></p>
+            <div class="serif font-bold" style="color: var(--emerald-deep);">Why this is right</div>
+            <p id="qExplainText" class="text-sm mt-1" style="color: var(--ink-2);"></p>
           </div>
         </div>
       </div>
 
-      <!-- nav -->
       <div class="flex items-center justify-between mt-6">
-        <button id="prevBtn" class="px-4 py-2.5 rounded-xl font-semibold text-slate-500 hover:bg-slate-100 transition disabled:opacity-30" disabled>← Previous</button>
-        <button id="nextBtn" class="px-6 py-2.5 rounded-xl font-bold text-white shadow-pop btn-shine transition hover:translate-y-[-2px]" style="background:linear-gradient(135deg,#1E3A8A,#0D9488);">Submit answer</button>
+        <button id="prevBtn" class="px-4 py-2.5 rounded-xl font-semibold transition disabled:opacity-30" style="color: var(--ink-soft);" disabled>← Previous</button>
+        <button id="nextBtn" class="btn-primary opacity-50" disabled>Submit answer</button>
       </div>
     </div>
 
-    <!-- Sidebar: score ring + tips -->
     <aside class="space-y-4">
-      <div class="bg-white rounded-3xl shadow-pop p-5 text-center">
-        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Your score</div>
-        <div class="relative w-40 h-40 mx-auto mt-2">
+      <div class="paper-card-strong rounded-3xl p-5 text-center">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">Your score</div>
+        <div class="relative w-40 h-40 mx-auto mt-3">
           <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
-            <circle class="ring-bg" cx="50" cy="50" r="44" stroke-width="10" fill="none"/>
-            <circle id="scoreRing" class="ring-fg" cx="50" cy="50" r="44" stroke-width="10" fill="none"
-                    stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+            <circle class="ring-bg" cx="50" cy="50" r="44" stroke-width="8" fill="none"/>
+            <circle id="scoreRing" class="ring-fg" cx="50" cy="50" r="44" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <div class="display font-extrabold text-3xl" id="scoreNum">0</div>
-            <div class="text-xs text-slate-500">/ 60 XP</div>
+            <div class="serif font-bold text-3xl" id="scoreNum" style="color: var(--ink);">0</div>
+            <div class="text-xs" style="color: var(--ink-soft);">/ 70 XP</div>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
-          <div class="rounded-xl bg-emerald-50 py-2">
-            <div class="font-bold text-emerald-700" id="rightCount">0</div>
-            <div class="text-emerald-700/70">Right</div>
+          <div class="rounded-xl py-2" style="background: #ECFDF5;">
+            <div class="font-bold" id="rightCount" style="color: var(--emerald-deep);">0</div>
+            <div class="text-[10px] mono" style="color: var(--emerald-deep);">RIGHT</div>
           </div>
-          <div class="rounded-xl bg-rose-50 py-2">
-            <div class="font-bold text-rose-700" id="wrongCount">0</div>
-            <div class="text-rose-700/70">Wrong</div>
+          <div class="rounded-xl py-2" style="background: #FEE2E2;">
+            <div class="font-bold" id="wrongCount" style="color: var(--burgundy);">0</div>
+            <div class="text-[10px] mono" style="color: var(--burgundy);">WRONG</div>
           </div>
-          <div class="rounded-xl bg-slate-50 py-2">
-            <div class="font-bold text-slate-700" id="leftCount">6</div>
-            <div class="text-slate-700/70">Left</div>
+          <div class="rounded-xl py-2" style="background: var(--bg-2);">
+            <div class="font-bold" id="leftCount" style="color: var(--ink);">7</div>
+            <div class="text-[10px] mono" style="color: var(--ink-soft);">LEFT</div>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Quick tip</div>
+      <div class="paper-card-strong rounded-3xl p-5">
+        <div class="text-xs mono tracking-widest mb-2" style="color: var(--ink-soft);">Quick tip from Vihaan</div>
         <div class="flex gap-3 items-start">
-          <div class="w-10 h-10 rounded-2xl overflow-hidden bg-amber-100 shrink-0">
+          <div class="w-10 h-10 rounded-xl overflow-hidden shrink-0" style="background: #D1FAE5;">
             <svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg>
           </div>
-          <p class="text-sm text-slate-700 leading-snug">Stuck? Re-watch the 12-min mark of today's class for the combustion demo. It'll click instantly.</p>
+          <p class="text-sm leading-snug" style="color: var(--ink-2);">Stuck on pH? Re-watch the 18-minute mark of today's class — that's where I demonstrate the universal indicator turning red and green.</p>
         </div>
       </div>
 
-      <div class="bg-gradient-to-br from-indigo-900 to-teal-700 text-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider opacity-80 font-semibold">Coming Sunday</div>
-        <div class="font-bold text-lg mt-1">Weekly Test</div>
-        <p class="text-sm opacity-90 mt-1">1-hour cumulative test · all 6 subjects · 50 questions</p>
-        <button class="mt-3 w-full bg-white text-indigo-900 rounded-xl py-2 font-bold text-sm">View schedule</button>
+      <div class="rounded-3xl p-5" style="background: var(--ink); color: var(--bg);">
+        <div class="text-xs mono tracking-widest" style="color: rgba(250,245,235,.6);">COMING SUNDAY</div>
+        <div class="serif font-bold text-lg mt-1">Weekly Test</div>
+        <p class="text-sm mt-1" style="color: rgba(250,245,235,.7);">1-hour cumulative test on all six subjects this week. Followed by an hour of doubt clearing.</p>
+        <button class="mt-3 w-full text-xs font-bold rounded-xl py-2" style="background: #FAF5EB; color: var(--ink);">View schedule</button>
       </div>
     </aside>
   </div>
 
-  <!-- Quiz finished card (hidden) -->
-  <div id="quizDone" class="hidden mt-6 bg-white rounded-3xl shadow-pop p-8 text-center pop-in">
-    <div class="text-6xl">🎉</div>
-    <h3 class="display text-3xl font-extrabold mt-3">Quiz complete!</h3>
-    <p class="text-slate-600 mt-2">You scored <span id="finalScore" class="font-bold">0</span> XP and added <span id="cardsAdded" class="font-bold">3</span> new cards to your Memory Deck.</p>
+  <div id="quizDone" class="hidden mt-6 max-w-3xl mx-auto paper-card-strong rounded-3xl p-8 text-center">
+    <div class="text-5xl">🌿</div>
+    <h3 class="serif text-3xl font-bold mt-3" style="color: var(--ink);">Quiz complete.</h3>
+    <p class="mt-2" style="color: var(--ink-soft);">You scored <b id="finalScore" style="color: var(--ink);">0</b> XP. <span id="cardsAdded">4</span> new cards just went into your Memory Deck — review them tomorrow.</p>
     <div class="flex justify-center gap-3 mt-5 flex-wrap">
-      <button id="reviewBtn" class="px-5 py-2.5 rounded-xl font-bold border-2 border-slate-200 hover:border-slate-400 transition">Review answers</button>
-      <button id="notesJumpBtn" class="px-5 py-2.5 rounded-xl font-bold text-white" style="background:linear-gradient(135deg,#1E3A8A,#0D9488);">Read today's notes →</button>
+      <button id="reviewBtn" class="btn-ghost">Review my answers</button>
+      <button id="notesJumpBtn" class="btn-primary">Read today's notes →</button>
     </div>
   </div>
 </section>
 
-<!-- ===== NOTES PANEL ===== -->
-<section id="panel-notes" class="tab-panel hidden relative z-10 px-6 lg:px-12 mt-6 pb-12">
-  <div class="grid lg:grid-cols-[1fr_320px] gap-6">
-    <div class="bg-white rounded-3xl shadow-pop overflow-hidden">
-      <!-- Notes header -->
-      <div class="p-6 md:p-8 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+<!-- NOTES PANEL -->
+<section id="panel-notes" class="tab-panel hidden relative z-10 px-5 lg:px-10 mt-6 pb-16">
+  <div class="max-w-7xl mx-auto grid lg:grid-cols-[1fr_320px] gap-5">
+
+    <div class="paper-card-strong rounded-3xl overflow-hidden">
+      <div class="p-6 md:p-8 border-b flex flex-wrap items-center justify-between gap-3" style="border-color: var(--line);">
         <div>
-          <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Auto-generated · 28 May 2026</div>
-          <h2 class="display text-2xl font-extrabold mt-1">Chemical Reactions — Class Notes</h2>
-          <p class="text-sm text-slate-500 mt-1">Generated from today's live class by Vihaan · Science</p>
+          <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">AUTO-GENERATED · 28 MAY 2026</div>
+          <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Acids, Bases and Salts — Class Notes</h2>
+          <p class="text-sm mt-1" style="color: var(--ink-soft);">Generated from tonight's live class with Vihaan.</p>
         </div>
         <div class="flex gap-2">
-          <button class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition font-semibold text-sm flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v13m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <button class="btn-ghost text-sm" style="padding: 8px 16px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="inline-block mr-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             PDF
           </button>
-          <button class="px-4 py-2 rounded-xl text-white font-semibold text-sm btn-shine flex items-center gap-2" style="background:linear-gradient(135deg,#1E3A8A,#0D9488);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Download all
-          </button>
+          <button class="btn-primary text-sm btn-shine" style="padding: 8px 16px;">Download all</button>
         </div>
       </div>
 
-      <!-- Notes body (paper feel) -->
-      <div class="p-6 md:p-10 paper">
-        <h3 class="display text-xl font-extrabold text-slate-900">1. What is a chemical reaction?</h3>
-        <p class="mt-2 leading-7 text-slate-800">A chemical reaction is a process in which one or more substances (reactants) are converted into one or more different substances (products). It involves the breaking of old bonds and the formation of new ones.</p>
+      <div class="p-6 md:p-10 paper" style="color: var(--ink-2);">
+        <h3 class="serif text-xl font-bold" style="color: var(--ink);">1. What is an acid?</h3>
+        <p class="mt-2 leading-7">An acid is any substance that releases hydrogen ions (H⁺) when dissolved in water. Acids taste sour and turn blue litmus paper red. Examples: hydrochloric acid (HCl) in your stomach, citric acid in lemon, acetic acid in vinegar.</p>
 
         <div class="my-5 grid md:grid-cols-2 gap-3">
-          <div class="rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-4">
-            <div class="text-xs font-bold text-amber-700 uppercase">Key Idea</div>
-            <p class="text-sm mt-1 text-amber-900">Atoms are conserved — they only rearrange. Mass before = mass after.</p>
+          <div class="rounded-2xl border-l-4 p-4" style="background: #FEF3C7; border-color: var(--amber);">
+            <div class="text-xs font-bold uppercase" style="color: var(--amber-deep);">Key idea</div>
+            <p class="text-sm mt-1" style="color: var(--ink-2);">Stronger acid = more H⁺ ions released = lower pH.</p>
           </div>
-          <div class="rounded-2xl border-l-4 border-teal-400 bg-teal-50 p-4">
-            <div class="text-xs font-bold text-teal-700 uppercase">Remember</div>
-            <p class="text-sm mt-1 text-teal-900">Look for clues: colour change, gas, precipitate, heat, light.</p>
+          <div class="rounded-2xl border-l-4 p-4" style="background: #ECFDF5; border-color: var(--emerald);">
+            <div class="text-xs font-bold uppercase" style="color: var(--emerald-deep);">Remember</div>
+            <p class="text-sm mt-1" style="color: var(--ink-2);">Acids in concentrated form are corrosive — always add acid to water, never the other way around.</p>
           </div>
         </div>
 
-        <h3 class="display text-xl font-extrabold text-slate-900 mt-6">2. Today's worked example</h3>
-        <p class="mt-2 leading-7 text-slate-800">Burning magnesium ribbon in air produces a bright white flame and a white powder.</p>
-        <div class="mt-3 rounded-2xl bg-slate-900 text-slate-100 p-5 font-mono text-center text-lg shadow-deep">
-          2 Mg <span class="text-amber-300">+</span> O<sub>2</sub> <span class="text-emerald-300">→</span> 2 MgO <span class="text-rose-300">+ heat + light</span>
+        <h3 class="serif text-xl font-bold mt-6" style="color: var(--ink);">2. What is a base?</h3>
+        <p class="mt-2 leading-7">A base releases hydroxide ions (OH⁻) when dissolved in water. Bases taste bitter and feel soapy. They turn red litmus paper blue. Examples: sodium hydroxide (NaOH) in soaps, calcium hydroxide (Ca(OH)₂) — slaked lime, magnesium hydroxide in antacids.</p>
+
+        <h3 class="serif text-xl font-bold mt-6" style="color: var(--ink);">3. The pH scale</h3>
+        <p class="mt-2 leading-7">pH measures how acidic or basic a solution is, on a scale from 0 to 14.</p>
+        <div class="mt-4 rounded-2xl p-5 text-center" style="background: var(--ink); color: var(--bg);">
+          <div class="grid grid-cols-7 gap-1 max-w-md mx-auto">
+            <div class="py-2 rounded text-xs" style="background:#9F1239;">0–2</div>
+            <div class="py-2 rounded text-xs" style="background:#DC2626;">3</div>
+            <div class="py-2 rounded text-xs" style="background:#EA580C;">4–5</div>
+            <div class="py-2 rounded text-xs" style="background:#65A30D; color:#fff;">7</div>
+            <div class="py-2 rounded text-xs" style="background:#0891B2;">9</div>
+            <div class="py-2 rounded text-xs" style="background:#1E40AF;">11</div>
+            <div class="py-2 rounded text-xs" style="background:#5B21B6;">12–14</div>
+          </div>
+          <div class="text-xs mt-3 mono" style="color: rgba(250,245,235,.7);">
+            Strong acid &lt; ─── pH 7 (neutral) ─── &gt; Strong base
+          </div>
         </div>
 
-        <h3 class="display text-xl font-extrabold text-slate-900 mt-6">3. Types of reactions</h3>
-        <ul class="mt-3 space-y-2 text-slate-800">
-          <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">A</span><span><b>Combination:</b> two or more reactants form a single product. Example: CaO + H₂O → Ca(OH)₂.</span></li>
-          <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">B</span><span><b>Decomposition:</b> a single reactant breaks down. Example: 2 H₂O → 2 H₂ + O₂ (electrolysis).</span></li>
-          <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">C</span><span><b>Displacement:</b> a more reactive element displaces a less reactive one.</span></li>
-          <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">D</span><span><b>Double displacement:</b> ions are exchanged between two compounds.</span></li>
-          <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">E</span><span><b>Redox:</b> involves simultaneous oxidation and reduction.</span></li>
+        <h3 class="serif text-xl font-bold mt-6" style="color: var(--ink);">4. Reactions of acids</h3>
+        <ul class="mt-3 space-y-2 leading-6">
+          <li class="flex gap-3"><span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background: var(--bg-2); color: var(--ink);">A</span><span><b>With metals:</b> Acid + Metal → Salt + Hydrogen gas. <span class="mono" style="color: var(--ink-soft);">Zn + 2HCl → ZnCl₂ + H₂↑</span></span></li>
+          <li class="flex gap-3"><span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background: var(--bg-2); color: var(--ink);">B</span><span><b>With carbonates:</b> Acid + Carbonate → Salt + CO₂ + Water. (This is why baking soda fizzes with vinegar.)</span></li>
+          <li class="flex gap-3"><span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style="background: var(--bg-2); color: var(--ink);">C</span><span><b>With bases (neutralisation):</b> Acid + Base → Salt + Water. <span class="mono" style="color: var(--ink-soft);">HCl + NaOH → NaCl + H₂O</span></span></li>
         </ul>
 
-        <h3 class="display text-xl font-extrabold text-slate-900 mt-6">4. Balancing equations — 3-step method</h3>
-        <ol class="mt-3 list-decimal pl-6 space-y-1 text-slate-800">
-          <li>Write the skeletal equation.</li>
-          <li>Count atoms of each element on both sides.</li>
-          <li>Adjust coefficients (never subscripts) until atoms match.</li>
-        </ol>
+        <h3 class="serif text-xl font-bold mt-6" style="color: var(--ink);">5. Important salts</h3>
+        <ul class="mt-3 space-y-2 leading-6">
+          <li><b>Common salt — NaCl:</b> table salt; also the source of all other "sodium-something" chemicals.</li>
+          <li><b>Baking soda — NaHCO₃:</b> in idli batter, in antacids; reacts with acid to release CO₂.</li>
+          <li><b>Washing soda — Na₂CO₃:</b> in detergents, glass manufacture.</li>
+          <li><b>Plaster of Paris — CaSO₄·½H₂O:</b> hardens by absorbing water; used for casts, decorations.</li>
+        </ul>
 
-        <h3 class="display text-xl font-extrabold text-slate-900 mt-6">5. Quick recap</h3>
+        <h3 class="serif text-xl font-bold mt-6" style="color: var(--ink);">6. Quick recap</h3>
         <div class="mt-3 flex flex-wrap gap-2">
-          <span class="chip" style="background:#eef2ff;color:#3730a3;">reactants → products</span>
-          <span class="chip" style="background:#fef3c7;color:#92400e;">atoms conserved</span>
-          <span class="chip" style="background:#ccfbf1;color:#115e59;">5 reaction types</span>
-          <span class="chip" style="background:#fee2e2;color:#9f1239;">balance with coefficients</span>
+          <span class="chip" style="background:#FEF3C7; color: var(--amber-deep);">acid releases H⁺</span>
+          <span class="chip" style="background:#ECFDF5; color: var(--emerald-deep);">base releases OH⁻</span>
+          <span class="chip" style="background:#FEE2E2; color: var(--burgundy);">pH 0–6 = acidic</span>
+          <span class="chip" style="background: var(--bg-2); color: var(--ink);">pH 7 = neutral</span>
+          <span class="chip" style="background:#E0E7FF; color: #3730A3;">pH 8–14 = basic</span>
+          <span class="chip" style="background:#FED7AA; color: var(--terracotta);">A + B → salt + water</span>
         </div>
       </div>
     </div>
 
-    <!-- Notes sidebar -->
     <aside class="space-y-4">
-      <!-- Filters -->
-      <div class="bg-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Browse all notes</div>
+      <div class="paper-card-strong rounded-3xl p-5">
+        <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">Browse all notes</div>
         <div class="space-y-2">
-          <select class="w-full bg-slate-50 rounded-xl px-3 py-2.5 text-sm font-medium border border-slate-200">
+          <select class="w-full rounded-xl px-3 py-2.5 text-sm font-medium border outline-none" style="background: var(--bg); border-color: var(--line); color: var(--ink);">
             <option>All subjects</option>
             <option>Science (Vihaan)</option>
             <option>Maths (Praketa)</option>
@@ -559,320 +498,292 @@
             <option>English (Anika)</option>
             <option>Hindi (Amita)</option>
           </select>
-          <select class="w-full bg-slate-50 rounded-xl px-3 py-2.5 text-sm font-medium border border-slate-200">
+          <select class="w-full rounded-xl px-3 py-2.5 text-sm font-medium border outline-none" style="background: var(--bg); border-color: var(--line); color: var(--ink);">
             <option>This week</option>
             <option>Last 4 weeks</option>
-            <option>All time (Day 1–180)</option>
+            <option>All time</option>
           </select>
         </div>
       </div>
 
-      <!-- Recent notes -->
-      <div class="bg-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Recent notes</div>
+      <div class="paper-card-strong rounded-3xl p-5">
+        <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">Recent notes</div>
         <ul class="space-y-2">
-          <li class="flex gap-3 items-start p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition">
-            <div class="w-9 h-9 rounded-xl bg-amber-100 overflow-hidden shrink-0"><svg viewBox="0 0 120 120"><use href="#face-vihaan"/></svg></div>
+          <li class="flex gap-3 items-start p-2 rounded-xl hover:bg-stone-50 cursor-pointer transition">
+            <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0" style="background: #D1FAE5;"><svg viewBox="0 0 120 120"><use href="#face-vihaan"/></svg></div>
             <div class="min-w-0">
-              <div class="font-semibold text-sm truncate">Chemical Reactions</div>
-              <div class="text-xs text-slate-500">Today · 8 pages</div>
+              <div class="font-semibold text-sm truncate" style="color: var(--ink);">Acids, Bases, Salts</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Today · 8 pages</div>
             </div>
           </li>
-          <li class="flex gap-3 items-start p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition">
-            <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0 font-bold text-indigo-700 text-sm">M</div>
+          <li class="flex gap-3 items-start p-2 rounded-xl hover:bg-stone-50 cursor-pointer transition">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-sm" style="background: #FEF3C7; color: var(--amber-deep);">M</div>
             <div class="min-w-0">
-              <div class="font-semibold text-sm truncate">Quadratic Equations</div>
-              <div class="text-xs text-slate-500">Yesterday · 6 pages</div>
+              <div class="font-semibold text-sm truncate" style="color: var(--ink);">Quadratic Equations</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Yesterday · 6 pages</div>
             </div>
           </li>
-          <li class="flex gap-3 items-start p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition">
-            <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0 font-bold text-rose-700 text-sm">S</div>
+          <li class="flex gap-3 items-start p-2 rounded-xl hover:bg-stone-50 cursor-pointer transition">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-sm" style="background: #FED7AA; color: var(--terracotta);">S</div>
             <div class="min-w-0">
-              <div class="font-semibold text-sm truncate">French Revolution</div>
-              <div class="text-xs text-slate-500">Wed · 9 pages</div>
+              <div class="font-semibold text-sm truncate" style="color: var(--ink);">Rise of Nationalism</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Sun · 9 pages</div>
             </div>
           </li>
-          <li class="flex gap-3 items-start p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition">
-            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 font-bold text-emerald-700 text-sm">K</div>
+          <li class="flex gap-3 items-start p-2 rounded-xl hover:bg-stone-50 cursor-pointer transition">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-sm" style="background: #FEF3C7; color: var(--gold);">ಕ</div>
             <div class="min-w-0">
-              <div class="font-semibold text-sm truncate">ಕನ್ನಡ — ವಚನಗಳು</div>
-              <div class="text-xs text-slate-500">Thu · 5 pages</div>
+              <div class="font-semibold text-sm truncate" style="color: var(--ink);">ವಚನಗಳು</div>
+              <div class="text-xs" style="color: var(--ink-soft);">Thu · 5 pages</div>
             </div>
           </li>
         </ul>
-        <button class="mt-3 w-full text-center text-sm font-semibold text-indigo-700 hover:underline">See all 47 notes →</button>
+        <button class="mt-3 w-full text-center text-sm font-semibold hover:underline" style="color: var(--ink);">See all 47 notes →</button>
       </div>
 
-      <!-- Memory deck link -->
-      <div class="bg-gradient-to-br from-amber-50 to-rose-50 rounded-3xl shadow-pop p-5 border border-amber-100">
-        <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold">Memory Deck</div>
-        <div class="display font-extrabold text-xl mt-1">12 new cards added</div>
-        <p class="text-xs text-slate-600 mt-1">From today's notes — review them before bedtime for best retention.</p>
-        <button class="mt-3 w-full bg-amber-500 hover:bg-amber-600 transition text-white rounded-xl py-2 font-bold text-sm">Open Memory Deck →</button>
+      <div class="rounded-3xl p-5 border" style="background: linear-gradient(135deg, #FEF3C7, #FED7AA); border-color: #FCD34D;">
+        <div class="text-xs mono tracking-widest" style="color: var(--amber-deep);">MEMORY DECK</div>
+        <div class="serif font-bold text-xl mt-1" style="color: var(--ink);">4 new cards added</div>
+        <p class="text-xs mt-1" style="color: var(--ink-2);">From tonight's notes — review them before bed for the best retention.</p>
+        <button class="mt-3 w-full text-sm font-bold rounded-xl py-2" style="background: var(--ink); color: var(--bg);">Open Memory Deck →</button>
       </div>
     </aside>
   </div>
 </section>
 
-<!-- ===== MATERIALS PANEL ===== -->
-<section id="panel-materials" class="tab-panel hidden relative z-10 px-6 lg:px-12 mt-6 pb-16">
-  <div class="grid lg:grid-cols-[1fr_320px] gap-6">
-    <!-- Main grid -->
+<!-- MATERIALS PANEL -->
+<section id="panel-materials" class="tab-panel hidden relative z-10 px-5 lg:px-10 mt-6 pb-16">
+  <div class="max-w-7xl mx-auto grid lg:grid-cols-[1fr_320px] gap-5">
+
     <div>
-      <!-- Filter bar -->
-      <div class="bg-white rounded-3xl shadow-pop p-4 mb-5 flex flex-wrap gap-3 items-center">
-        <div class="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-200">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Search materials… (e.g., 'PYQ 2024', 'Mensuration')" class="flex-1 bg-transparent outline-none text-sm">
+      <div class="paper-card-strong rounded-3xl p-4 mb-5 flex flex-wrap gap-3 items-center">
+        <div class="flex-1 min-w-[240px] flex items-center gap-2 px-3 py-2.5 rounded-xl border" style="background: var(--bg); border-color: var(--line);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="var(--ink-soft)" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="var(--ink-soft)" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Search materials… (e.g., 'PYQ 2024', 'pH', 'Mensuration')" class="flex-1 bg-transparent outline-none text-sm" style="color: var(--ink);">
         </div>
         <div class="flex gap-2 flex-wrap">
-          <button class="filter-pill chip active" data-filter="all" style="background:#1E3A8A;color:#fff;">All</button>
-          <button class="filter-pill chip" data-filter="pyq" style="background:#fee2e2;color:#9f1239;">PYQs</button>
-          <button class="filter-pill chip" data-filter="worksheet" style="background:#fef3c7;color:#92400e;">Worksheets</button>
-          <button class="filter-pill chip" data-filter="reference" style="background:#dbeafe;color:#1e40af;">Reference</button>
-          <button class="filter-pill chip" data-filter="syllabus" style="background:#ccfbf1;color:#115e59;">Syllabus</button>
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="pyq">PYQs</button>
+          <button class="filter-pill" data-filter="worksheet">Worksheets</button>
+          <button class="filter-pill" data-filter="reference">Reference</button>
+          <button class="filter-pill" data-filter="syllabus">Syllabus</button>
         </div>
       </div>
 
-      <!-- Today's chapter highlight -->
-      <div class="bg-white rounded-3xl shadow-pop p-6 mb-5">
-        <div class="flex items-center justify-between flex-wrap gap-2">
+      <div class="paper-card-strong rounded-3xl p-6 mb-5">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
           <div>
-            <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Today's chapter</div>
-            <h3 class="display font-extrabold text-xl mt-1">Science · Ch.2 Chemical Reactions</h3>
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">TONIGHT'S CHAPTER</div>
+            <h3 class="serif font-semibold text-xl mt-1" style="color: var(--ink);">Science · Ch.3 Acids, Bases and Salts</h3>
           </div>
-          <span class="chip" style="background:#eef2ff;color:#3730a3;">4 materials</span>
+          <span class="chip" style="background: #ECFDF5; color: var(--emerald-deep);">4 materials</span>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-3 mt-5">
-          <!-- material 1 -->
-          <div class="mat-card tilt rounded-2xl p-4 border border-slate-100 bg-white flex gap-4" data-type="worksheet">
-            <div class="w-14 h-14 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#92400e" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="#92400e" stroke-width="2"/></svg>
+        <div class="grid md:grid-cols-2 gap-3">
+          <!-- Worksheet -->
+          <div class="rounded-2xl p-4 border flex gap-4 tilt-3d" style="background: var(--paper); border-color: var(--line);" data-type="worksheet">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style="background: #FEF3C7;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#B45309" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="#B45309" stroke-width="2"/></svg>
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="chip" style="background:#fef3c7;color:#92400e;">Worksheet</span>
-                <span class="text-xs text-slate-500">PDF · 1.2 MB</span>
+                <span class="chip" style="background: #FEF3C7; color: var(--amber-deep);">Worksheet</span>
+                <span class="text-xs" style="color: var(--ink-soft);">PDF · 1.2 MB</span>
               </div>
-              <div class="font-bold leading-tight">Practice problems — Balancing equations</div>
-              <p class="text-xs text-slate-500 mt-1">20 problems, increasing difficulty. Answer key included.</p>
-              <button class="mt-2 text-xs font-bold text-indigo-700 hover:underline">Download →</button>
+              <div class="font-bold leading-tight" style="color: var(--ink);">25 problems on acid–base reactions</div>
+              <p class="text-xs mt-1" style="color: var(--ink-soft);">Increasing difficulty. Answer key included on page 8.</p>
+              <button class="mt-2 text-xs font-bold hover:underline" style="color: var(--ink);">Download →</button>
             </div>
           </div>
-          <!-- material 2 -->
-          <div class="mat-card tilt rounded-2xl p-4 border border-slate-100 bg-white flex gap-4" data-type="pyq">
-            <div class="w-14 h-14 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M3 12h18M3 17h12" stroke="#9f1239" stroke-width="2" stroke-linecap="round"/></svg>
+          <!-- PYQ -->
+          <div class="rounded-2xl p-4 border flex gap-4 tilt-3d" style="background: var(--paper); border-color: var(--line);" data-type="pyq">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style="background: #FEE2E2;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M3 12h18M3 17h12" stroke="#9F1239" stroke-width="2" stroke-linecap="round"/></svg>
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="chip" style="background:#fee2e2;color:#9f1239;">PYQ 2024</span>
-                <span class="text-xs text-slate-500">PDF · 800 KB</span>
+                <span class="chip" style="background: #FEE2E2; color: var(--burgundy);">PYQ 2024</span>
+                <span class="text-xs" style="color: var(--ink-soft);">PDF · 800 KB</span>
               </div>
-              <div class="font-bold leading-tight">KSEEB SSLC Science — 2024 paper</div>
-              <p class="text-xs text-slate-500 mt-1">Annotated solutions for Ch.2 questions.</p>
-              <button class="mt-2 text-xs font-bold text-indigo-700 hover:underline">Download →</button>
+              <div class="font-bold leading-tight" style="color: var(--ink);">KSEEB SSLC Science — 2024 paper</div>
+              <p class="text-xs mt-1" style="color: var(--ink-soft);">Annotated solutions for the Ch.3 questions.</p>
+              <button class="mt-2 text-xs font-bold hover:underline" style="color: var(--ink);">Download →</button>
             </div>
           </div>
-          <!-- material 3 -->
-          <div class="mat-card tilt rounded-2xl p-4 border border-slate-100 bg-white flex gap-4" data-type="reference">
-            <div class="w-14 h-14 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="#3730a3" stroke-width="2"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="#3730a3" stroke-width="2"/></svg>
+          <!-- Reference -->
+          <div class="rounded-2xl p-4 border flex gap-4 tilt-3d" style="background: var(--paper); border-color: var(--line);" data-type="reference">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style="background: #D1FAE5;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="#047857" stroke-width="2"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="#047857" stroke-width="2"/></svg>
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="chip" style="background:#dbeafe;color:#1e40af;">Reference</span>
-                <span class="text-xs text-slate-500">PDF · 2.4 MB</span>
+                <span class="chip" style="background: #D1FAE5; color: var(--emerald-deep);">Reference</span>
+                <span class="text-xs" style="color: var(--ink-soft);">PDF · 2.4 MB</span>
               </div>
-              <div class="font-bold leading-tight">NCERT supplementary — Reactions deep-dive</div>
-              <p class="text-xs text-slate-500 mt-1">Extra reading with examples beyond syllabus.</p>
-              <button class="mt-2 text-xs font-bold text-indigo-700 hover:underline">Download →</button>
+              <div class="font-bold leading-tight" style="color: var(--ink);">NCERT supplementary — Acid-base deep dive</div>
+              <p class="text-xs mt-1" style="color: var(--ink-soft);">Extra examples and history of pH discovery.</p>
+              <button class="mt-2 text-xs font-bold hover:underline" style="color: var(--ink);">Download →</button>
             </div>
           </div>
-          <!-- material 4 -->
-          <div class="mat-card tilt rounded-2xl p-4 border border-slate-100 bg-white flex gap-4" data-type="syllabus">
-            <div class="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#065f46" stroke-width="2.4" stroke-linecap="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#065f46" stroke-width="2.4"/></svg>
+          <!-- Syllabus -->
+          <div class="rounded-2xl p-4 border flex gap-4 tilt-3d" style="background: var(--paper); border-color: var(--line);" data-type="syllabus">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style="background: #E0E7FF;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#3730A3" stroke-width="2.2" stroke-linecap="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#3730A3" stroke-width="2.2"/></svg>
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="chip" style="background:#ccfbf1;color:#115e59;">Syllabus</span>
-                <span class="text-xs text-slate-500">PDF · 240 KB</span>
+                <span class="chip" style="background: #E0E7FF; color: #3730A3;">Syllabus</span>
+                <span class="text-xs" style="color: var(--ink-soft);">PDF · 240 KB</span>
               </div>
-              <div class="font-bold leading-tight">KSEEB Science syllabus — Chapter 2</div>
-              <p class="text-xs text-slate-500 mt-1">Official learning outcomes & weightage.</p>
-              <button class="mt-2 text-xs font-bold text-indigo-700 hover:underline">Download →</button>
+              <div class="font-bold leading-tight" style="color: var(--ink);">KSEEB Science syllabus — Chapter 3</div>
+              <p class="text-xs mt-1" style="color: var(--ink-soft);">Official learning outcomes and exam weightage.</p>
+              <button class="mt-2 text-xs font-bold hover:underline" style="color: var(--ink);">Download →</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- All subjects -->
-      <div class="bg-white rounded-3xl shadow-pop p-6">
-        <h3 class="display font-extrabold text-xl">Browse by subject</h3>
-        <p class="text-sm text-slate-500 mt-1">All chapters · syllabus · previous-year papers (KSEEB 2020–2025)</p>
+      <div class="paper-card-strong rounded-3xl p-6">
+        <h3 class="serif font-semibold text-xl" style="color: var(--ink);">Browse by subject</h3>
+        <p class="text-sm mt-1" style="color: var(--ink-soft);">All chapters · syllabus · previous-year papers (KSEEB 2020–2025).</p>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3 mt-5">
-          <!-- subject tiles -->
-          <a href="#" class="mat-card tilt rounded-2xl p-4 flex items-center gap-3 border border-slate-100 bg-gradient-to-br from-indigo-50 to-white">
-            <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center font-extrabold text-indigo-700">M</div>
-            <div class="flex-1">
-              <div class="font-bold">Mathematics</div>
-              <div class="text-xs text-slate-500">15 chapters · 24 PDFs</div>
-            </div>
-            <span class="text-xs font-semibold text-slate-400">→</span>
+          <a href="#" class="rounded-2xl p-4 flex items-center gap-3 border tilt-3d" style="background: linear-gradient(135deg, #FEF3C7 0%, #FFFFFF 100%); border-color: var(--line);">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold" style="background: #FEF3C7; color: var(--amber-deep);">M</div>
+            <div class="flex-1"><div class="font-bold" style="color: var(--ink);">Mathematics</div><div class="text-xs" style="color: var(--ink-soft);">15 chapters · 24 PDFs</div></div>
+            <span class="text-xs font-semibold" style="color: var(--ink-dim);">→</span>
           </a>
-          <a href="#" class="mat-card tilt rounded-2xl p-4 flex items-center gap-3 border border-slate-100 bg-gradient-to-br from-amber-50 to-white">
-            <div class="w-12 h-12 rounded-xl bg-amber-100 overflow-hidden"><svg viewBox="0 0 120 120"><use href="#face-vihaan"/></svg></div>
-            <div class="flex-1">
-              <div class="font-bold">Science</div>
-              <div class="text-xs text-slate-500">16 chapters · 28 PDFs</div>
-            </div>
-            <span class="text-xs font-semibold text-slate-400">→</span>
+          <a href="#" class="rounded-2xl p-4 flex items-center gap-3 border tilt-3d" style="background: linear-gradient(135deg, #D1FAE5 0%, #FFFFFF 100%); border-color: var(--line);">
+            <div class="w-12 h-12 rounded-xl overflow-hidden" style="background: #D1FAE5;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
+            <div class="flex-1"><div class="font-bold" style="color: var(--ink);">Science</div><div class="text-xs" style="color: var(--ink-soft);">16 chapters · 28 PDFs</div></div>
+            <span class="text-xs font-semibold" style="color: var(--ink-dim);">→</span>
           </a>
-          <a href="#" class="mat-card tilt rounded-2xl p-4 flex items-center gap-3 border border-slate-100 bg-gradient-to-br from-rose-50 to-white">
-            <div class="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center font-extrabold text-rose-700">S</div>
-            <div class="flex-1">
-              <div class="font-bold">Social Science</div>
-              <div class="text-xs text-slate-500">30 chapters · 42 PDFs</div>
-            </div>
-            <span class="text-xs font-semibold text-slate-400">→</span>
+          <a href="#" class="rounded-2xl p-4 flex items-center gap-3 border tilt-3d" style="background: linear-gradient(135deg, #FED7AA 0%, #FFFFFF 100%); border-color: var(--line);">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold" style="background: #FED7AA; color: var(--terracotta);">S</div>
+            <div class="flex-1"><div class="font-bold" style="color: var(--ink);">Social Science</div><div class="text-xs" style="color: var(--ink-soft);">30 chapters · 42 PDFs</div></div>
+            <span class="text-xs font-semibold" style="color: var(--ink-dim);">→</span>
           </a>
-          <a href="#" class="mat-card tilt rounded-2xl p-4 flex items-center gap-3 border border-slate-100 bg-gradient-to-br from-emerald-50 to-white">
-            <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center font-extrabold text-emerald-700">ಕ</div>
-            <div class="flex-1">
-              <div class="font-bold">Kannada (1st)</div>
-              <div class="text-xs text-slate-500">20 chapters · 18 PDFs</div>
-            </div>
-            <span class="text-xs font-semibold text-slate-400">→</span>
+          <a href="#" class="rounded-2xl p-4 flex items-center gap-3 border tilt-3d" style="background: linear-gradient(135deg, #FEF3C7 0%, #FFFFFF 100%); border-color: var(--line);">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold" style="background: #FEF3C7; color: var(--gold);">ಕ</div>
+            <div class="flex-1"><div class="font-bold" style="color: var(--ink);">Kannada (1st)</div><div class="text-xs" style="color: var(--ink-soft);">20 chapters · 18 PDFs</div></div>
+            <span class="text-xs font-semibold" style="color: var(--ink-dim);">→</span>
           </a>
-          <a href="#" class="mat-card tilt rounded-2xl p-4 flex items-center gap-3 border border-slate-100 bg-gradient-to-br from-sky-50 to-white">
-            <div class="w-12 h-12 rounded-xl bg-sky-100 flex items-center justify-center font-extrabold text-sky-700">A</div>
-            <div class="flex-1">
-              <div class="font-bold">English (2nd)</div>
-              <div class="text-xs text-slate-500">20 chapters · 22 PDFs</div>
-            </div>
-            <span class="text-xs font-semibold text-slate-400">→</span>
+          <a href="#" class="rounded-2xl p-4 flex items-center gap-3 border tilt-3d" style="background: linear-gradient(135deg, #ECFCCB 0%, #FFFFFF 100%); border-color: var(--line);">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold" style="background: #ECFCCB; color: var(--sage);">A</div>
+            <div class="flex-1"><div class="font-bold" style="color: var(--ink);">English (2nd)</div><div class="text-xs" style="color: var(--ink-soft);">20 chapters · 22 PDFs</div></div>
+            <span class="text-xs font-semibold" style="color: var(--ink-dim);">→</span>
           </a>
-          <a href="#" class="mat-card tilt rounded-2xl p-4 flex items-center gap-3 border border-slate-100 bg-gradient-to-br from-fuchsia-50 to-white">
-            <div class="w-12 h-12 rounded-xl bg-fuchsia-100 flex items-center justify-center font-extrabold text-fuchsia-700">ह</div>
-            <div class="flex-1">
-              <div class="font-bold">Hindi (3rd)</div>
-              <div class="text-xs text-slate-500">15 chapters · 16 PDFs</div>
-            </div>
-            <span class="text-xs font-semibold text-slate-400">→</span>
+          <a href="#" class="rounded-2xl p-4 flex items-center gap-3 border tilt-3d" style="background: linear-gradient(135deg, #FED7AA 0%, #FFFFFF 100%); border-color: var(--line);">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold" style="background: #FED7AA; color: var(--copper);">ह</div>
+            <div class="flex-1"><div class="font-bold" style="color: var(--ink);">Hindi (3rd)</div><div class="text-xs" style="color: var(--ink-soft);">15 chapters · 16 PDFs</div></div>
+            <span class="text-xs font-semibold" style="color: var(--ink-dim);">→</span>
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Materials sidebar -->
     <aside class="space-y-4">
-      <div class="bg-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Library at a glance</div>
-        <div class="space-y-2">
-          <div class="flex justify-between text-sm"><span class="text-slate-600">Total materials</span><span class="font-bold">150 PDFs</span></div>
-          <div class="flex justify-between text-sm"><span class="text-slate-600">PYQs (2020–2025)</span><span class="font-bold">36</span></div>
-          <div class="flex justify-between text-sm"><span class="text-slate-600">Worksheets</span><span class="font-bold">62</span></div>
-          <div class="flex justify-between text-sm"><span class="text-slate-600">Reference</span><span class="font-bold">38</span></div>
-          <div class="flex justify-between text-sm"><span class="text-slate-600">Syllabus docs</span><span class="font-bold">14</span></div>
+      <div class="paper-card-strong rounded-3xl p-5">
+        <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">Library at a glance</div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span style="color: var(--ink-soft);">Total materials</span><span class="font-bold" style="color: var(--ink);">150 PDFs</span></div>
+          <div class="flex justify-between"><span style="color: var(--ink-soft);">PYQs (2020–2025)</span><span class="font-bold" style="color: var(--ink);">36</span></div>
+          <div class="flex justify-between"><span style="color: var(--ink-soft);">Worksheets</span><span class="font-bold" style="color: var(--ink);">62</span></div>
+          <div class="flex justify-between"><span style="color: var(--ink-soft);">Reference</span><span class="font-bold" style="color: var(--ink);">38</span></div>
+          <div class="flex justify-between"><span style="color: var(--ink-soft);">Syllabus docs</span><span class="font-bold" style="color: var(--ink);">14</span></div>
         </div>
       </div>
 
-      <div class="bg-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Trending this week</div>
+      <div class="paper-card-strong rounded-3xl p-5">
+        <div class="text-xs mono tracking-widest mb-3" style="color: var(--ink-soft);">Trending this week</div>
         <ul class="space-y-2 text-sm">
-          <li class="flex justify-between"><span>📐 Maths PYQ 2023</span><span class="text-slate-400 text-xs">1,204 dl</span></li>
-          <li class="flex justify-between"><span>🧪 Ch.2 Reactions WS</span><span class="text-slate-400 text-xs">892 dl</span></li>
-          <li class="flex justify-between"><span>🗺️ French Revolution map</span><span class="text-slate-400 text-xs">641 dl</span></li>
-          <li class="flex justify-between"><span>📝 KSEEB blueprint 2026</span><span class="text-slate-400 text-xs">588 dl</span></li>
+          <li class="flex justify-between" style="color: var(--ink-2);"><span>📐 Maths PYQ 2023</span><span class="text-xs mono" style="color: var(--ink-dim);">1,204</span></li>
+          <li class="flex justify-between" style="color: var(--ink-2);"><span>🧪 Acids-Bases worksheet</span><span class="text-xs mono" style="color: var(--ink-dim);">892</span></li>
+          <li class="flex justify-between" style="color: var(--ink-2);"><span>🗺️ French Revolution map</span><span class="text-xs mono" style="color: var(--ink-dim);">641</span></li>
+          <li class="flex justify-between" style="color: var(--ink-2);"><span>📝 KSEEB blueprint 2026</span><span class="text-xs mono" style="color: var(--ink-dim);">588</span></li>
         </ul>
       </div>
 
-      <div class="bg-gradient-to-br from-indigo-900 to-teal-700 text-white rounded-3xl shadow-pop p-5">
-        <div class="text-xs uppercase tracking-wider opacity-80 font-semibold">Need something specific?</div>
-        <div class="display font-extrabold text-lg mt-1">Ask in Doubt Corner</div>
-        <p class="text-sm opacity-90 mt-1">If a material isn't here, Vihaan can generate one for you in under a minute.</p>
-        <button class="mt-3 w-full bg-white text-indigo-900 rounded-xl py-2 font-bold text-sm">Open doubt chat</button>
+      <div class="rounded-3xl p-5" style="background: var(--ink); color: var(--bg);">
+        <div class="text-xs mono tracking-widest" style="color: rgba(250,245,235,.6);">NEED SOMETHING SPECIFIC?</div>
+        <div class="serif font-bold text-lg mt-1">Ask in Doubt Corner</div>
+        <p class="text-sm mt-1" style="color: rgba(250,245,235,.7);">If a material isn't here yet, Vihaan can generate one for you in under a minute.</p>
+        <button class="mt-3 w-full text-sm font-bold rounded-xl py-2" style="background: #FAF5EB; color: var(--ink);">Open doubt chat</button>
       </div>
     </aside>
   </div>
 </section>
 
-<!-- Footer mini-bar -->
-<footer class="px-6 lg:px-12 pb-8 pt-2 text-center text-xs text-slate-400">
-  <span>Ananta · Karnataka State Board · Grade 10 · 180-day program</span>
-  <span class="mx-2">·</span>
-  <span>Day <b>47</b> of 180</span>
-  <span class="mx-2">·</span>
-  <span>Launching July 2026</span>
+<!-- Footer -->
+<footer class="relative py-10 border-t" style="border-color: var(--line);">
+  <div class="max-w-7xl mx-auto px-5 lg:px-10 flex flex-wrap items-center justify-between text-xs" style="color: var(--ink-dim);">
+    <div>© 2026 Ananta · Karnataka State Board · Grade 10</div>
+    <div class="flex items-center gap-6">
+      <span>Day <b style="color: var(--ink);">32</b> · Science <b style="color: var(--ink);">7/16</b> chapters complete</span>
+    </div>
+  </div>
 </footer>
 
-<!-- ============= SCRIPTS ============= -->
 <script>
-  // ---- Tabs ----
+  // ============== TABS ==============
   const tabs = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.tab-panel');
   function activate(name) {
-    tabs.forEach(t => {
-      const on = t.dataset.tab === name;
-      t.classList.toggle('active', on);
-      t.classList.toggle('text-slate-700', !on);
-    });
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
     panels.forEach(p => p.classList.toggle('hidden', p.id !== `panel-${name}`));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
 
-  // ---- Quiz data (today's lesson: Chemical Reactions) ----
+  // ============== QUIZ DATA ==============
   const questions = [
     {
-      q: "Which of these is NOT a sign that a chemical reaction has occurred?",
-      opts: ["Colour change", "Gas evolution", "Change in shape only", "Heat or light release"],
-      correct: 2, diff: "Easy",
-      why: "A change in shape alone is a physical change. A real chemical reaction needs a new substance — signalled by colour, gas, heat/light, or a precipitate."
-    },
-    {
-      q: "Balance: __ Mg + O₂ → __ MgO",
-      opts: ["1, 1", "2, 2", "2, 1", "1, 2"],
+      q: "Which of these is the chemical formula for hydrochloric acid?",
+      opts: ["NaOH", "HCl", "H₂SO₄", "NH₃"],
       correct: 1, diff: "Easy",
-      why: "Two Mg atoms combine with one O₂ molecule to form 2 MgO. Coefficients: 2 Mg + O₂ → 2 MgO."
+      why: "HCl is hydrochloric acid — present in your stomach to help digest food. NaOH is a strong base; H₂SO₄ is sulphuric acid; NH₃ is ammonia."
     },
     {
-      q: "2 H₂O → 2 H₂ + O₂ is an example of which reaction type?",
-      opts: ["Combination", "Decomposition", "Displacement", "Double displacement"],
+      q: "What is the pH of a neutral solution at room temperature?",
+      opts: ["0", "7", "14", "10"],
+      correct: 1, diff: "Easy",
+      why: "pH 7 is neutral — like pure water. Below 7 is acidic, above 7 is basic. The scale runs from 0 (strongest acid) to 14 (strongest base)."
+    },
+    {
+      q: "When zinc reacts with dilute HCl, which gas is released?",
+      opts: ["Oxygen", "Chlorine", "Hydrogen", "Carbon dioxide"],
+      correct: 2, diff: "Medium",
+      why: "Zn + 2HCl → ZnCl₂ + H₂↑. The acid displaces hydrogen from itself. You can test with a burning matchstick — H₂ makes a pop sound."
+    },
+    {
+      q: "What is the chemical name of baking soda?",
+      opts: ["Sodium carbonate", "Sodium hydroxide", "Sodium bicarbonate", "Calcium sulphate"],
+      correct: 2, diff: "Medium",
+      why: "Sodium bicarbonate (NaHCO₃) is baking soda. Don't confuse with washing soda (Na₂CO₃) — that's sodium carbonate, used in detergents."
+    },
+    {
+      q: "Acids turn blue litmus paper which colour?",
+      opts: ["Blue (no change)", "Red", "Green", "Yellow"],
+      correct: 1, diff: "Easy",
+      why: "Acids turn blue litmus red. Bases turn red litmus blue. Easy way to remember: 'acid' and 'red' both have an 'a' sound mid-word."
+    },
+    {
+      q: "Plaster of Paris hardens when it absorbs…",
+      opts: ["Carbon dioxide", "Water", "Oxygen", "Heat"],
       correct: 1, diff: "Medium",
-      why: "One reactant (water) breaks down into two simpler substances — that's decomposition. Here it's done by electrolysis."
+      why: "CaSO₄·½H₂O (Plaster of Paris) absorbs water and becomes CaSO₄·2H₂O (gypsum), which is hard. That's why doctors apply it wet — it sets as it dries."
     },
     {
-      q: "In the reaction Zn + CuSO₄ → ZnSO₄ + Cu, what's happening?",
-      opts: ["Combination", "Decomposition", "Displacement — Zn is more reactive", "No reaction"],
-      correct: 2, diff: "Medium",
-      why: "Zinc is more reactive than copper, so it displaces copper from copper sulphate. The blue solution slowly fades."
-    },
-    {
-      q: "Which statement about chemical equations is TRUE?",
+      q: "Why does milk turn sour when left out?",
       opts: [
-        "You can change subscripts to balance",
-        "Mass is created during a reaction",
-        "Only coefficients can be changed to balance",
-        "Catalysts appear as reactants"
+        "Because of bacterial growth producing lactic acid",
+        "Because of evaporation",
+        "Because oxygen reacts with the milk",
+        "Because the milk freezes slightly"
       ],
-      correct: 2, diff: "Medium",
-      why: "Law of conservation of mass: atoms aren't created or destroyed. You balance using coefficients (the big numbers), never subscripts."
+      correct: 0, diff: "Hard",
+      why: "Bacteria (mostly Lactobacillus) in the milk break down lactose into lactic acid. The acid lowers the pH, curdles the proteins, and gives the sour taste. This is also how curd is made — deliberately."
     },
-    {
-      q: "Burning magnesium produces a brilliant white flame because…",
-      opts: [
-        "Magnesium absorbs heat",
-        "The reaction is exothermic and releases energy as heat + light",
-        "Magnesium is a noble metal",
-        "Oxygen is not involved"
-      ],
-      correct: 1, diff: "Hard",
-      why: "The combustion of Mg releases lots of energy — much of it as visible light. That's why it's used in flares and fireworks."
-    }
   ];
 
   let idx = 0, score = 0, right = 0, wrong = 0, locked = false, picked = -1;
@@ -898,10 +809,10 @@
   qTotal.textContent = questions.length;
   leftCount.textContent = questions.length;
 
-  function diffColor(d) {
-    if (d === 'Easy')   return 'background:#dcfce7;color:#15803d;';
-    if (d === 'Medium') return 'background:#fef3c7;color:#92400e;';
-    return 'background:#fee2e2;color:#9f1239;';
+  function diffStyle(d) {
+    if (d === 'Easy')   return 'background:#ECFDF5; color: var(--emerald-deep);';
+    if (d === 'Medium') return 'background:#FEF3C7; color: var(--amber-deep);';
+    return 'background:#FEE2E2; color: var(--burgundy);';
   }
 
   function renderQuestion() {
@@ -911,7 +822,7 @@
     qNum.textContent = idx + 1;
     qProgress.style.width = ((idx) / questions.length * 100) + '%';
     qDifficulty.textContent = item.diff;
-    qDifficulty.setAttribute('style', diffColor(item.diff));
+    qDifficulty.setAttribute('style', diffStyle(item.diff) + ' font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; letter-spacing:.03em;');
     qExplain.classList.add('hidden');
     nextBtn.textContent = 'Submit answer';
     nextBtn.disabled = true;
@@ -933,7 +844,6 @@
       });
       qOptions.appendChild(el);
     });
-
     prevBtn.disabled = idx === 0;
     prevBtn.classList.toggle('opacity-30', idx === 0);
   }
@@ -946,10 +856,7 @@
       const all = document.querySelectorAll('.opt');
       all.forEach(o => o.classList.add('locked'));
       all[picked].classList.add(picked === item.correct ? 'correct' : 'wrong');
-      if (picked !== item.correct) {
-        all[item.correct].classList.add('correct');
-      }
-      // score
+      if (picked !== item.correct) all[item.correct].classList.add('correct');
       if (picked === item.correct) {
         score += 10; right++;
         burstConfetti(40);
@@ -969,12 +876,10 @@
       qProgress.style.width = ((idx + 1) / questions.length * 100) + '%';
       return;
     }
-    // advance
     if (idx < questions.length - 1) {
       idx++;
       renderQuestion();
     } else {
-      // finished
       quizBody.parentElement.classList.add('hidden');
       quizDone.classList.remove('hidden');
       finalScore.textContent = score;
@@ -995,12 +900,10 @@
     quizBody.parentElement.classList.remove('hidden');
     renderQuestion();
   });
-
   document.getElementById('notesJumpBtn').addEventListener('click', () => activate('notes'));
 
-  // ---- Confetti ----
   function burstConfetti(count) {
-    const colors = ['#1E3A8A','#F59E0B','#0D9488','#E11D48','#7C3AED','#10B981'];
+    const colors = ['#D97706','#059669','#C2410C','#B8860B','#65A30D','#92400E'];
     for (let i = 0; i < count; i++) {
       const c = document.createElement('div');
       c.className = 'confetti';
@@ -1014,40 +917,25 @@
     }
   }
 
-  // ---- Material filter ----
+  // material filter pills
   document.querySelectorAll('.filter-pill').forEach(b => {
     b.addEventListener('click', () => {
-      document.querySelectorAll('.filter-pill').forEach(x => {
-        x.classList.remove('active');
-        const f = x.dataset.filter;
-        const map = {
-          all: 'background:#e2e8f0;color:#475569;',
-          pyq: 'background:#fee2e2;color:#9f1239;',
-          worksheet: 'background:#fef3c7;color:#92400e;',
-          reference: 'background:#dbeafe;color:#1e40af;',
-          syllabus: 'background:#ccfbf1;color:#115e59;'
-        };
-        x.setAttribute('style', map[f]);
-      });
+      document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
-      b.setAttribute('style', 'background:#1E3A8A;color:#fff;');
-
-      const filter = b.dataset.filter;
-      document.querySelectorAll('.mat-card[data-type]').forEach(card => {
-        const show = filter === 'all' || card.dataset.type === filter;
-        card.style.display = show ? '' : 'none';
+      const f = b.dataset.filter;
+      document.querySelectorAll('[data-type]').forEach(card => {
+        card.style.display = (f === 'all' || card.dataset.type === f) ? '' : 'none';
       });
     });
   });
 
-  // init
-  renderQuestion();
-
-  // ---- Scroll reveal ----
-  const io = new IntersectionObserver(es => {
-    es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  // reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
   }, { threshold: .12 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  renderQuestion();
 </script>
 </body>
 </html>

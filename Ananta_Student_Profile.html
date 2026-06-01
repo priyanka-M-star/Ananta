@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile · Ananta</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  .serif{font-family:'Fraunces',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .035;
+  }
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(900px 600px at 18% 8%, rgba(217,119,6,.05), transparent 60%),
+      radial-gradient(800px 600px at 86% 5%, rgba(5,150,105,.05), transparent 60%);
+  }
+  .paper-card { background: #FFFFFFCC; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); box-shadow: 0 1px 0 #FFFFFFcc inset, 0 2px 6px rgba(31,22,17,.03), 0 16px 40px -22px rgba(31,22,17,.10); }
+  .paper-card-strong { background: #FFFFFF; border: 1px solid var(--line); box-shadow: 0 1px 0 #FFFFFFff inset, 0 6px 16px -8px rgba(31,22,17,.07), 0 22px 60px -28px rgba(31,22,17,.14); }
+  h1,h2,h3{font-family:'Fraunces',serif}
+  h1{font-weight:700;letter-spacing:-.025em}
+  h2{font-weight:600;letter-spacing:-.018em}
+  h3{font-weight:600;letter-spacing:-.012em}
+  .accent-warm { background: linear-gradient(120deg, var(--amber) 0%, var(--terracotta) 60%, var(--burgundy) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn-primary { padding: 10px 20px; border-radius: 999px; font-weight: 600; background: var(--ink); color: var(--bg); transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(31,22,17,.35); font-size: 13px; }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--ink-2); }
+  .btn-ghost { padding: 10px 20px; border-radius: 999px; font-weight: 600; background: transparent; color: var(--ink); border: 1px solid var(--ink); transition: all .25s ease; font-size: 13px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  .tilt-3d { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; }
+  .tilt-3d:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -20px rgba(31,22,17,.18); }
+  .link-u { background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .3s; }
+  .link-u:hover { background-size: 0 1px; }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94%, 98% { transform: scaleY(.1); } }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
+  .reveal { opacity: 0; transform: translateY(20px); transition: all .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .mini-3d { position: absolute; inset: 0; }
+  @keyframes fillBar { from { width: 0; } }
+  .bar-fill { animation: fillBar 1.3s cubic-bezier(.2,.7,.2,1) both; }
+
+  /* Activity heatmap */
+  .heat-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 14px);
+    grid-auto-flow: column;
+    grid-auto-columns: 14px;
+    gap: 3px;
+  }
+  .heat-cell { border-radius: 3px; background: var(--line); transition: transform .15s; cursor: pointer; }
+  .heat-cell:hover { transform: scale(1.5); }
+  .heat-0 { background: var(--line-2); }
+  .heat-1 { background: #FDE68A; }
+  .heat-2 { background: #FCD34D; }
+  .heat-3 { background: #F59E0B; }
+  .heat-4 { background: #C2410C; }
+
+  /* Achievement badge */
+  .badge-card { transition: all .25s ease; cursor: pointer; }
+  .badge-card:hover { transform: translateY(-4px); box-shadow: 0 18px 36px -16px rgba(31,22,17,.22); }
+  .badge-locked { opacity: .45; filter: grayscale(.9); }
+  .badge-locked .badge-icon { background: var(--line) !important; color: var(--ink-soft) !important; }
+
+  /* Memory deck mini cards */
+  .mini-card { transition: all .25s; cursor: pointer; transform-origin: bottom; }
+  .mini-card:hover { transform: rotate(-1.5deg) translateY(-4px); box-shadow: 0 18px 36px -16px rgba(31,22,17,.18); }
+
+  /* Donut chart */
+  .donut-seg { transition: stroke-dashoffset 1s ease; }
+
+  /* Subject row progress */
+  .subj-row { transition: background .2s; }
+  .subj-row:hover { background: var(--bg-2); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/></radialGradient>
+
+    <symbol id="face-praketa" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 60 Q24 20 60 18 Q96 20 98 60 Q96 38 80 36 Q70 56 60 38 Q50 56 40 36 Q24 38 22 60Z" fill="#3F2418"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#1F1611"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#1F1611"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-vihaan" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M20 56 Q24 18 60 16 Q96 18 100 56 Q90 32 78 38 L84 22 L74 36 L66 18 L60 36 L52 18 L46 36 L36 22 L42 38 Q30 32 20 56Z" fill="#2B1410"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#059669"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#059669"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-adhvara" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 56 Q22 20 60 18 Q96 18 100 56 Q102 44 96 38 Q70 30 50 38 Q44 28 36 34 Q26 38 22 56Z" fill="#1F1611"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B45309"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B45309"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-harini" viewBox="0 0 120 120">
+      <path d="M18 58 Q14 110 60 112 Q106 110 102 58 Q102 18 60 16 Q18 18 18 58Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#B8860B"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#B8860B"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="48" r="2" fill="#9F1239"/>
+    </symbol>
+    <symbol id="face-anika" viewBox="0 0 120 120">
+      <path d="M18 56 Q14 92 60 98 Q106 92 102 56 Q102 16 60 14 Q18 16 18 56Z" fill="#2B1410"/>
+      <ellipse cx="60" cy="65" rx="36" ry="40" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#65A30D"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#65A30D"/></g>
+      <circle cx="46" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <circle cx="74" cy="69" r="10" fill="none" stroke="#B8860B" stroke-width="1.6"/>
+      <line x1="56" y1="69" x2="64" y2="69" stroke="#B8860B" stroke-width="1.6"/>
+      <path d="M52 96 Q60 102 68 96" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="face-amita" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="14" rx="14" ry="10" fill="#3F2418"/>
+      <path d="M22 56 Q22 22 60 22 Q98 22 98 56 Q88 36 60 34 Q32 36 22 56Z" fill="#3F2418"/>
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#92400E"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#92400E"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="48" r="1.6" fill="#9F1239"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="mesh-bg"></div>
+
+<!-- HEADER -->
+<header class="relative z-20 px-5 lg:px-10 pt-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D97706"/></svg>
+      </div>
+      <div>
+        <div class="serif font-bold text-lg leading-none" style="color: var(--ink);">Ananta</div>
+        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--ink-soft);">PROFILE</div>
+      </div>
+    </a>
+    <nav class="hidden lg:flex items-center gap-7 text-sm" style="color: var(--ink-soft);">
+      <a class="link-u" href="#">Today</a>
+      <a class="link-u" href="#">Subjects</a>
+      <a class="link-u" href="#">Memory Deck</a>
+      <a class="link-u" href="#">Notes</a>
+      <a class="font-semibold" style="color: var(--ink);" href="#">Profile</a>
+    </nav>
+    <div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-offset-2" style="background: #FED7AA; --tw-ring-color: var(--amber); --tw-ring-offset-color: var(--bg);">
+      <div class="w-full h-full flex items-center justify-center serif font-bold text-sm" style="color: var(--terracotta);">PR</div>
+    </div>
+  </div>
+</header>
+
+<!-- PROFILE HERO -->
+<section class="relative z-10 px-5 lg:px-10 mt-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal grid lg:grid-cols-[1.2fr_1.8fr] gap-5">
+
+      <!-- Identity card -->
+      <div class="paper-card-strong rounded-3xl p-7 relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-44 h-44 rounded-full" style="background: radial-gradient(circle, rgba(217,119,6,.18), transparent 70%);"></div>
+
+        <div class="relative flex items-start gap-5">
+          <!-- big avatar -->
+          <div class="w-24 h-24 rounded-2xl flex items-center justify-center shrink-0 ring-2 ring-offset-2" style="background: linear-gradient(135deg, #FED7AA, #FEF3C7); --tw-ring-color: var(--amber); --tw-ring-offset-color: var(--paper);">
+            <span class="serif font-bold text-3xl" style="color: var(--terracotta);">PR</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— STUDENT</div>
+            <h1 class="serif text-3xl font-bold mt-1 leading-none" style="color: var(--ink);">Priya R.</h1>
+            <div class="text-sm mt-2" style="color: var(--ink-2);">Grade 10 · English Medium</div>
+            <div class="text-xs mt-1" style="color: var(--ink-soft);">St. Joseph's Boys' High School · Bengaluru</div>
+            <div class="text-xs mt-3" style="color: var(--ink-soft);">Member since <b style="color: var(--ink);">28 Apr 2026</b></div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+          <button class="btn-primary">Edit profile</button>
+          <button class="btn-ghost">Share profile</button>
+        </div>
+
+        <hr class="my-6" style="border-color: var(--line);"/>
+
+        <div class="text-xs mono tracking-widest mb-2" style="color: var(--ink-soft);">REFERRAL CODE</div>
+        <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 border" style="background: var(--bg-2); border-color: var(--line);">
+          <code class="flex-1 mono font-bold" style="color: var(--ink);">PRIYA-RX42</code>
+          <button class="text-xs font-bold link-u" style="color: var(--ink);">Copy</button>
+        </div>
+        <p class="text-[11px] mt-2" style="color: var(--ink-soft);">Refer a friend and both of you get ₹100 off next month.</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="paper-card-strong rounded-2xl p-5 tilt-3d">
+          <div class="flex items-baseline gap-2">
+            <span class="serif font-bold text-3xl" style="color: var(--amber-deep);">🔥</span>
+            <span class="serif font-bold text-3xl" style="color: var(--ink);">7</span>
+          </div>
+          <div class="text-xs mono mt-1" style="color: var(--ink-soft);">DAY STREAK</div>
+          <div class="text-[11px] mt-2" style="color: var(--ink-soft);">Longest: 12 days</div>
+        </div>
+        <div class="paper-card-strong rounded-2xl p-5 tilt-3d">
+          <div class="serif font-bold text-3xl" style="color: var(--emerald-deep);">2,340</div>
+          <div class="text-xs mono mt-1" style="color: var(--ink-soft);">TOTAL XP</div>
+          <div class="text-[11px] mt-2" style="color: var(--ink-soft);">+180 this week</div>
+        </div>
+        <div class="paper-card-strong rounded-2xl p-5 tilt-3d">
+          <div class="serif font-bold text-3xl" style="color: var(--ink);">28<span class="text-base" style="color: var(--ink-soft);">/32</span></div>
+          <div class="text-xs mono mt-1" style="color: var(--ink-soft);">CLASSES ATTENDED</div>
+          <div class="text-[11px] mt-2" style="color: var(--ink-soft);">87% attendance · 4 caught up</div>
+        </div>
+        <div class="paper-card-strong rounded-2xl p-5 tilt-3d">
+          <div class="serif font-bold text-3xl" style="color: var(--ink);">84<span class="text-base" style="color: var(--ink-soft);">%</span></div>
+          <div class="text-xs mono mt-1" style="color: var(--ink-soft);">AVG QUIZ SCORE</div>
+          <div class="text-[11px] mt-2" style="color: var(--emerald-deep);">↑ 6% vs last week</div>
+        </div>
+        <div class="paper-card-strong rounded-2xl p-5 tilt-3d">
+          <div class="serif font-bold text-3xl" style="color: var(--ink);">#14</div>
+          <div class="text-xs mono mt-1" style="color: var(--ink-soft);">COHORT RANK</div>
+          <div class="text-[11px] mt-2" style="color: var(--ink-soft);">of 142 students</div>
+        </div>
+        <div class="paper-card-strong rounded-2xl p-5 tilt-3d">
+          <div class="serif font-bold text-3xl" style="color: var(--ink);">147</div>
+          <div class="text-xs mono mt-1" style="color: var(--ink-soft);">MEMORY DECK CARDS</div>
+          <div class="text-[11px] mt-2" style="color: var(--ink-soft);">89 mastered · 12 due today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVITY HEATMAP -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal paper-card-strong rounded-3xl p-7">
+    <div class="flex items-end justify-between flex-wrap gap-3 mb-5">
+      <div>
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— ACTIVITY</div>
+        <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Last 12 weeks at a glance</h2>
+        <p class="text-sm mt-1" style="color: var(--ink-soft);"><b style="color: var(--ink);">52</b> active days. Longest gap: 2 days. Best week: <b style="color: var(--ink);">11 May</b> (every day active).</p>
+      </div>
+      <div class="flex items-center gap-3 text-xs" style="color: var(--ink-soft);">
+        <span>Less</span>
+        <div class="flex gap-1">
+          <div class="w-3 h-3 rounded heat-0"></div>
+          <div class="w-3 h-3 rounded heat-1"></div>
+          <div class="w-3 h-3 rounded heat-2"></div>
+          <div class="w-3 h-3 rounded heat-3"></div>
+          <div class="w-3 h-3 rounded heat-4"></div>
+        </div>
+        <span>More</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <div class="heat-grid mx-auto" id="heatmap"></div>
+    </div>
+    <div class="flex justify-between text-[10px] mono mt-2 px-1" style="color: var(--ink-soft);">
+      <span>Mar</span><span>Apr</span><span>May</span><span>Today</span>
+    </div>
+  </div>
+</section>
+
+<!-- SUBJECT MASTERY -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal paper-card-strong rounded-3xl overflow-hidden">
+    <div class="p-7 border-b" style="border-color: var(--line);">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— SUBJECT MASTERY</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Where each subject stands</h2>
+      <p class="text-sm mt-1" style="color: var(--ink-soft);">Across chapters watched, quiz averages, and cards mastered.</p>
+    </div>
+
+    <!-- header row -->
+    <div class="grid grid-cols-[2fr_auto_auto_auto_2fr] gap-4 px-7 py-3 text-[10px] mono tracking-widest border-b items-center hidden md:grid" style="background: var(--bg-2); border-color: var(--line); color: var(--ink-soft);">
+      <div>SUBJECT</div>
+      <div class="text-right">LESSONS</div>
+      <div class="text-right">AVG QUIZ</div>
+      <div class="text-right">CARDS</div>
+      <div>PROGRESS</div>
+    </div>
+
+    <!-- Subject rows -->
+    <div class="subj-row grid md:grid-cols-[2fr_auto_auto_auto_2fr] grid-cols-1 gap-4 px-7 py-4 items-center border-b" style="border-color: var(--line);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+        <div>
+          <div class="serif font-semibold" style="color: var(--ink);">Mathematics</div>
+          <div class="text-xs" style="color: var(--ink-soft);">Praketa · Monday</div>
+        </div>
+      </div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">5<span class="text-xs" style="color: var(--ink-soft);">/15</span></div>
+      <div class="text-right text-sm font-semibold" style="color: var(--amber-deep);">88%</div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">26</div>
+      <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:33%; background: var(--amber);"></div></div>
+    </div>
+
+    <div class="subj-row grid md:grid-cols-[2fr_auto_auto_auto_2fr] grid-cols-1 gap-4 px-7 py-4 items-center border-b" style="border-color: var(--line);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #D1FAE5;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-vihaan"/></svg></div>
+        <div>
+          <div class="serif font-semibold" style="color: var(--ink);">Science</div>
+          <div class="text-xs" style="color: var(--ink-soft);">Vihaan · Tuesday</div>
+        </div>
+      </div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">7<span class="text-xs" style="color: var(--ink-soft);">/16</span></div>
+      <div class="text-right text-sm font-semibold" style="color: var(--emerald-deep);">91%</div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">34</div>
+      <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:44%; background: var(--emerald);"></div></div>
+    </div>
+
+    <div class="subj-row grid md:grid-cols-[2fr_auto_auto_auto_2fr] grid-cols-1 gap-4 px-7 py-4 items-center border-b" style="border-color: var(--line);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-adhvara"/></svg></div>
+        <div>
+          <div class="serif font-semibold" style="color: var(--ink);">Social Science</div>
+          <div class="text-xs" style="color: var(--ink-soft);">Adhvara · Wednesday</div>
+        </div>
+      </div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">4<span class="text-xs" style="color: var(--ink-soft);">/30</span></div>
+      <div class="text-right text-sm font-semibold" style="color: var(--burgundy);">72%</div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">22</div>
+      <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:13%; background: var(--terracotta);"></div></div>
+    </div>
+
+    <div class="subj-row grid md:grid-cols-[2fr_auto_auto_auto_2fr] grid-cols-1 gap-4 px-7 py-4 items-center border-b" style="border-color: var(--line);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FEF3C7;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-harini"/></svg></div>
+        <div>
+          <div class="serif font-semibold" style="color: var(--ink);">ಕನ್ನಡ · 1st</div>
+          <div class="text-xs" style="color: var(--ink-soft);">Harini · Thursday</div>
+        </div>
+      </div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">6<span class="text-xs" style="color: var(--ink-soft);">/20</span></div>
+      <div class="text-right text-sm font-semibold" style="color: var(--amber-deep);">86%</div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">28</div>
+      <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:30%; background: var(--gold);"></div></div>
+    </div>
+
+    <div class="subj-row grid md:grid-cols-[2fr_auto_auto_auto_2fr] grid-cols-1 gap-4 px-7 py-4 items-center border-b" style="border-color: var(--line);">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #ECFCCB;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-anika"/></svg></div>
+        <div>
+          <div class="serif font-semibold" style="color: var(--ink);">English · 2nd</div>
+          <div class="text-xs" style="color: var(--ink-soft);">Anika · Friday</div>
+        </div>
+      </div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">5<span class="text-xs" style="color: var(--ink-soft);">/20</span></div>
+      <div class="text-right text-sm font-semibold" style="color: var(--emerald-deep);">82%</div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">19</div>
+      <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:25%; background: var(--sage);"></div></div>
+    </div>
+
+    <div class="subj-row grid md:grid-cols-[2fr_auto_auto_auto_2fr] grid-cols-1 gap-4 px-7 py-4 items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl overflow-hidden" style="background: #FED7AA;"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-amita"/></svg></div>
+        <div>
+          <div class="serif font-semibold" style="color: var(--ink);">हिंदी · 3rd</div>
+          <div class="text-xs" style="color: var(--ink-soft);">Amita · Saturday</div>
+        </div>
+      </div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">7<span class="text-xs" style="color: var(--ink-soft);">/15</span></div>
+      <div class="text-right text-sm font-semibold" style="color: var(--emerald-deep);">89%</div>
+      <div class="text-right text-sm font-semibold" style="color: var(--ink);">18</div>
+      <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:47%; background: var(--copper);"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal">
+    <div class="flex items-end justify-between mb-5 flex-wrap gap-3">
+      <div>
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— ACHIEVEMENTS</div>
+        <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">5 of 12 unlocked</h2>
+      </div>
+      <a href="#" class="text-sm link-u" style="color: var(--ink-soft);">View all →</a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Earned -->
+      <div class="badge-card paper-card-strong rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background: linear-gradient(135deg, #FEF3C7, #FED7AA);">🌱</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">First Steps</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Attended your first live class</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--emerald-deep);">EARNED · 28 APR</div>
+      </div>
+
+      <div class="badge-card paper-card-strong rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background: linear-gradient(135deg, #FEF3C7, #FB923C);">🔥</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">On Fire</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">7-day attendance streak</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--emerald-deep);">EARNED · 24 MAY</div>
+      </div>
+
+      <div class="badge-card paper-card-strong rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background: linear-gradient(135deg, #D1FAE5, #6EE7B7);">🎯</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">Bullseye</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Scored 100% on any quiz</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--emerald-deep);">EARNED · 11 MAY</div>
+      </div>
+
+      <div class="badge-card paper-card-strong rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background: linear-gradient(135deg, #FED7AA, #C2410C);">📚</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">Curious Mind</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Asked 10 doubts in live class</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--emerald-deep);">EARNED · 19 MAY</div>
+      </div>
+
+      <div class="badge-card paper-card-strong rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background: linear-gradient(135deg, #FEF3C7, #B8860B);">🧠</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">Memory Master</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Mastered 50 Memory Deck cards</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--emerald-deep);">EARNED · 21 MAY</div>
+      </div>
+
+      <!-- Locked -->
+      <div class="badge-card badge-locked paper-card rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl">🏆</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">Top of the Class</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Rank in top 10 on a weekly test</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--ink-soft);">CURRENTLY #14</div>
+      </div>
+
+      <div class="badge-card badge-locked paper-card rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl">💎</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">Iron Will</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">30-day attendance streak</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--ink-soft);">7 / 30 DAYS</div>
+      </div>
+
+      <div class="badge-card badge-locked paper-card rounded-2xl p-5 text-center">
+        <div class="badge-icon w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl">🌟</div>
+        <div class="serif font-semibold mt-3" style="color: var(--ink);">Word of Mouth</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Refer a friend who joins</div>
+        <div class="text-[10px] mono mt-2" style="color: var(--ink-soft);">SHARE CODE PRIYA-RX42</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEMORY DECK OVERVIEW -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal paper-card-strong rounded-3xl p-7">
+    <div class="grid lg:grid-cols-[1fr_1.5fr] gap-6 items-start">
+
+      <!-- Donut + stats -->
+      <div class="text-center">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— MEMORY DECK</div>
+        <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">All 147 cards</h2>
+        <p class="text-sm mt-1" style="color: var(--ink-soft);">Built automatically from every lesson you've watched.</p>
+
+        <div class="relative w-48 h-48 mx-auto mt-5">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+            <circle cx="50" cy="50" r="40" stroke="var(--line)" stroke-width="14" fill="none"/>
+            <!-- Mastered (89 / 147 = 60.5%) -->
+            <circle class="donut-seg" cx="50" cy="50" r="40" stroke="#059669" stroke-width="14" fill="none"
+                    stroke-dasharray="251.3" stroke-dashoffset="99.3"/>
+            <!-- Learning (46 / 147 = 31.3%) on top -->
+            <circle class="donut-seg" cx="50" cy="50" r="40" stroke="#D97706" stroke-width="14" fill="none"
+                    stroke-dasharray="251.3" stroke-dashoffset="172.6"
+                    style="transform: rotate(149deg); transform-origin: 50px 50px;"/>
+            <!-- Due (12 / 147 = 8.2%) -->
+            <circle class="donut-seg" cx="50" cy="50" r="40" stroke="#9F1239" stroke-width="14" fill="none"
+                    stroke-dasharray="251.3" stroke-dashoffset="230.7"
+                    style="transform: rotate(262deg); transform-origin: 50px 50px;"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="serif font-bold text-4xl" style="color: var(--ink);">147</div>
+            <div class="text-[10px] mono" style="color: var(--ink-soft);">TOTAL</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 mt-5 text-center">
+          <div class="rounded-xl py-2" style="background:#ECFDF5;">
+            <div class="serif font-bold" style="color: var(--emerald-deep);">89</div>
+            <div class="text-[10px] mono" style="color: var(--emerald-deep);">MASTERED</div>
+          </div>
+          <div class="rounded-xl py-2" style="background:#FEF3C7;">
+            <div class="serif font-bold" style="color: var(--amber-deep);">46</div>
+            <div class="text-[10px] mono" style="color: var(--amber-deep);">LEARNING</div>
+          </div>
+          <div class="rounded-xl py-2" style="background:#FEE2E2;">
+            <div class="serif font-bold" style="color: var(--burgundy);">12</div>
+            <div class="text-[10px] mono" style="color: var(--burgundy);">DUE</div>
+          </div>
+        </div>
+
+        <button class="btn-primary mt-5 w-full">Start 5-minute review</button>
+      </div>
+
+      <!-- Recent cards preview -->
+      <div>
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">RECENT CARDS</div>
+          <select class="text-xs rounded-lg px-2 py-1 border outline-none" style="background: var(--bg); border-color: var(--line); color: var(--ink);">
+            <option>All subjects</option>
+            <option>Science</option><option>Maths</option><option>Social</option>
+          </select>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="mini-card rounded-2xl p-4 border" style="background: var(--paper); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SCIENCE · CH.3</div>
+            <div class="serif font-semibold mt-1" style="color: var(--ink);">What's the pH of pure water?</div>
+            <div class="mt-2 text-xs" style="color: var(--emerald-deep);">✓ Mastered · 4 reviews</div>
+          </div>
+          <div class="mini-card rounded-2xl p-4 border" style="background: var(--paper); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">MATHS · CH.5</div>
+            <div class="serif font-semibold mt-1" style="color: var(--ink);">Sum of roots of ax² + bx + c = 0</div>
+            <div class="mt-2 text-xs" style="color: var(--amber-deep);">Learning · 2 reviews · due tomorrow</div>
+          </div>
+          <div class="mini-card rounded-2xl p-4 border" style="background: var(--paper); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SOCIAL · CH.4</div>
+            <div class="serif font-semibold mt-1" style="color: var(--ink);">What year was the Bastille stormed?</div>
+            <div class="mt-2 text-xs" style="color: var(--burgundy);">Due today · 1 review so far</div>
+          </div>
+          <div class="mini-card rounded-2xl p-4 border" style="background: var(--paper); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">SCIENCE · CH.1</div>
+            <div class="serif font-semibold mt-1" style="color: var(--ink);">2 Mg + O₂ → ?</div>
+            <div class="mt-2 text-xs" style="color: var(--emerald-deep);">✓ Mastered · 5 reviews</div>
+          </div>
+          <div class="mini-card rounded-2xl p-4 border" style="background: var(--paper); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">KANNADA · ವಚನಗಳು</div>
+            <div class="serif font-semibold mt-1" style="color: var(--ink);">ಕಾಯಕವೇ ಕೈಲಾಸ — meaning?</div>
+            <div class="mt-2 text-xs" style="color: var(--amber-deep);">Learning · 1 review · due tomorrow</div>
+          </div>
+          <div class="mini-card rounded-2xl p-4 border" style="background: var(--paper); border-color: var(--line);">
+            <div class="text-[10px] mono tracking-widest" style="color: var(--ink-soft);">HINDI · पद्य</div>
+            <div class="serif font-semibold mt-1" style="color: var(--ink);">सूरदास का जन्म कब हुआ?</div>
+            <div class="mt-2 text-xs" style="color: var(--ink-soft);">New · added today</div>
+          </div>
+        </div>
+        <button class="mt-4 text-sm font-semibold link-u" style="color: var(--ink);">Browse all 147 cards →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT ACTIVITY -->
+<section class="relative z-10 px-5 lg:px-10 mt-8">
+  <div class="max-w-7xl mx-auto reveal grid lg:grid-cols-[1.4fr_1fr] gap-5">
+
+    <div class="paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— RECENT ACTIVITY</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">The last seven days</h2>
+
+      <ul class="mt-5 space-y-4">
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background: #D1FAE5;"><svg viewBox="0 0 120 120"><use href="#face-vihaan"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Attended <b>Science · Ch.3</b> — Acids, Bases and Salts</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Quiz 6/7 · 4 cards added to Memory Deck</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Tue</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background: #FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-praketa"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Attended <b>Maths · Ch.5</b> — Quadratic Equations</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Quiz 9/10 · 6 cards added · 1 doubt asked</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Mon</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: #FEF3C7;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#B45309"><path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Earned <b>Memory Master</b> badge</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Mastered your 50th Memory Deck card</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Sun</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background: #FED7AA;"><svg viewBox="0 0 120 120"><use href="#face-adhvara"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Attended <b>Social · Ch.4</b> — Rise of Nationalism</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Quiz 7/10 · notes downloaded</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Sun</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: #FED7AA;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#B45309"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Weekly test: <b>34/50</b> · ranked #14 in cohort</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Up 6 places from last week</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Sun</div>
+        </li>
+        <li class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 mt-0.5" style="background: #FEF3C7;"><svg viewBox="0 0 120 120"><use href="#face-harini"/></svg></div>
+          <div class="flex-1">
+            <div class="text-sm" style="color: var(--ink);">Watched recording of <b>Kannada · ವಚನಗಳು</b></div>
+            <div class="text-xs" style="color: var(--ink-soft);">Caught up · quiz pending</div>
+          </div>
+          <div class="text-[11px] mono" style="color: var(--ink-dim);">Thu</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Account / settings -->
+    <div class="paper-card-strong rounded-3xl p-7">
+      <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— ACCOUNT</div>
+      <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Plan and preferences</h2>
+
+      <!-- Subscription -->
+      <div class="mt-5 rounded-2xl p-4 border" style="background: linear-gradient(135deg, #FEF3C7, #FFFFFF); border-color: #FCD34D;">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <div class="text-[10px] mono tracking-widest" style="color: var(--amber-deep);">YEARLY PLAN · ACTIVE</div>
+            <div class="serif font-bold text-lg mt-1" style="color: var(--ink);">₹2,499 / year</div>
+            <div class="text-xs mt-1" style="color: var(--ink-soft);">Next billing: 28 Apr 2027 · auto-debit via UPI</div>
+          </div>
+          <button class="text-xs font-bold link-u" style="color: var(--ink);">Manage</button>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="mt-4">
+        <div class="text-[10px] mono tracking-widest mb-2" style="color: var(--ink-soft);">NOTIFICATIONS</div>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center justify-between p-2 rounded-lg hover:bg-stone-50">
+            <span style="color: var(--ink-2);">Daily 6:30 PM class reminder (WhatsApp)</span>
+            <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+          </label>
+          <label class="flex items-center justify-between p-2 rounded-lg hover:bg-stone-50">
+            <span style="color: var(--ink-2);">Quiz score sent to parent (WhatsApp)</span>
+            <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+          </label>
+          <label class="flex items-center justify-between p-2 rounded-lg hover:bg-stone-50">
+            <span style="color: var(--ink-2);">Memory Deck reminder (email)</span>
+            <input type="checkbox" class="w-4 h-4 accent-amber-600">
+          </label>
+          <label class="flex items-center justify-between p-2 rounded-lg hover:bg-stone-50">
+            <span style="color: var(--ink-2);">Weekly progress digest (email)</span>
+            <input type="checkbox" checked class="w-4 h-4 accent-amber-600">
+          </label>
+        </div>
+      </div>
+
+      <!-- Other -->
+      <div class="mt-5 grid grid-cols-2 gap-2 text-sm">
+        <button class="text-left p-2 rounded-lg hover:bg-stone-50 link-u" style="color: var(--ink-2);">Change password</button>
+        <button class="text-left p-2 rounded-lg hover:bg-stone-50 link-u" style="color: var(--ink-2);">Privacy settings</button>
+        <button class="text-left p-2 rounded-lg hover:bg-stone-50 link-u" style="color: var(--ink-2);">Download my data</button>
+        <button class="text-left p-2 rounded-lg hover:bg-stone-50 link-u" style="color: var(--ink-2);">Help & support</button>
+      </div>
+
+      <hr class="my-5" style="border-color: var(--line);"/>
+      <button class="w-full text-sm font-semibold py-2 rounded-lg transition" style="color: var(--burgundy);">Sign out</button>
+    </div>
+  </div>
+</section>
+
+<footer class="relative py-10 mt-8 border-t" style="border-color: var(--line);">
+  <div class="max-w-7xl mx-auto px-5 lg:px-10 flex flex-wrap items-center justify-between text-xs" style="color: var(--ink-dim);">
+    <div>© 2026 Ananta · Made in Karnataka</div>
+    <div class="flex items-center gap-6">
+      <a href="#" class="link-u">Help</a>
+      <a href="#" class="link-u">Parent dashboard</a>
+      <a href="#" class="link-u">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ============= Heatmap =============
+  // 12 weeks × 7 days = 84 cells. Each cell has an activity intensity 0-4.
+  // We build deterministic-ish data so the snapshot looks consistent.
+  const heat = document.getElementById('heatmap');
+  // simple pseudo-random based on date pattern
+  const intensities = [
+    // week 1 (oldest)
+    0,1,0,2,0,1,0,
+    // week 2
+    1,2,2,1,0,3,0,
+    // week 3
+    0,3,2,3,1,2,1,
+    // week 4
+    2,3,3,2,1,4,2,
+    // week 5
+    1,3,4,3,2,3,1,
+    // week 6
+    2,3,3,4,3,4,2,
+    // week 7 (gap example)
+    0,0,2,3,2,3,1,
+    // week 8
+    2,3,3,2,3,4,2,
+    // week 9
+    3,4,3,3,2,3,2,
+    // week 10
+    2,3,3,4,3,2,3,
+    // week 11
+    3,3,2,3,3,4,2,
+    // week 12 (most recent)
+    3,4,3,2,1,0,0,
+  ];
+  intensities.forEach((v, i) => {
+    const c = document.createElement('div');
+    c.className = `heat-cell heat-${v}`;
+    const day = Math.floor(i / 7) * 7 + (i % 7);
+    c.title = v === 0 ? 'No activity' : `${v} activities · ${v === 1 ? 'quiz' : v === 2 ? 'lesson + quiz' : v === 3 ? 'lesson + quiz + cards' : 'full day'}`;
+    heat.appendChild(c);
+  });
+
+  // ============= Reveal =============
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: .1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

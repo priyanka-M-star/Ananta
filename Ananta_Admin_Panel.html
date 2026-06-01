@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin · Ananta</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:'Inter',sans-serif; background: var(--bg); color: var(--ink); overflow-x:hidden; -webkit-font-smoothing:antialiased; line-height:1.55;}
+  .serif{font-family:'Fraunces',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .035;
+  }
+  .paper-card { background: #FFFFFFCC; backdrop-filter: blur(14px); border: 1px solid var(--line); box-shadow: 0 1px 0 #FFFFFFcc inset, 0 2px 6px rgba(31,22,17,.03), 0 16px 40px -22px rgba(31,22,17,.10); }
+  .paper-card-strong { background: #FFFFFF; border: 1px solid var(--line); box-shadow: 0 1px 0 #FFFFFFff inset, 0 6px 16px -8px rgba(31,22,17,.07), 0 22px 60px -28px rgba(31,22,17,.14); }
+  h1,h2,h3{font-family:'Fraunces',serif}
+  h1{font-weight:700;letter-spacing:-.025em}
+  h2{font-weight:600;letter-spacing:-.018em}
+  h3{font-weight:600;letter-spacing:-.012em}
+  .accent-warm { background: linear-gradient(120deg, var(--amber) 0%, var(--terracotta) 60%, var(--burgundy) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn-primary { padding: 10px 20px; border-radius: 999px; font-weight: 600; background: var(--ink); color: var(--bg); transition: all .25s ease; box-shadow: 0 8px 24px -8px rgba(31,22,17,.35); font-size: 13px; }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--ink-2); }
+  .btn-amber { padding: 9px 16px; border-radius: 999px; font-weight: 600; background: var(--amber); color: #fff; font-size: 12px; }
+  .btn-amber:hover { background: var(--amber-deep); }
+  .btn-emerald { padding: 9px 16px; border-radius: 999px; font-weight: 600; background: var(--emerald); color: #fff; font-size: 12px; }
+  .btn-emerald:hover { background: var(--emerald-deep); }
+  .btn-ghost { padding: 9px 16px; border-radius: 999px; font-weight: 600; background: transparent; color: var(--ink); border: 1px solid var(--line); font-size: 12px; }
+  .btn-ghost:hover { background: var(--bg-2); }
+  .link-u { background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .3s; }
+  .link-u:hover { background-size: 0 1px; }
+  .reveal { opacity: 0; transform: translateY(20px); transition: all .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  @keyframes fillBar { from { width: 0; } }
+  .bar-fill { animation: fillBar 1.3s cubic-bezier(.2,.7,.2,1) both; }
+  .pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .03em; display: inline-flex; align-items: center; gap: 4px; }
+  .pill-green { background: #ECFDF5; color: var(--emerald-deep); }
+  .pill-amber { background: #FEF3C7; color: var(--amber-deep); }
+  .pill-red { background: #FEE2E2; color: var(--burgundy); }
+  .pill-walnut { background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); }
+  .pill-indigo { background: #E0E7FF; color: #3730A3; }
+  .row-hover { transition: background .15s; }
+  .row-hover:hover { background: var(--bg-2); }
+
+  /* Sidebar nav */
+  .sidebar-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 14px; border-radius: 12px;
+    font-size: 13px; color: var(--ink-soft); transition: all .2s; font-weight: 500;
+  }
+  .sidebar-link.active { background: var(--ink); color: var(--bg); font-weight: 600; }
+  .sidebar-link:not(.active):hover { background: var(--bg-2); color: var(--ink); }
+
+  /* MRR chart */
+  .mrr-bar { transition: all .2s; }
+  .mrr-bar:hover { opacity: .8; }
+
+  /* Lesson queue status */
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .status-draft { background: var(--ink-dim); }
+  .status-gen { background: var(--amber); animation: pulse 1.5s ease-in-out infinite; }
+  .status-ready { background: var(--emerald); }
+  .status-failed { background: var(--burgundy); }
+  @keyframes pulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+
+  /* doubt review card */
+  .doubt-card { transition: all .2s; }
+  .doubt-card:hover { border-color: var(--ink); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<div class="grid lg:grid-cols-[240px_1fr] min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:block sticky top-0 h-screen border-r p-5 overflow-y-auto" style="border-color: var(--line); background: rgba(250,245,235,.6); backdrop-filter: blur(8px);">
+    <div class="flex items-center gap-3 mb-7">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D97706"/></svg>
+      </div>
+      <div>
+        <div class="serif font-bold text-lg leading-none" style="color: var(--ink);">Ananta</div>
+        <div class="text-[10px] mono tracking-widest font-medium mt-1" style="color: var(--ink-soft);">FOUNDER ADMIN</div>
+      </div>
+    </div>
+
+    <div class="text-[10px] mono tracking-widest mb-2 px-2" style="color: var(--ink-soft);">OVERVIEW</div>
+    <nav class="space-y-1 mb-5">
+      <a class="sidebar-link active" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="9" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="5" stroke="currentColor" stroke-width="2"/><rect x="14" y="12" width="7" height="9" stroke="currentColor" stroke-width="2"/><rect x="3" y="16" width="7" height="5" stroke="currentColor" stroke-width="2"/></svg>
+        Today
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
+        Members
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2"/></svg>
+        Revenue
+      </a>
+    </nav>
+
+    <div class="text-[10px] mono tracking-widest mb-2 px-2" style="color: var(--ink-soft);">CONTENT</div>
+    <nav class="space-y-1 mb-5">
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2"/></svg> Curriculum</a>
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg> Lesson queue</a>
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/></svg> Doubts to review</a>
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2"/></svg> Materials library</a>
+    </nav>
+
+    <div class="text-[10px] mono tracking-widest mb-2 px-2" style="color: var(--ink-soft);">OPERATIONS</div>
+    <nav class="space-y-1 mb-5">
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2"/></svg> Class scheduler</a>
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 9a9 9 0 0 1 9-9 9 9 0 0 1 9 9v9H3z" stroke="currentColor" stroke-width="2"/></svg> AI cost & evals</a>
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/><polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2"/></svg> Infra health</a>
+    </nav>
+
+    <div class="text-[10px] mono tracking-widest mb-2 px-2" style="color: var(--ink-soft);">SETTINGS</div>
+    <nav class="space-y-1">
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/></svg> Plans & pricing</a>
+      <a class="sidebar-link" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg> Team</a>
+    </nav>
+
+    <div class="mt-7 pt-5 border-t" style="border-color: var(--line);">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center serif font-bold text-sm" style="background: linear-gradient(135deg, #FED7AA, #FEF3C7); color: var(--terracotta);">P</div>
+        <div class="min-w-0">
+          <div class="text-sm font-semibold truncate" style="color: var(--ink);">priyanka</div>
+          <div class="text-[10px] mono" style="color: var(--ink-soft);">FOUNDER</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="px-5 lg:px-10 py-8 max-w-[1280px]">
+
+    <!-- HEADER -->
+    <div class="reveal flex items-end justify-between flex-wrap gap-3 mb-7">
+      <div>
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— TUESDAY · 28 MAY 2026 · PRE-LAUNCH</div>
+        <h1 class="serif text-4xl font-bold mt-2" style="color: var(--ink);">
+          Good evening, priyanka.<br/>
+          <span class="accent-warm italic">7 of 10</span> founder members joined.
+        </h1>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-ghost">Switch to student view</button>
+        <button class="btn-primary">+ Add a class manually</button>
+      </div>
+    </div>
+
+    <!-- LAUNCH GATE -->
+    <div class="reveal paper-card-strong rounded-3xl p-7 mb-6">
+      <div class="grid lg:grid-cols-[1fr_2fr] gap-7 items-center">
+        <div>
+          <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— LAUNCH GATE</div>
+          <h2 class="serif text-2xl font-semibold mt-1" style="color: var(--ink);">Live classes start when ten join.</h2>
+          <p class="text-sm mt-2" style="color: var(--ink-soft);">
+            You're at 7 of 10. Target launch: <b style="color: var(--ink);">1 July 2026</b>. Three more reservations needed before the cohort starts running.
+          </p>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mono mb-2" style="color: var(--ink-soft);">
+            <span>RESERVATIONS</span>
+            <span><b style="color: var(--ink);">7</b> / 10</span>
+          </div>
+          <div class="h-4 rounded-full overflow-hidden mb-3" style="background: var(--line);">
+            <div class="h-full bar-fill" style="width:70%; background: linear-gradient(90deg, var(--amber), var(--terracotta));"></div>
+          </div>
+          <div class="grid grid-cols-10 gap-1.5">
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">PR</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">AK</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">SN</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">RV</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">MN</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">DV</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--amber); color:#fff;">HG</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--bg-2); border:1px dashed var(--line-2); color: var(--ink-dim);">8</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--bg-2); border:1px dashed var(--line-2); color: var(--ink-dim);">9</div>
+            <div class="aspect-square rounded flex items-center justify-center text-[10px] font-bold" style="background: var(--bg-2); border:1px dashed var(--line-2); color: var(--ink-dim);">10</div>
+          </div>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <button class="btn-primary">Send referral push to members</button>
+            <button class="btn-ghost">Lower threshold to 8</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY METRICS ROW -->
+    <div class="reveal grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div class="paper-card-strong rounded-2xl p-5">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">RESERVATIONS</div>
+        <div class="serif font-bold text-3xl mt-1" style="color: var(--ink);">7</div>
+        <div class="text-xs mt-1" style="color: var(--emerald-deep);">↑ 2 this week</div>
+      </div>
+      <div class="paper-card-strong rounded-2xl p-5">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">PRE-PAID MRR</div>
+        <div class="serif font-bold text-3xl mt-1" style="color: var(--ink);">₹17,493</div>
+        <div class="text-xs mt-1" style="color: var(--ink-soft);">6 yearly · 1 monthly</div>
+      </div>
+      <div class="paper-card-strong rounded-2xl p-5">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">LESSONS READY</div>
+        <div class="serif font-bold text-3xl mt-1" style="color: var(--ink);">38<span class="text-base" style="color:var(--ink-soft);">/197</span></div>
+        <div class="text-xs mt-1" style="color: var(--amber-deep);">19% — keep generating</div>
+      </div>
+      <div class="paper-card-strong rounded-2xl p-5">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">AI SPEND TODAY</div>
+        <div class="serif font-bold text-3xl mt-1" style="color: var(--ink);">₹0</div>
+        <div class="text-xs mt-1" style="color: var(--emerald-deep);">Within Groq free tier</div>
+      </div>
+    </div>
+
+    <!-- TWO COLUMN BLOCK: LESSON QUEUE + DOUBTS -->
+    <div class="reveal grid lg:grid-cols-[1.4fr_1fr] gap-5 mb-6">
+
+      <!-- LESSON QUEUE -->
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="flex items-end justify-between flex-wrap gap-2 mb-5">
+          <div>
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— LESSON QUEUE</div>
+            <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">Generation pipeline</h2>
+            <p class="text-xs mt-1" style="color: var(--ink-soft);">Tomorrow's class needs to be READY by 4 AM. AI worker handles overnight.</p>
+          </div>
+          <button class="btn-amber">Run generation now</button>
+        </div>
+
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-[10px] mono tracking-widest text-left border-b" style="color: var(--ink-soft); border-color: var(--line);">
+              <th class="py-2 pr-2">SUBJECT</th><th class="py-2 pr-2">CHAPTER</th><th class="py-2 pr-2">SCHEDULED</th><th class="py-2 pr-2">STATUS</th><th class="py-2">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hover border-b" style="border-color: var(--line);">
+              <td class="py-3 pr-2"><span class="font-semibold" style="color: var(--ink);">Science</span></td>
+              <td class="py-3 pr-2">Ch.3 · Acids & Bases</td>
+              <td class="py-3 pr-2 mono text-xs" style="color: var(--ink-soft);">Tonight 7 PM</td>
+              <td class="py-3 pr-2"><span class="status-dot status-ready"></span> <span style="color: var(--emerald-deep);">READY</span></td>
+              <td class="py-3 text-right"><button class="text-xs link-u" style="color: var(--ink);">Preview</button></td>
+            </tr>
+            <tr class="row-hover border-b" style="border-color: var(--line);">
+              <td class="py-3 pr-2"><span class="font-semibold" style="color: var(--ink);">Social Sci</span></td>
+              <td class="py-3 pr-2">Ch.5 · Federalism</td>
+              <td class="py-3 pr-2 mono text-xs" style="color: var(--ink-soft);">Wed 7 PM</td>
+              <td class="py-3 pr-2"><span class="status-dot status-gen"></span> <span style="color: var(--amber-deep);">GENERATING</span></td>
+              <td class="py-3 text-right"><button class="text-xs link-u" style="color: var(--ink-soft);">Logs</button></td>
+            </tr>
+            <tr class="row-hover border-b" style="border-color: var(--line);">
+              <td class="py-3 pr-2"><span class="font-semibold" style="color: var(--ink);">Kannada</span></td>
+              <td class="py-3 pr-2">ಪದ್ಯ · Kuvempu's poetry</td>
+              <td class="py-3 pr-2 mono text-xs" style="color: var(--ink-soft);">Thu 7 PM</td>
+              <td class="py-3 pr-2"><span class="status-dot status-draft"></span> <span style="color: var(--ink-soft);">DRAFT</span></td>
+              <td class="py-3 text-right"><button class="text-xs link-u" style="color: var(--ink);">Edit script</button></td>
+            </tr>
+            <tr class="row-hover border-b" style="border-color: var(--line);">
+              <td class="py-3 pr-2"><span class="font-semibold" style="color: var(--ink);">English</span></td>
+              <td class="py-3 pr-2">Prose 6 · A Letter to God</td>
+              <td class="py-3 pr-2 mono text-xs" style="color: var(--ink-soft);">Fri 7 PM</td>
+              <td class="py-3 pr-2"><span class="status-dot status-draft"></span> <span style="color: var(--ink-soft);">DRAFT</span></td>
+              <td class="py-3 text-right"><button class="text-xs link-u" style="color: var(--ink);">Edit script</button></td>
+            </tr>
+            <tr class="row-hover border-b" style="border-color: var(--line);">
+              <td class="py-3 pr-2"><span class="font-semibold" style="color: var(--ink);">Hindi</span></td>
+              <td class="py-3 pr-2">कविता 4 · Surdas</td>
+              <td class="py-3 pr-2 mono text-xs" style="color: var(--ink-soft);">Sat 7 PM</td>
+              <td class="py-3 pr-2"><span class="status-dot status-failed"></span> <span style="color: var(--burgundy);">FAILED — TTS</span></td>
+              <td class="py-3 text-right"><button class="text-xs link-u font-bold" style="color: var(--burgundy);">Retry</button></td>
+            </tr>
+            <tr class="row-hover">
+              <td class="py-3 pr-2"><span class="font-semibold" style="color: var(--ink);">Maths</span></td>
+              <td class="py-3 pr-2">Ch.6 · Arithmetic Progressions</td>
+              <td class="py-3 pr-2 mono text-xs" style="color: var(--ink-soft);">Mon 7 PM</td>
+              <td class="py-3 pr-2"><span class="status-dot status-ready"></span> <span style="color: var(--emerald-deep);">READY</span></td>
+              <td class="py-3 text-right"><button class="text-xs link-u" style="color: var(--ink);">Preview</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="mt-5 grid grid-cols-4 gap-3 text-center text-xs">
+          <div class="rounded-lg py-2" style="background:#ECFDF5; color:var(--emerald-deep);"><b>38</b> ready</div>
+          <div class="rounded-lg py-2" style="background:#FEF3C7; color:var(--amber-deep);"><b>1</b> generating</div>
+          <div class="rounded-lg py-2" style="background:var(--bg-2); color:var(--ink);"><b>156</b> draft</div>
+          <div class="rounded-lg py-2" style="background:#FEE2E2; color:var(--burgundy);"><b>2</b> failed</div>
+        </div>
+      </div>
+
+      <!-- DOUBTS TO REVIEW -->
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="flex items-end justify-between flex-wrap gap-2 mb-5">
+          <div>
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— FLAGGED ANSWERS</div>
+            <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">Triage these tonight</h2>
+            <p class="text-xs mt-1" style="color: var(--ink-soft);">Students gave thumbs-down or no feedback within 24h. 6 to review.</p>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="doubt-card rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+            <div class="flex items-center justify-between text-[10px] mono mb-1" style="color: var(--ink-soft);">
+              <span>SCIENCE · CH.3 · VIHAAN</span>
+              <span>👎 Rohan · 7:52 PM</span>
+            </div>
+            <div class="text-sm" style="color: var(--ink);"><b>Q:</b> "Sir what's the difference between strong and weak acid?"</div>
+            <div class="text-xs mt-1 italic" style="color: var(--ink-soft);">A: "Strong acids dissociate completely in water — like HCl. Weak ones don't — like acetic acid."</div>
+            <div class="flex gap-2 mt-3">
+              <button class="btn-emerald text-xs">Approve</button>
+              <button class="btn-ghost text-xs">Rewrite</button>
+              <button class="text-xs link-u ml-auto" style="color: var(--burgundy);">Flag for retraining</button>
+            </div>
+          </div>
+
+          <div class="doubt-card rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+            <div class="flex items-center justify-between text-[10px] mono mb-1" style="color: var(--ink-soft);">
+              <span>MATHS · CH.5 · PRAKETA</span>
+              <span>👎 Sneha · 7:38 PM</span>
+            </div>
+            <div class="text-sm" style="color: var(--ink);"><b>Q:</b> "Why is the discriminant b²-4ac?"</div>
+            <div class="text-xs mt-1 italic" style="color: var(--ink-soft);">A: "It comes from the quadratic formula. Re-watch the proof at 22:14."</div>
+            <div class="flex gap-2 mt-3">
+              <button class="btn-emerald text-xs">Approve</button>
+              <button class="btn-ghost text-xs">Rewrite</button>
+              <button class="text-xs link-u ml-auto" style="color: var(--burgundy);">Flag for retraining</button>
+            </div>
+          </div>
+
+          <div class="doubt-card rounded-2xl p-4 border" style="border-color: var(--line); background: var(--paper);">
+            <div class="flex items-center justify-between text-[10px] mono mb-1" style="color: var(--ink-soft);">
+              <span>SOCIAL · CH.4 · ADHVARA</span>
+              <span>⚠ no rating · Akash</span>
+            </div>
+            <div class="text-sm" style="color: var(--ink);"><b>Q:</b> "Ma'am what year was the Bastille stormed?"</div>
+            <div class="text-xs mt-1 italic" style="color: var(--ink-soft);">A: "14 July 1789. Marked the start of the French Revolution."</div>
+            <div class="flex gap-2 mt-3">
+              <button class="btn-emerald text-xs">Approve</button>
+              <button class="btn-ghost text-xs">Rewrite</button>
+            </div>
+          </div>
+        </div>
+        <button class="mt-4 w-full text-sm font-semibold link-u" style="color: var(--ink);">See all 6 flagged →</button>
+      </div>
+    </div>
+
+    <!-- REVENUE CHART + RECENT MEMBERS -->
+    <div class="reveal grid lg:grid-cols-[1.4fr_1fr] gap-5 mb-6">
+
+      <!-- Revenue / MRR -->
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="flex items-end justify-between flex-wrap gap-2 mb-3">
+          <div>
+            <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— REVENUE</div>
+            <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">Weekly inflow · last 8 weeks</h2>
+          </div>
+          <div class="text-right">
+            <div class="serif font-bold text-2xl" style="color: var(--ink);">₹17,493</div>
+            <div class="text-xs" style="color: var(--ink-soft);">Total since open · ₹2,499 this week</div>
+          </div>
+        </div>
+
+        <div class="relative h-48 mt-5">
+          <div class="absolute inset-y-0 left-0 w-10 flex flex-col justify-between text-[10px] mono" style="color: var(--ink-soft);">
+            <span>₹3k</span><span>₹2k</span><span>₹1k</span><span>₹0</span>
+          </div>
+          <div class="absolute inset-y-0 left-12 right-0 flex items-end gap-3 border-l border-b" style="border-color: var(--line);">
+            <div class="mrr-bar flex-1 rounded-t" style="height: 8%; background: var(--ink);"  title="Week 1: ₹299"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 14%; background: var(--ink);" title="Week 2: ₹499"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 8%; background: var(--ink);"  title="Week 3: ₹299"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 25%; background: var(--ink);" title="Week 4: ₹798"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 80%; background: var(--amber);" title="Week 5: ₹2499 (yearly)"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 80%; background: var(--amber);" title="Week 6: ₹2499 (yearly)"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 8%; background: var(--ink);"   title="Week 7: ₹299"></div>
+            <div class="mrr-bar flex-1 rounded-t" style="height: 80%; background: var(--terracotta);" title="Week 8: ₹2499 (yearly)"></div>
+          </div>
+        </div>
+        <div class="flex justify-between text-[10px] mono mt-2 pl-12" style="color: var(--ink-soft);">
+          <span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span><span>W8</span>
+        </div>
+
+        <div class="mt-5 grid grid-cols-3 gap-3 text-center">
+          <div class="rounded-lg p-3" style="background: var(--bg-2);">
+            <div class="serif font-bold" style="color: var(--ink);">6</div>
+            <div class="text-[10px] mono" style="color: var(--ink-soft);">YEARLY (₹2499)</div>
+          </div>
+          <div class="rounded-lg p-3" style="background: var(--bg-2);">
+            <div class="serif font-bold" style="color: var(--ink);">1</div>
+            <div class="text-[10px] mono" style="color: var(--ink-soft);">MONTHLY (₹299)</div>
+          </div>
+          <div class="rounded-lg p-3" style="background: var(--bg-2);">
+            <div class="serif font-bold" style="color: var(--ink);">0</div>
+            <div class="text-[10px] mono" style="color: var(--ink-soft);">SIBLING (₹499)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent members -->
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— RECENT MEMBERS</div>
+        <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">Last seven joiners</h2>
+
+        <ul class="mt-5 divide-y" style="border-color: var(--line);">
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#FED7AA; color: var(--terracotta);">PR</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Priya R.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G10 · English · Bengaluru · yearly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">28 Apr</span>
+          </li>
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#D1FAE5; color: var(--emerald-deep);">AK</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Akash K.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G10 · Kannada · Mysuru · yearly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">3 May</span>
+          </li>
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#FEF3C7; color: var(--amber-deep);">SN</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Sneha N.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G11 · English · Hubli · monthly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">10 May</span>
+          </li>
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#FED7AA; color: var(--burgundy);">RV</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Rohan V.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G10 · Kannada · Davanagere · yearly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">14 May</span>
+          </li>
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#ECFCCB; color: var(--sage);">MN</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Meena N.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G10 · English · Mangaluru · yearly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">18 May</span>
+          </li>
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#FED7AA; color: var(--copper);">DV</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Deepa V.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G10 · Kannada · Belagavi · yearly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">22 May</span>
+          </li>
+          <li class="py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#FEF3C7; color: var(--gold);">HG</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate" style="color: var(--ink);">Harish G.</div>
+              <div class="text-[11px]" style="color: var(--ink-soft);">G12 · English · Bengaluru · yearly</div>
+            </div>
+            <span class="text-[11px] mono" style="color: var(--ink-soft);">26 May</span>
+          </li>
+        </ul>
+        <button class="mt-4 w-full text-sm font-semibold link-u" style="color: var(--ink);">View all members →</button>
+      </div>
+    </div>
+
+    <!-- INFRA HEALTH + AI EVAL -->
+    <div class="reveal grid lg:grid-cols-2 gap-5 mb-6">
+
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— INFRA HEALTH</div>
+        <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">All systems green</h2>
+
+        <ul class="mt-5 divide-y" style="border-color: var(--line);">
+          <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3"><span class="status-dot status-ready"></span> <span style="color: var(--ink);">Oracle ARM VM · web + api</span></div>
+            <span class="pill pill-green">UP · 18d</span>
+          </li>
+          <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3"><span class="status-dot status-ready"></span> <span style="color: var(--ink);">Postgres + pgvector</span></div>
+            <span class="pill pill-green">UP · 18d</span>
+          </li>
+          <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3"><span class="status-dot status-ready"></span> <span style="color: var(--ink);">Redis (cache + queue)</span></div>
+            <span class="pill pill-green">UP · 18d</span>
+          </li>
+          <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3"><span class="status-dot status-ready"></span> <span style="color: var(--ink);">LiveKit room server</span></div>
+            <span class="pill pill-green">UP · 12d</span>
+          </li>
+          <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3"><span class="status-dot status-gen"></span> <span style="color: var(--ink);">AI worker (FastAPI)</span></div>
+            <span class="pill pill-amber">GENERATING · 1 job</span>
+          </li>
+          <li class="py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3"><span class="status-dot status-ready"></span> <span style="color: var(--ink);">Cloudflare R2 (assets)</span></div>
+            <span class="pill pill-green">UP · 1.2 GB used / 10 GB free</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="paper-card-strong rounded-3xl p-7">
+        <div class="text-xs mono tracking-widest" style="color: var(--ink-soft);">— AI EVALS · LAST 7 DAYS</div>
+        <h2 class="serif text-xl font-semibold mt-1" style="color: var(--ink);">Quality is holding</h2>
+
+        <div class="mt-5 space-y-3">
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span style="color: var(--ink-2);">Golden Q&A accuracy</span><span class="font-semibold" style="color: var(--emerald-deep);">94% <span class="text-xs" style="color: var(--ink-soft);">(+1%)</span></span></div>
+            <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:94%; background: var(--emerald);"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span style="color: var(--ink-2);">Persona-voice fidelity</span><span class="font-semibold" style="color: var(--emerald-deep);">88%</span></div>
+            <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:88%; background: var(--emerald);"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span style="color: var(--ink-2);">Citation accuracy (sampled)</span><span class="font-semibold" style="color: var(--amber-deep);">82% <span class="text-xs" style="color: var(--ink-soft);">(-3%)</span></span></div>
+            <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:82%; background: var(--amber);"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span style="color: var(--ink-2);">Hallucination rate</span><span class="font-semibold" style="color: var(--emerald-deep);">1.4% <span class="text-xs" style="color: var(--ink-soft);">(target &lt;2%)</span></span></div>
+            <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:14%; background: var(--emerald);"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span style="color: var(--ink-2);">Student thumbs-up rate</span><span class="font-semibold" style="color: var(--emerald-deep);">79%</span></div>
+            <div class="h-2 rounded-full overflow-hidden" style="background: var(--line);"><div class="h-full bar-fill" style="width:79%; background: var(--emerald);"></div></div>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-2xl p-3 border-l-4" style="background: #FEF3C7; border-color: var(--amber);">
+          <div class="text-xs font-bold uppercase mb-1" style="color: var(--amber-deep);">Watch this</div>
+          <p class="text-sm" style="color: var(--ink-2);">Citation accuracy dropped 3% this week. Two flagged answers cited Ch.4 when they should have cited Ch.3. Check the retrieval threshold in the doubt pipeline.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: .08 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

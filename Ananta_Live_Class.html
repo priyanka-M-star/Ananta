@@ -1,507 +1,788 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ananta — Live Class</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Live · Mathematics with Praketa · Ananta</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: { extend: {
-      fontFamily: { sans:['Inter','sans-serif'], display:['Plus Jakarta Sans','Inter','sans-serif'] },
-      colors: {
-        ink:'#0F172A',
-        indigo:{600:'#1E3A8A',700:'#1E40AF',800:'#1E3A8A',900:'#172554',950:'#0c1638'},
-        saffron:{400:'#FBBF24',500:'#F59E0B',600:'#D97706'},
-        teal:{500:'#0D9488',600:'#0F766E'},
-      }
-    }}
-  };
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 <style>
-  html,body { height:100%; }
-  body { font-family:'Inter',sans-serif; color:#0F172A; background:#0c1638; margin:0; }
-  .font-display { font-family:'Plus Jakarta Sans','Inter',sans-serif; }
+  :root {
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+  .serif { font-family: 'Fraunces', serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
 
-  @keyframes bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
-  .bob { animation:bob 3s ease-in-out infinite; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.4'/></svg>");
+    opacity: .03;
+  }
 
-  .anime-eye { transform-box:fill-box; transform-origin:center; }
-  @keyframes blink { 0%,93%,100%{transform:scaleY(1);} 96.5%{transform:scaleY(.08);} }
-  .blink-2 { animation:blink 5s infinite; }
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "top top"
+      "stage chat"
+      "bottom chat";
+    height: 100vh; height: 100dvh;
+    gap: 0;
+  }
+  @media (max-width: 900px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-areas: "top" "stage" "chat" "bottom";
+      grid-template-rows: auto 50vh 1fr auto;
+    }
+  }
 
-  /* speaking sound waves */
-  @keyframes sw { 0%,100%{height:6px;} 50%{height:18px;} }
-  .sw span { display:inline-block; width:3px; background:#0D9488; border-radius:3px; }
-  .sw span:nth-child(1){animation:sw .7s ease-in-out infinite;}
-  .sw span:nth-child(2){animation:sw .7s ease-in-out .15s infinite;}
-  .sw span:nth-child(3){animation:sw .7s ease-in-out .3s infinite;}
-  .sw span:nth-child(4){animation:sw .7s ease-in-out .45s infinite;}
-  .sw span:nth-child(5){animation:sw .7s ease-in-out .2s infinite;}
+  .top-bar { grid-area: top; padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 14px; background: rgba(250,245,235,.85); backdrop-filter: blur(14px); z-index: 20; }
+  .stage   { grid-area: stage; position: relative; overflow: hidden; }
+  .chat    { grid-area: chat; border-left: 1px solid var(--line); background: var(--paper); display: flex; flex-direction: column; overflow: hidden; }
+  .bottom-bar { grid-area: bottom; padding: 10px 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper); }
 
-  /* rising bubbles */
-  @keyframes rise { 0%{transform:translateY(0) scale(.6);opacity:0;}
-    20%{opacity:.9;} 100%{transform:translateY(-150px) scale(1.1);opacity:0;} }
-  .bubble { position:absolute; border-radius:50%; background:rgba(255,255,255,0.5);
-    animation:rise 3s ease-in infinite; }
+  h1, h2, h3 { font-family: 'Fraunces', serif; }
 
-  /* orbiting molecules */
-  @keyframes orbit { from{transform:rotate(0deg) translateX(70px) rotate(0deg);}
-    to{transform:rotate(360deg) translateX(70px) rotate(-360deg);} }
-  .orbit-1 { animation:orbit 9s linear infinite; }
-  .orbit-2 { animation:orbit 12s linear infinite reverse; }
-  .orbit-3 { animation:orbit 7s linear infinite; }
+  /* 3D canvas fills the stage */
+  #scene { position: absolute; inset: 0; z-index: 1; }
+  #scene canvas { display: block; width: 100% !important; height: 100% !important; }
 
-  @keyframes flash { 0%,100%{opacity:.25; transform:scale(1);}
-    50%{opacity:.9; transform:scale(1.18);} }
-  .flash { animation:flash 2.6s ease-in-out infinite; }
+  /* Teacher PiP — sits on top of the stage */
+  .pip {
+    position: absolute; bottom: 18px; left: 18px; z-index: 5;
+    display: flex; align-items: center; gap: 10px;
+    background: #FFFFFFEE; border: 1px solid var(--line);
+    box-shadow: 0 12px 30px -14px rgba(31,22,17,.25);
+    border-radius: 999px; padding: 6px 14px 6px 6px;
+  }
+  .pip-face {
+    width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+    background: #FEF3C7; border: 2px solid var(--amber);
+  }
+  .pip-meta .name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; color: var(--ink); line-height: 1; }
+  .pip-meta .sub { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .wave { display: flex; align-items: flex-end; gap: 2px; height: 14px; margin-left: 6px; }
+  .wave span { display: inline-block; width: 3px; background: var(--amber); border-radius: 2px; animation: bar 1.1s ease-in-out infinite; }
+  .wave span:nth-child(1) { animation-delay: 0s; height: 5px; }
+  .wave span:nth-child(2) { animation-delay: .15s; height: 13px; }
+  .wave span:nth-child(3) { animation-delay: .3s; height: 9px; }
+  .wave span:nth-child(4) { animation-delay: .45s; height: 14px; }
+  .wave span:nth-child(5) { animation-delay: .6s; height: 7px; }
+  @keyframes bar { 0%,100% { transform: scaleY(.5); } 50% { transform: scaleY(1.4); } }
 
-  @keyframes float-eq { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-7px);} }
-  .float-eq { animation:float-eq 4s ease-in-out infinite; }
+  /* Caption strip */
+  .caption {
+    position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 5;
+    max-width: 700px; text-align: center;
+    background: rgba(31,22,17,.88); color: #FEF3C7;
+    padding: 12px 22px; border-radius: 14px;
+    font-size: 17px; line-height: 1.5;
+    font-family: 'Fraunces', serif; font-weight: 500;
+    backdrop-filter: blur(8px);
+    transition: opacity .35s ease;
+  }
 
-  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.3;} }
-  .pulse-dot { animation:pulse-dot 1.4s ease-in-out infinite; }
+  /* Formula floater (top-right of stage) */
+  .formula {
+    position: absolute; top: 18px; right: 18px; z-index: 5;
+    background: #FFFFFFEE; border: 1px solid var(--line);
+    padding: 12px 16px; border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    box-shadow: 0 12px 30px -14px rgba(31,22,17,.18);
+    max-width: 280px;
+  }
+  .formula .label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; }
+  .formula .eq { font-size: 22px; font-weight: 600; color: var(--ink); margin-top: 4px; }
+  .formula .step { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
 
-  /* doubt message slide-in */
-  @keyframes slide-in { from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
-  .msg { animation:slide-in .4s ease-out; }
+  /* Live indicator */
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    background: #FEE2E2; color: var(--burgundy); letter-spacing: .05em;
+  }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--burgundy); position: relative; }
+  .live-dot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: var(--burgundy); opacity: .4; animation: ping 1.4s ease-out infinite; }
+  @keyframes ping { 0% { transform: scale(.6); opacity: .7; } 100% { transform: scale(1.8); opacity: 0; } }
 
-  /* typing dots */
-  @keyframes td { 0%,60%,100%{transform:translateY(0);opacity:.4;} 30%{transform:translateY(-4px);opacity:1;} }
-  .td span { display:inline-block; width:5px; height:5px; border-radius:50%; background:#0D9488; }
-  .td span:nth-child(1){animation:td 1s infinite;}
-  .td span:nth-child(2){animation:td 1s .2s infinite;}
-  .td span:nth-child(3){animation:td 1s .4s infinite;}
+  /* Buttons */
+  .btn-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-2); border: 1px solid var(--line);
+    transition: all .2s; color: var(--ink);
+  }
+  .btn-icon:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn-icon.active { background: var(--amber); color: #fff; border-color: var(--amber); }
+  .btn-leave {
+    padding: 10px 18px; border-radius: 12px;
+    background: var(--burgundy); color: #fff; font-weight: 600; font-size: 14px;
+    transition: all .2s; border: 1px solid var(--burgundy);
+  }
+  .btn-leave:hover { background: #7F1D1D; }
 
-  /* floating reaction */
-  @keyframes react-float { 0%{transform:translateY(0) scale(.5);opacity:0;}
-    15%{opacity:1;transform:scale(1.2);} 100%{transform:translateY(-220px) scale(1);opacity:0;} }
-  .react-fly { position:absolute; pointer-events:none; font-size:32px;
-    animation:react-float 2.2s ease-out forwards; z-index:50; }
+  /* Chat */
+  .chat-head {
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chat-list {
+    flex: 1; overflow-y: auto; padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .chat-list::-webkit-scrollbar { width: 6px; }
+  .chat-list::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
 
-  /* confetti */
-  .confetti-piece { position:fixed; width:9px; height:9px; border-radius:2px;
-    pointer-events:none; z-index:9999; animation:cf 1.2s ease-out forwards; }
-  @keyframes cf { to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0;} }
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg .who { font-size: 11px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+  .msg.student .body { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 9px 13px; font-size: 14px; color: var(--ink-2); }
+  .msg.teacher .body { background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 14px; padding: 9px 13px; font-size: 14px; color: var(--ink); }
+  .msg .avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #FED7AA; }
+  .msg-fade-in { animation: slideUp .35s ease both; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* poll pop */
-  @keyframes poll-in { from{opacity:0;transform:translateY(30px) scale(.9);}
-    to{opacity:1;transform:translateY(0) scale(1);} }
-  .poll-in { animation:poll-in .5s cubic-bezier(.34,1.5,.6,1); }
+  .typing-dots { display: inline-flex; gap: 3px; padding: 6px 0; }
+  .typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft);
+    animation: dotPulse 1.2s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: .2s; }
+  .typing-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes dotPulse { 0%, 100% { opacity: .3; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
 
-  .scroll-y::-webkit-scrollbar { width:6px; }
-  .scroll-y::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+  .chat-input {
+    padding: 12px 14px; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .chat-input input {
+    flex: 1; padding: 10px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--bg);
+    font-size: 14px; outline: none; color: var(--ink);
+    transition: border-color .2s;
+  }
+  .chat-input input:focus { border-color: var(--amber); background: #fff; }
+  .chat-input button {
+    padding: 10px 14px; border-radius: 999px;
+    background: var(--ink); color: var(--bg); font-weight: 600; font-size: 13px;
+  }
+  .chat-input button:hover { background: var(--amber); }
 
-  @keyframes prog { from{width:0;} }
+  .mic-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-2); border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .mic-btn.recording { background: var(--burgundy); color: #fff; animation: pulseMic 1.4s ease-in-out infinite; }
+  @keyframes pulseMic { 0%, 100% { box-shadow: 0 0 0 0 rgba(159,18,57,.5); } 50% { box-shadow: 0 0 0 8px rgba(159,18,57,0); } }
+
+  /* Live poll overlay */
+  .poll-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.9);
+    background: #FFFFFF; border: 1px solid var(--line);
+    border-radius: 22px; padding: 24px 28px; z-index: 15;
+    width: min(420px, 90vw); opacity: 0; pointer-events: none;
+    transition: all .4s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 30px 80px -20px rgba(31,22,17,.45);
+  }
+  .poll-overlay.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+  .poll-overlay .head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .poll-overlay .head .pill {
+    background: var(--amber); color: #fff; padding: 3px 10px;
+    border-radius: 999px; font-size: 10px; font-family: 'JetBrains Mono', monospace; letter-spacing: .05em; font-weight: 700;
+  }
+  .poll-q { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin: 10px 0 16px; line-height: 1.3; }
+  .poll-opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+    margin: 8px 0; cursor: pointer; transition: all .2s;
+    background: var(--paper); font-size: 14px; color: var(--ink-2);
+  }
+  .poll-opt:hover { border-color: var(--amber); transform: translateX(4px); }
+  .poll-opt .key {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--bg-2); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: var(--ink-soft);
+  }
+  .poll-opt.correct { background: #ECFDF5; border-color: #A7F3D0; color: var(--emerald-deep); }
+  .poll-opt.correct .key { background: var(--emerald); color: #fff; }
+  .poll-opt.wrong { background: #FEE2E2; border-color: #FCA5A5; color: var(--burgundy); }
+  .poll-opt.wrong .key { background: var(--burgundy); color: #fff; }
+
+  /* Floating reactions */
+  .reaction {
+    position: absolute; bottom: 80px; font-size: 28px;
+    animation: floatUp 3.5s ease-out forwards;
+    pointer-events: none; z-index: 6;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(.6); opacity: 0; }
+    20% { opacity: 1; transform: translateY(-20px) scale(1.1); }
+    100% { transform: translateY(-360px) scale(.9); opacity: 0; }
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed; top: -10px; width: 8px; height: 12px;
+    pointer-events: none; z-index: 999;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Caption toggle */
+  .cap-toggle { display: inline-flex; align-items: center; gap: 4px; background: var(--bg-2); border-radius: 999px; padding: 3px; border: 1px solid var(--line); }
+  .cap-toggle button { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); }
+  .cap-toggle button.on { background: var(--ink); color: var(--bg); }
+
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94%, 98% { transform: scaleY(.1); } }
+  .blink-eye { transform-origin: center; animation: blink 5s infinite; }
 </style>
 </head>
-<body class="h-full">
+<body>
 
-<!-- ===== Vihaan anime face ===== -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="face-vihaan" viewBox="0 0 240 250">
-    <path d="M120 32C78 32 60 72 60 122c0 50 14 86 14 86h92s14-36 14-86c0-50-18-90-60-90Z" fill="#22303A"/>
-    <rect x="106" y="158" width="28" height="30" rx="13" fill="#D49A6E"/>
-    <ellipse cx="120" cy="120" rx="57" ry="60" fill="#E3A878"/>
-    <ellipse cx="63" cy="124" rx="11" ry="14" fill="#E3A878"/><ellipse cx="177" cy="124" rx="11" ry="14" fill="#E3A878"/>
-    <path d="M60 110C60 60 86 40 120 40s60 20 60 70c-4-14-14-22-20-30 2 14-6 20-10 16-2-18-14-26-22-20-8-8-20-2-22 14-8-10-16-8-20 6-2-16-8-30 6-46-8 6-12 16-12 26-4-6-12 4-18 24Z" fill="#22303A"/>
-    <path d="M78 100q16-8 30-1" stroke="#22303A" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M132 99q14-7 30 1" stroke="#22303A" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <g class="anime-eye blink-2">
-      <ellipse cx="97" cy="126" rx="13" ry="16" fill="#fff"/><ellipse cx="98" cy="128" rx="9.5" ry="12" fill="#3F4A3A"/>
-      <circle cx="98" cy="129" r="5" fill="#1a1a1a"/><circle cx="102" cy="123" r="3.6" fill="#fff"/>
-      <ellipse cx="143" cy="126" rx="13" ry="16" fill="#fff"/><ellipse cx="142" cy="128" rx="9.5" ry="12" fill="#3F4A3A"/>
-      <circle cx="142" cy="129" r="5" fill="#1a1a1a"/><circle cx="146" cy="123" r="3.6" fill="#fff"/>
-    </g>
-    <path d="M120 134q-4 7 0 9" stroke="#C4895F" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M104 150q16 12 32 0" stroke="#B0485E" stroke-width="4" fill="none" stroke-linecap="round"/>
-  </symbol>
+<!-- Praketa SVG portrait -->
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#FFE6CF"/><stop offset="100%" stop-color="#F4C49B"/></radialGradient>
+    <symbol id="face-praketa" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="65" rx="38" ry="42" fill="url(#skin)"/>
+      <path d="M22 60 Q24 20 60 18 Q96 20 98 60 Q96 38 80 36 Q70 56 60 38 Q50 56 40 36 Q24 38 22 60Z" fill="#3F2418"/>
+      <ellipse cx="22" cy="68" rx="5" ry="8" fill="url(#skin)"/><ellipse cx="98" cy="68" rx="5" ry="8" fill="url(#skin)"/>
+      <g class="blink-eye"><ellipse cx="46" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="46" cy="69" rx="4" ry="6" fill="#1F1611"/><circle cx="47" cy="67" r="1.6" fill="#fff"/></g>
+      <g class="blink-eye" style="animation-delay:.2s;"><ellipse cx="74" cy="68" rx="6" ry="8" fill="#fff"/><ellipse cx="74" cy="69" rx="4" ry="6" fill="#1F1611"/><circle cx="75" cy="67" r="1.6" fill="#fff"/></g>
+      <path d="M52 92 Q60 98 68 92" stroke="#9F1239" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </defs>
 </svg>
 
-<!-- ============ TOP BAR ============ -->
-<header class="bg-indigo-950 border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-lg bg-indigo-800 flex items-center justify-center">
-      <span class="text-saffron-500 font-display font-extrabold">अ</span>
-    </div>
-    <div class="leading-tight">
-      <div class="text-white font-display font-bold text-sm">Science · Chemical Reactions &amp; Equations</div>
-      <div class="text-indigo-300 text-[11px]">Chapter 6 · Grade 10 · with Vihaan</div>
-    </div>
-  </div>
-  <div class="flex items-center gap-2 sm:gap-3">
-    <div class="flex items-center gap-1.5 bg-red-500 text-white text-[11px] font-bold px-2.5 py-1 rounded">
-      <span class="w-1.5 h-1.5 rounded-full bg-white pulse-dot"></span> LIVE
-    </div>
-    <div class="hidden sm:flex items-center gap-1.5 bg-white/10 text-white text-xs px-2.5 py-1 rounded">
-      <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.97 5.97 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
-      <span id="viewers">247</span>
-    </div>
-    <div class="bg-white/10 text-white text-xs font-semibold px-2.5 py-1 rounded tabular-nums" id="elapsed">42:08</div>
-    <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Leave</button>
-  </div>
-</header>
+<div class="app">
 
-<div class="flex flex-col lg:flex-row" style="height:calc(100vh - 53px)">
-
-  <!-- ============ VIDEO STAGE ============ -->
-  <main class="flex-1 flex flex-col bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 relative overflow-hidden" id="stage">
-
-    <!-- lesson scene -->
-    <div class="flex-1 flex items-center justify-center relative px-4">
-      <!-- decorative orbiting molecules -->
-      <div class="absolute top-10 left-10 w-3 h-3">
-        <div class="orbit-1 w-4 h-4 rounded-full bg-teal-400/50"></div>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--ink);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q12 3 21 12 Q12 21 3 12Z" stroke="#FEF3C7" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D97706"/></svg>
       </div>
-      <div class="absolute bottom-16 right-16 w-3 h-3">
-        <div class="orbit-2 w-5 h-5 rounded-full bg-saffron-400/40"></div>
-      </div>
-      <div class="absolute top-1/3 right-24 w-3 h-3">
-        <div class="orbit-3 w-3 h-3 rounded-full bg-indigo-400/50"></div>
-      </div>
-
-      <!-- the "slide" -->
-      <div class="w-full max-w-xl">
-        <div class="text-center">
-          <div class="inline-block bg-saffron-500/20 text-saffron-300 text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Now Learning</div>
-          <h2 class="font-display font-extrabold text-white text-2xl sm:text-3xl mt-3">Combustion Reaction</h2>
-          <p class="text-indigo-300 text-sm mt-1">When magnesium burns in oxygen</p>
-        </div>
-
-        <!-- animated reaction demo -->
-        <div class="mt-7 bg-white/5 border border-white/10 rounded-2xl p-6 relative">
-          <div class="flex items-center justify-center gap-3 sm:gap-5">
-            <!-- Mg ribbon glowing -->
-            <div class="text-center">
-              <div class="w-16 h-16 rounded-2xl bg-slate-200 flex items-center justify-center relative">
-                <div class="absolute inset-0 rounded-2xl bg-white flash"></div>
-                <span class="relative font-display font-extrabold text-slate-800 text-xl">Mg</span>
-              </div>
-              <div class="text-indigo-300 text-[10px] mt-1">Magnesium</div>
-            </div>
-            <div class="text-white/60 text-2xl font-bold">+</div>
-            <!-- O2 -->
-            <div class="text-center">
-              <div class="w-16 h-16 rounded-2xl bg-teal-500/30 border border-teal-400/40 flex items-center justify-center relative">
-                <div class="bubble w-2 h-2" style="left:18px;bottom:8px;animation-delay:0s"></div>
-                <div class="bubble w-1.5 h-1.5" style="left:34px;bottom:8px;animation-delay:1s"></div>
-                <div class="bubble w-2.5 h-2.5" style="left:26px;bottom:8px;animation-delay:2s"></div>
-                <span class="relative font-display font-extrabold text-teal-200 text-xl">O₂</span>
-              </div>
-              <div class="text-indigo-300 text-[10px] mt-1">Oxygen</div>
-            </div>
-            <div class="text-saffron-400 text-3xl font-bold">→</div>
-            <!-- MgO -->
-            <div class="text-center">
-              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-saffron-400 to-saffron-600 flex items-center justify-center shadow-lg">
-                <span class="font-display font-extrabold text-white text-lg">MgO</span>
-              </div>
-              <div class="text-indigo-300 text-[10px] mt-1">Magnesium oxide</div>
-            </div>
-          </div>
-          <div class="float-eq mt-6 text-center">
-            <div class="inline-block bg-indigo-950/60 rounded-xl px-5 py-2.5">
-              <span class="font-display font-extrabold text-white text-lg sm:text-xl">2Mg + O₂ → 2MgO</span>
-            </div>
-            <div class="text-teal-300 text-xs mt-2">A bright white flame — this is an <b>exothermic</b> reaction ✨</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- teacher PiP -->
-      <div class="absolute bottom-4 left-4 flex items-end gap-2">
-        <div class="bob w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white overflow-hidden shadow-2xl ring-2 ring-teal-400/50">
-          <svg viewBox="0 0 240 250" class="w-full h-full"><use href="#face-vihaan"/></svg>
-        </div>
-        <div class="bg-indigo-950/80 backdrop-blur rounded-lg px-2.5 py-1.5 mb-1">
-          <div class="text-white text-xs font-bold">Vihaan</div>
-          <div class="sw flex items-end gap-0.5 h-4 mt-0.5">
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- reactions launch area marker -->
-      <div id="reactZone" class="absolute bottom-24 right-8"></div>
-    </div>
-
-    <!-- captions -->
-    <div class="px-4 pb-2">
-      <div class="max-w-2xl mx-auto bg-black/50 backdrop-blur rounded-xl px-4 py-2.5 text-center">
-        <p id="caption" class="text-white text-sm leading-snug">
-          "Notice the bright white light — that tells us a large amount of energy is being released as heat."
-        </p>
-      </div>
-    </div>
-
-    <!-- lesson progress + controls -->
-    <div class="bg-indigo-950/80 backdrop-blur border-t border-white/10 px-4 py-3">
-      <div class="flex items-center gap-3">
-        <span class="text-indigo-300 text-[11px] tabular-nums">42:08</span>
-        <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-          <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-saffron-500" style="width:70%;animation:prog 1.4s ease-out"></div>
-        </div>
-        <span class="text-indigo-300 text-[11px] tabular-nums">60:00</span>
-      </div>
-      <div class="flex items-center justify-between mt-3">
-        <div class="flex items-center gap-1.5">
-          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="👍">👍</button>
-          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="❤️">❤️</button>
-          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="🎉">🎉</button>
-          <button class="react-btn w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition text-lg" data-emoji="🤔">🤔</button>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="capToggle" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.5 6a1.5 1.5 0 01.5-3 .75.75 0 000-1.5 3 3 0 100 6 .75.75 0 000-1.5zm6 0a1.5 1.5 0 01.5-3 .75.75 0 000-1.5 3 3 0 100 6 .75.75 0 000-1.5z"/></svg>
-            Captions: <span id="capLang">English</span>
-          </button>
-          <button class="bg-saffron-500 hover:bg-saffron-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition">Raise hand ✋</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== POLL OVERLAY ===== -->
-    <div id="poll" class="absolute inset-0 bg-indigo-950/70 backdrop-blur-sm flex items-center justify-center px-4 hidden">
-      <div class="poll-in bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl">
-        <div class="flex items-center gap-2 text-saffron-600 text-xs font-bold uppercase tracking-widest">
-          <span class="w-2 h-2 rounded-full bg-saffron-500 pulse-dot"></span> Quick poll
-        </div>
-        <h3 class="font-display font-extrabold text-lg mt-2">Is the burning of magnesium an exothermic or endothermic reaction?</h3>
-        <div class="mt-4 space-y-2" id="pollOptions">
-          <button class="poll-opt w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-medium transition" data-correct="1">Exothermic — it releases heat</button>
-          <button class="poll-opt w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-indigo-400 font-medium transition" data-correct="0">Endothermic — it absorbs heat</button>
-        </div>
-        <p id="pollResult" class="text-sm text-center mt-3 font-semibold hidden"></p>
-      </div>
-    </div>
-  </main>
-
-  <!-- ============ DOUBT PANEL ============ -->
-  <aside class="w-full lg:w-80 xl:w-96 bg-white flex flex-col border-l border-slate-200" style="max-height:100%">
-    <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
       <div>
-        <h3 class="font-display font-bold text-sm flex items-center gap-1.5">💬 Live Doubts</h3>
-        <p class="text-[11px] text-slate-500">Ask Vihaan anything — answered in seconds</p>
+        <div class="serif font-bold leading-none" style="color: var(--ink);">Mathematics with Praketa</div>
+        <div class="text-[11px] mt-1" style="color: var(--ink-soft);">Chapter 12 · Surface Areas and Volumes · Grade 10</div>
       </div>
-      <div class="text-[11px] text-slate-400">247 students</div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="live-pill"><span class="live-dot"></span> LIVE</span>
+      <span class="mono text-xs" style="color: var(--ink-soft);"><b id="elapsed" style="color:var(--ink);">07:42</b> / 60:00</span>
+      <span class="hidden sm:flex items-center gap-1 text-xs" style="color: var(--ink-soft);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M5 21v-2a7 7 0 0 1 14 0v2" stroke="currentColor" stroke-width="2"/></svg>
+        <b id="viewers" style="color: var(--ink);">847</b> watching
+      </span>
+    </div>
+  </div>
+
+  <!-- 3D STAGE -->
+  <div class="stage">
+    <div id="scene"></div>
+
+    <!-- Formula running display -->
+    <div class="formula">
+      <div class="label">Surface Area Formula</div>
+      <div class="eq" id="formula-eq">SA = 6 × a²</div>
+      <div class="step" id="formula-step">a is the length of one edge.</div>
     </div>
 
-    <!-- chat stream -->
-    <div id="chat" class="flex-1 overflow-y-auto scroll-y px-4 py-3 space-y-3 bg-slate-50">
-      <div class="msg flex items-start gap-2">
-        <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">SK</div>
+    <!-- Caption -->
+    <div class="caption" id="caption">A cube has six identical square faces. Let's see them all.</div>
+
+    <!-- Teacher PiP -->
+    <div class="pip">
+      <div class="pip-face"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+      <div class="pip-meta">
+        <div class="name">Praketa</div>
+        <div class="sub">Mathematics · live</div>
+      </div>
+      <div class="wave"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- Live poll overlay (hidden initially) -->
+    <div class="poll-overlay" id="poll">
+      <div class="head">
+        <span class="pill">LIVE POLL · 30 SEC</span>
+      </div>
+      <div class="poll-q">If a cube has edge length 5 cm, what is its total surface area?</div>
+      <div class="poll-opt" data-correct="false"><div class="key">A</div><span>25 cm²</span></div>
+      <div class="poll-opt" data-correct="false"><div class="key">B</div><span>75 cm²</span></div>
+      <div class="poll-opt" data-correct="true"><div class="key">C</div><span>150 cm²</span></div>
+      <div class="poll-opt" data-correct="false"><div class="key">D</div><span>125 cm²</span></div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat">
+    <div class="chat-head">
+      <div>
+        <div class="serif font-semibold" style="color: var(--ink);">Ask Praketa</div>
+        <div class="text-[11px]" style="color: var(--ink-soft);">Type a doubt — answered live</div>
+      </div>
+      <div class="text-[11px] mono px-2 py-1 rounded-full" style="background: #ECFDF5; color: var(--emerald-deep);">
+        <b id="doubt-count">14</b> answered
+      </div>
+    </div>
+
+    <div class="chat-list" id="chat-list">
+      <div class="msg student msg-fade-in">
+        <div class="avatar flex items-center justify-center serif font-bold text-xs" style="color: var(--terracotta);">RV</div>
         <div>
-          <div class="text-[10px] text-slate-400 mb-0.5">Sneha K. · asked</div>
-          <div class="bg-white border border-slate-200 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-700">Why does magnesium burn with such a bright light?</div>
+          <div class="who">Rohan · 7:34 PM</div>
+          <div class="body">Sir, why is it 6×a² and not just a²?</div>
         </div>
       </div>
-      <div class="msg flex items-start gap-2">
-        <div class="w-7 h-7 rounded-full bg-teal-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">VI</div>
+      <div class="msg teacher msg-fade-in">
+        <div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
         <div>
-          <div class="text-[10px] text-teal-600 font-semibold mb-0.5">Vihaan · answered</div>
-          <div class="bg-teal-50 border border-teal-100 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-800">Magnesium reacts very rapidly with oxygen and releases a large amount of energy at once — a lot of it as light. That's why we see the intense white glow. 🔆</div>
+          <div class="who">Praketa</div>
+          <div class="body">A cube has <b>six faces</b>, and each face is a square of side <i>a</i>. Each one has area a². Add all six together: a² + a² + a² + a² + a² + a² = 6a². That's why.</div>
         </div>
       </div>
-      <div class="msg flex items-start gap-2">
-        <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">RP</div>
+      <div class="msg student msg-fade-in">
+        <div class="avatar flex items-center justify-center serif font-bold text-xs" style="color: var(--terracotta);">SN</div>
         <div>
-          <div class="text-[10px] text-slate-400 mb-0.5">Rahul P. · asked</div>
-          <div class="bg-white border border-slate-200 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-700">Is rusting also this type of reaction?</div>
+          <div class="who">Sneha · 7:36 PM</div>
+          <div class="body">Sir is this same for a Rubik's cube?</div>
         </div>
       </div>
-      <div class="msg flex items-start gap-2">
-        <div class="w-7 h-7 rounded-full bg-teal-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">VI</div>
+      <div class="msg teacher msg-fade-in">
+        <div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
         <div>
-          <div class="text-[10px] text-teal-600 font-semibold mb-0.5">Vihaan · answered</div>
-          <div class="bg-teal-50 border border-teal-100 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-800">Good link! Rusting is also oxidation — iron reacting with oxygen — but it is very slow, so we don't see a flame. We'll cover it next class. 🙂</div>
+          <div class="who">Praketa</div>
+          <div class="body">Exactly the same! A Rubik's cube is a cube. If one edge is 5.7 cm, the surface area is 6 × 5.7² ≈ 195 cm². But we usually ignore the small grooves between the squares.</div>
         </div>
       </div>
     </div>
 
-    <!-- typing indicator -->
-    <div id="typing" class="px-4 py-1.5 hidden">
-      <div class="flex items-center gap-2 text-[11px] text-teal-600">
-        <span class="td flex gap-1"><span></span><span></span><span></span></span>
-        Vihaan is answering…
-      </div>
+    <div class="chat-input">
+      <input type="text" id="doubt-input" placeholder="Type your doubt for Praketa..." />
+      <button class="mic-btn" id="mic-btn" title="Record voice doubt">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="2"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button id="send-btn">Ask</button>
     </div>
+  </div>
 
-    <!-- doubt input -->
-    <div class="border-t border-slate-100 p-3">
-      <div class="flex items-center gap-2">
-        <button id="micBtn" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-500 flex items-center justify-center transition shrink-0" title="Record a voice doubt">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/><path d="M5.5 9.5a.5.5 0 011 0 3.5 3.5 0 007 0 .5.5 0 011 0 4.5 4.5 0 01-4 4.473V16h2a.5.5 0 010 1h-5a.5.5 0 010-1h2v-2.027a4.5 4.5 0 01-4-4.473z"/></svg>
-        </button>
-        <input id="doubtInput" type="text" placeholder="Type your doubt…"
-          class="flex-1 bg-slate-100 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-300 transition">
-        <button id="sendBtn" class="w-10 h-10 rounded-xl bg-indigo-800 hover:bg-indigo-900 text-white flex items-center justify-center transition shrink-0">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.926A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.085l-1.414 4.926a.75.75 0 00.826.95 28.897 28.897 0 0015.293-7.155.75.75 0 000-1.114A28.897 28.897 0 003.105 2.289z"/></svg>
-        </button>
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="flex items-center gap-2">
+      <button class="btn-icon active" title="Audio on">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="cap-toggle">
+        <button class="on" data-lang="en">EN</button>
+        <button data-lang="kn">Kanglish</button>
       </div>
-      <p class="text-[10px] text-slate-400 mt-1.5 text-center">Your doubt is private — only you and Vihaan see it unless it's picked for everyone.</p>
+      <button class="btn-icon" title="Reactions" id="react-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="btn-icon" title="Fullscreen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
     </div>
-  </aside>
+    <div class="text-xs flex items-center gap-3" style="color: var(--ink-soft);">
+      <span class="hidden sm:inline">After class: notes auto-generated, quiz in your dashboard.</span>
+      <button class="btn-leave">Leave class</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const chat = document.getElementById('chat');
-    const input = document.getElementById('doubtInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const typing = document.getElementById('typing');
+  // ====================== Elapsed time ======================
+  let secs = 7 * 60 + 42;
+  function tickTime() {
+    secs++;
+    const mm = Math.floor(secs / 60).toString().padStart(2, '0');
+    const ss = (secs % 60).toString().padStart(2, '0');
+    document.getElementById('elapsed').textContent = `${mm}:${ss}`;
+  }
+  setInterval(tickTime, 1000);
 
-    // canned AI answers
-    const answers = [
-      "Great question! Let me explain — in this reaction, energy stored in chemical bonds is released, mostly as heat and light. ✨",
-      "Nice thinking. The key idea is the balanced equation: atoms are never lost, only rearranged. Count them on both sides!",
-      "Good doubt. Remember: exothermic = releases heat, endothermic = absorbs heat. Burning is always exothermic. 🔥",
-      "I'll add a quick note to your Memory Deck so you can revise this later. The short answer: yes, oxidation is involved here. 👍",
-      "Let's keep that in mind for the Sunday doubt session too — for now, focus on the balanced equation 2Mg + O₂ → 2MgO."
-    ];
-    let ai = 0;
+  // Viewer count fluctuates a bit
+  setInterval(() => {
+    const cur = parseInt(document.getElementById('viewers').textContent);
+    const delta = Math.floor(Math.random() * 7) - 3;
+    document.getElementById('viewers').textContent = Math.max(800, cur + delta);
+  }, 4000);
 
-    function addMsg(who, text, name, initials) {
-      const wrap = document.createElement('div');
-      wrap.className = 'msg flex items-start gap-2';
-      if (who === 'me') {
-        wrap.classList.add('flex-row-reverse');
-        wrap.innerHTML = `
-          <div class="w-7 h-7 rounded-full bg-indigo-800 flex items-center justify-center text-[9px] font-bold text-white shrink-0">You</div>
-          <div class="text-right">
-            <div class="text-[10px] text-slate-400 mb-0.5">You · asked</div>
-            <div class="bg-indigo-800 text-white rounded-xl rounded-tr-sm px-3 py-2 text-sm text-left">${text}</div>
-          </div>`;
-      } else {
-        wrap.innerHTML = `
-          <div class="w-7 h-7 rounded-full bg-teal-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">VI</div>
-          <div>
-            <div class="text-[10px] text-teal-600 font-semibold mb-0.5">Vihaan · answered</div>
-            <div class="bg-teal-50 border border-teal-100 rounded-xl rounded-tl-sm px-3 py-2 text-sm text-slate-800">${text}</div>
-          </div>`;
-      }
-      chat.appendChild(wrap);
-      chat.scrollTop = chat.scrollHeight;
-    }
+  // ====================== Captions rotation ======================
+  const captionsEN = [
+    "A cube has six identical square faces. Let's see them all.",
+    "Watch the faces drift outward — that's the same cube, just unfolded.",
+    "Each face is a square. If one edge is 'a', then each face has area a².",
+    "So total surface area = a² + a² + a² + a² + a² + a² = 6 × a².",
+    "This works for any cube. The bigger the edge, the bigger the surface area — squared.",
+    "Now, what if we know surface area? Can we find the edge length?",
+    "Yes — divide by 6, take the square root. a = √(SA ÷ 6).",
+  ];
+  const captionsKN = [
+    "Cube-ge aaru identical square faces ive. Notmaadi.",
+    "Faces horagade hogtive — adu same cube, just unfolded.",
+    "Pratiyondu face square, edge 'a' antha hesaridre, area a² aagutte.",
+    "Total surface area = 6 × a². Aaru faces, each a².",
+    "Yaava cube-ge ne, idu same rule. Edge double aadre, SA naalku patte.",
+    "SA gottiddre, edge-na find maadbahuda?",
+    "Howdu — SA-na 6-rinda divide maadi, square root tegyiri.",
+  ];
+  let capIdx = 0;
+  let capLang = 'en';
+  function rotateCaption() {
+    const list = capLang === 'en' ? captionsEN : captionsKN;
+    const el = document.getElementById('caption');
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = list[capIdx % list.length];
+      el.style.opacity = '1';
+      capIdx++;
+    }, 350);
+  }
+  rotateCaption();
+  setInterval(rotateCaption, 5500);
 
-    function send() {
-      const t = input.value.trim();
-      if (!t) return;
-      addMsg('me', t);
-      input.value = '';
-      typing.classList.remove('hidden');
-      chat.scrollTop = chat.scrollHeight;
-      setTimeout(() => {
-        typing.classList.add('hidden');
-        addMsg('ai', answers[ai % answers.length]);
-        ai++;
-      }, 1400 + Math.random()*900);
-    }
-    sendBtn.addEventListener('click', send);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
-
-    // mic button
-    document.getElementById('micBtn').addEventListener('click', function() {
-      this.classList.toggle('bg-rose-100');
-      this.classList.toggle('text-rose-600');
-      if (this.classList.contains('text-rose-600')) {
-        input.placeholder = 'Listening… speak your doubt';
-        setTimeout(() => {
-          input.value = 'Why is the product MgO and not MgO₂?';
-          this.classList.remove('bg-rose-100','text-rose-600');
-          input.placeholder = 'Type your doubt…';
-        }, 1800);
-      }
+  document.querySelectorAll('.cap-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.cap-toggle button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      capLang = b.dataset.lang;
+      rotateCaption();
     });
+  });
 
-    // captions toggle
-    const capLang = document.getElementById('capLang');
-    const caption = document.getElementById('caption');
-    const caps = {
-      'English': '"Notice the bright white light — that tells us a large amount of energy is being released as heat."',
-      'Kanglish': '"Nodi, bright white light bartide — adu energy heat-aagi release aagtide antha tortte. ✨"'
-    };
-    document.getElementById('capToggle').addEventListener('click', () => {
-      capLang.textContent = capLang.textContent === 'English' ? 'Kanglish' : 'English';
-      caption.textContent = caps[capLang.textContent];
-    });
+  // ====================== Formula rotates ======================
+  const formulaSteps = [
+    { eq: "Step 1 — One face", step: "Area of one square face = a × a = a²" },
+    { eq: "Step 2 — All six faces", step: "Total = a² + a² + a² + a² + a² + a²" },
+    { eq: "SA = 6 × a²", step: "Six faces, each of area a²." },
+    { eq: "If a = 5 cm", step: "SA = 6 × 25 = 150 cm²" },
+    { eq: "If SA = 96, then a = ?", step: "a = √(96 ÷ 6) = √16 = 4" },
+  ];
+  let fIdx = 0;
+  function rotateFormula() {
+    const f = formulaSteps[fIdx % formulaSteps.length];
+    document.getElementById('formula-eq').textContent = f.eq;
+    document.getElementById('formula-step').textContent = f.step;
+    fIdx++;
+  }
+  rotateFormula();
+  setInterval(rotateFormula, 6000);
 
-    // reactions
-    const stage = document.getElementById('stage');
-    document.querySelectorAll('.react-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        for (let i=0;i<3;i++){
-          const r = document.createElement('div');
-          r.className = 'react-fly';
-          r.textContent = btn.dataset.emoji;
-          r.style.left = (70 + Math.random()*60) + '%';
-          r.style.bottom = '120px';
-          r.style.animationDelay = (i*0.15) + 's';
-          stage.appendChild(r);
-          setTimeout(() => r.remove(), 2400);
-        }
-      });
-    });
+  // ====================== Reactions ======================
+  const REACTIONS = ['👏', '🔥', '💡', '🙌', '✨', '🧠'];
+  document.getElementById('react-btn').addEventListener('click', () => {
+    spawnReaction(REACTIONS[Math.floor(Math.random() * REACTIONS.length)]);
+  });
+  function spawnReaction(emoji) {
+    const stage = document.querySelector('.stage');
+    const r = document.createElement('div');
+    r.className = 'reaction';
+    r.textContent = emoji;
+    r.style.left = (20 + Math.random() * 70) + '%';
+    stage.appendChild(r);
+    setTimeout(() => r.remove(), 3500);
+  }
+  // periodically spawn ambient reactions to feel live
+  setInterval(() => {
+    if (Math.random() < .5) spawnReaction(REACTIONS[Math.floor(Math.random() * REACTIONS.length)]);
+  }, 3000);
 
-    // confetti
-    const colors = ['#F59E0B','#0D9488','#1E3A8A','#FB7185','#A855F7','#FBBF24'];
-    function confetti(x,y){
-      for(let i=0;i<40;i++){
-        const p=document.createElement('div');
-        p.className='confetti-piece';
-        p.style.left=x+'px'; p.style.top=y+'px';
-        p.style.background=colors[i%colors.length];
-        const a=Math.random()*Math.PI*2, v=80+Math.random()*160;
-        p.style.setProperty('--dx',Math.cos(a)*v+'px');
-        p.style.setProperty('--dy',(Math.sin(a)*v-100)+'px');
-        p.style.setProperty('--rot',(Math.random()*900-450)+'deg');
-        document.body.appendChild(p);
-        setTimeout(()=>p.remove(),1250);
-      }
+  // ====================== Mic button ======================
+  const micBtn = document.getElementById('mic-btn');
+  let recording = false;
+  micBtn.addEventListener('click', () => {
+    recording = !recording;
+    micBtn.classList.toggle('recording', recording);
+    if (!recording) {
+      addStudentDoubt("(voice) Sir, what about cuboid surface area?", true);
+      setTimeout(() => addTeacherAnswer("Great question. A cuboid has different sized faces — length × breadth, breadth × height, length × height. Surface area = 2(lb + bh + lh). I'll cover this next class!"), 1400);
     }
+  });
 
-    // poll — appears after 4s
+  // ====================== Doubt submit ======================
+  const input = document.getElementById('doubt-input');
+  const sendBtn = document.getElementById('send-btn');
+  function submit() {
+    const text = input.value.trim();
+    if (!text) return;
+    addStudentDoubt(text);
+    input.value = '';
+    setTimeout(() => addTeacherAnswer(canAnswer(text)), 1500);
+  }
+  sendBtn.addEventListener('click', submit);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+
+  function addStudentDoubt(text, isVoice=false) {
+    const list = document.getElementById('chat-list');
+    const div = document.createElement('div');
+    div.className = 'msg student msg-fade-in';
+    div.innerHTML = `<div class="avatar flex items-center justify-center serif font-bold text-xs" style="color: var(--terracotta);">PR</div>
+      <div><div class="who">Priya · just now${isVoice ? ' · voice' : ''}</div><div class="body">${escapeHtml(text)}</div></div>`;
+    list.appendChild(div);
+    list.scrollTop = list.scrollHeight;
+    // typing indicator
+    const t = document.createElement('div');
+    t.className = 'msg teacher msg-fade-in';
+    t.id = 'typing-indicator';
+    t.innerHTML = `<div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+      <div><div class="who">Praketa is thinking</div><div class="body"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+    list.appendChild(t);
+    list.scrollTop = list.scrollHeight;
+  }
+  function addTeacherAnswer(text) {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+    const list = document.getElementById('chat-list');
+    const div = document.createElement('div');
+    div.className = 'msg teacher msg-fade-in';
+    div.innerHTML = `<div class="avatar"><svg viewBox="0 0 120 120" class="w-full h-full"><use href="#face-praketa"/></svg></div>
+      <div><div class="who">Praketa · just now</div><div class="body">${escapeHtml(text)}</div></div>`;
+    list.appendChild(div);
+    list.scrollTop = list.scrollHeight;
+    const dc = document.getElementById('doubt-count');
+    dc.textContent = (parseInt(dc.textContent) + 1);
+  }
+  function canAnswer(text) {
+    const t = text.toLowerCase();
+    if (t.includes('cuboid')) return "Cuboid has three different face sizes — l×b, b×h, l×h. Surface area = 2(lb + bh + lh). Different from a cube where all six faces are equal.";
+    if (t.includes('sphere')) return "A sphere doesn't have flat faces. Its surface area is 4πr². We'll cover spheres in two classes from now.";
+    if (t.includes('cylinder')) return "Cylinder = 2 circles + 1 rectangle wrapped around. SA = 2πr² + 2πrh. The rectangle's length is the circumference 2πr.";
+    if (t.includes('volume')) return "Volume of a cube is a³ — length × breadth × height, all equal to a. Surface area is 6a². Don't mix them up!";
+    if (t.includes('why')) return "Excellent — the 'why' is what matters. Every flat-faced solid has surface area = sum of areas of all its faces. For a cube specifically, all six faces are equal squares, so we shortcut to 6a².";
+    if (t.includes('formula')) return "For a cube: SA = 6a². For a cuboid: 2(lb + bh + lh). For a cylinder: 2πr(r+h). For a sphere: 4πr². Write them down — we'll use all four.";
+    return "Good question. Try working through the formula step by step — the answer usually appears. If you're still stuck, type your specific numbers and I'll walk through them with you.";
+  }
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ====================== Live poll appears mid-class ======================
+  setTimeout(() => {
     const poll = document.getElementById('poll');
-    const pollResult = document.getElementById('pollResult');
-    setTimeout(() => poll.classList.remove('hidden'), 4000);
+    poll.classList.add('show');
     document.querySelectorAll('.poll-opt').forEach(opt => {
       opt.addEventListener('click', () => {
-        document.querySelectorAll('.poll-opt').forEach(o => o.disabled = true);
-        const correct = opt.dataset.correct === '1';
-        opt.classList.add(correct ? 'border-teal-500' : 'border-rose-400');
-        opt.classList.add(correct ? 'bg-teal-50' : 'bg-rose-50');
-        pollResult.classList.remove('hidden');
-        if (correct) {
-          pollResult.textContent = '🎉 Correct! Burning always releases heat.';
-          pollResult.classList.add('text-teal-600');
-          const r = opt.getBoundingClientRect();
-          confetti(r.left + r.width/2, r.top);
-        } else {
-          pollResult.textContent = 'Not quite — burning releases heat, so it’s exothermic.';
-          pollResult.classList.add('text-rose-600');
-          document.querySelector('.poll-opt[data-correct="1"]').classList.add('border-teal-500','bg-teal-50');
-        }
-        setTimeout(() => poll.classList.add('hidden'), 2600);
+        const correct = opt.dataset.correct === 'true';
+        document.querySelectorAll('.poll-opt').forEach(o => {
+          o.classList.add(o.dataset.correct === 'true' ? 'correct' : '');
+        });
+        opt.classList.add(correct ? 'correct' : 'wrong');
+        if (correct) burstConfetti(80);
+        setTimeout(() => poll.classList.remove('show'), 2000);
       });
     });
+  }, 8000);
 
-    // live elapsed timer
-    let secs = 42*60 + 8;
-    const el = document.getElementById('elapsed');
-    setInterval(() => {
-      secs++;
-      el.textContent = String(Math.floor(secs/60)).padStart(2,'0') + ':' + String(secs%60).padStart(2,'0');
-    }, 1000);
+  function burstConfetti(count) {
+    const colors = ['#D97706','#059669','#C2410C','#B8860B','#65A30D','#92400E'];
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (1 + Math.random() * 1.4) + 's';
+      c.style.animationDelay = (Math.random() * 0.3) + 's';
+      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 2800);
+    }
+  }
 
-    // wobble viewer count a little
-    const vc = document.getElementById('viewers');
-    setInterval(() => {
-      vc.textContent = 245 + Math.floor(Math.random()*8);
-    }, 3000);
-  });
+  // ====================== THREE.JS — exploding cube for surface area ======================
+  (function buildScene() {
+    const container = document.getElementById('scene');
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    const W = container.clientWidth, H = container.clientHeight;
+
+    const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 100);
+    camera.position.set(4, 3, 6);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // Lights — editorial / soft sun
+    scene.add(new THREE.AmbientLight(0xFAF5EB, 0.6));
+    const sun = new THREE.DirectionalLight(0xFFF5DC, 1.1);
+    sun.position.set(5, 8, 5);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.left = -6; sun.shadow.camera.right = 6;
+    sun.shadow.camera.top = 6; sun.shadow.camera.bottom = -6;
+    scene.add(sun);
+    const fill = new THREE.DirectionalLight(0xFFE9C2, 0.4);
+    fill.position.set(-5, 4, 5);
+    scene.add(fill);
+
+    // Ground shadow plane
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(8, 64),
+      new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.85, metalness: 0.02 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -1.8;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Subtle grid lines on ground
+    const grid = new THREE.GridHelper(10, 10, 0xD97706, 0xEAE1D1);
+    grid.position.y = -1.79;
+    grid.material.opacity = 0.3; grid.material.transparent = true;
+    scene.add(grid);
+
+    // The six cube faces — each placed at the natural cube position
+    // Material in amber/cream — semi-transparent to feel like a math diagram
+    const SIZE = 1.5; // edge length / 2
+    const faceMatTop = new THREE.MeshStandardMaterial({
+      color: 0xD97706, roughness: 0.4, metalness: 0.2,
+      transparent: true, opacity: 0.85, side: THREE.DoubleSide,
+    });
+    const faceMatSide = new THREE.MeshStandardMaterial({
+      color: 0xF59E0B, roughness: 0.4, metalness: 0.2,
+      transparent: true, opacity: 0.85, side: THREE.DoubleSide,
+    });
+    const faceMatBot = new THREE.MeshStandardMaterial({
+      color: 0xB45309, roughness: 0.4, metalness: 0.2,
+      transparent: true, opacity: 0.85, side: THREE.DoubleSide,
+    });
+
+    const faces = [];
+    function addFace(mat, pos, rot) {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(SIZE * 2, SIZE * 2), mat);
+      m.position.copy(pos);
+      m.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
+      m.castShadow = true; m.receiveShadow = true;
+      scene.add(m);
+      // store normal direction so we can animate outward
+      const normal = new THREE.Vector3(0, 0, 1).applyEuler(m.rotation).normalize();
+      faces.push({ mesh: m, basePos: pos.clone(), normal });
+    }
+    // top
+    addFace(faceMatTop, new THREE.Vector3(0, SIZE, 0), { x: -Math.PI / 2 });
+    // bottom
+    addFace(faceMatBot, new THREE.Vector3(0, -SIZE, 0), { x: Math.PI / 2 });
+    // front (z+)
+    addFace(faceMatSide, new THREE.Vector3(0, 0, SIZE), { });
+    // back (z-)
+    addFace(faceMatSide.clone(), new THREE.Vector3(0, 0, -SIZE), { y: Math.PI });
+    // right (x+)
+    addFace(faceMatSide.clone(), new THREE.Vector3(SIZE, 0, 0), { y: Math.PI / 2 });
+    // left (x-)
+    addFace(faceMatSide.clone(), new THREE.Vector3(-SIZE, 0, 0), { y: -Math.PI / 2 });
+
+    // Edge lines (so cube outline shows even when faces drift)
+    const edges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(SIZE * 2, SIZE * 2, SIZE * 2)),
+      new THREE.LineBasicMaterial({ color: 0x1F1611, transparent: true, opacity: 0.18 })
+    );
+    scene.add(edges);
+
+    // Edge length marker "a" on bottom edge — small bar
+    const marker = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.025, 0.025, SIZE * 2, 8),
+      new THREE.MeshStandardMaterial({ color: 0x1F1611, roughness: 0.5 })
+    );
+    marker.rotation.z = Math.PI / 2;
+    marker.position.set(0, -SIZE - 0.15, SIZE + 0.1);
+    marker.castShadow = true;
+    scene.add(marker);
+    // end caps
+    const cap1 = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 8), new THREE.MeshStandardMaterial({ color: 0x1F1611 }));
+    cap1.position.set(-SIZE, -SIZE - 0.15, SIZE + 0.1);
+    const cap2 = cap1.clone(); cap2.position.x = SIZE;
+    scene.add(cap1); scene.add(cap2);
+
+    // a small floating "a²" badge (just a colored disc) above each visible face — purely decorative dots
+    const badges = [];
+    faces.forEach((f, i) => {
+      if (i >= 4) return; // only front-facing 4
+      const b = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 16, 12),
+        new THREE.MeshStandardMaterial({ color: 0xFEF3C7, emissive: 0xD97706, emissiveIntensity: 0.3, roughness: 0.4, metalness: 0.6 })
+      );
+      b.position.copy(f.basePos).add(f.normal.clone().multiplyScalar(0.08));
+      scene.add(b);
+      badges.push({ mesh: b, ref: f });
+    });
+
+    // Mouse-orbit
+    const m = { x: 0, y: 0, tx: 0, ty: 0 };
+    container.addEventListener('mousemove', (e) => {
+      const r = container.getBoundingClientRect();
+      m.tx = (e.clientX - r.left) / r.width - 0.5;
+      m.ty = (e.clientY - r.top) / r.height - 0.5;
+    });
+
+    window.addEventListener('resize', () => {
+      const W = container.clientWidth, H = container.clientHeight;
+      camera.aspect = W / H; camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+    });
+
+    const clock = new THREE.Clock();
+    function loop() {
+      const t = clock.getElapsedTime();
+      m.x += (m.tx - m.x) * 0.05;
+      m.y += (m.ty - m.y) * 0.05;
+
+      // explode/implode cycle (every 8 seconds)
+      const phase = (Math.sin(t * Math.PI / 4) + 1) / 2; // 0..1..0
+      const explosion = phase * 0.85; // how far faces drift outward
+
+      faces.forEach(f => {
+        f.mesh.position.copy(f.basePos).add(f.normal.clone().multiplyScalar(explosion));
+      });
+      badges.forEach(b => {
+        b.mesh.position.copy(b.ref.basePos).add(b.ref.normal.clone().multiplyScalar(explosion + 0.08));
+      });
+
+      // edges only visible when faces are close (cube intact)
+      edges.material.opacity = Math.max(0, 0.22 - explosion * 0.35);
+
+      // slow camera orbit + mouse parallax
+      const cAngle = t * 0.18 + m.x * 0.9;
+      const radius = 6;
+      camera.position.x = Math.sin(cAngle) * radius;
+      camera.position.z = Math.cos(cAngle) * radius;
+      camera.position.y = 2.5 - m.y * 1.5;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    }
+    loop();
+  })();
 </script>
-
 </body>
 </html>

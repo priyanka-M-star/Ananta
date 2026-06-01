@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ananta · AI Worker Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --gold:#B8860B; --sage:#65A30D; --copper:#92400E; --burgundy:#9F1239;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:'Inter',sans-serif; color:var(--ink); margin:0;
+    background: var(--bg);
+    line-height:1.6;
+  }
+  .serif{font-family:'Fraunces',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1100px; margin:0 auto; padding:48px 28px;}
+
+  header.hero{
+    background: linear-gradient(135deg, #1F1611 0%, #3F2E22 60%, var(--terracotta) 130%);
+    color: #FAF5EB; padding: 64px 28px 56px; position: relative; overflow: hidden;
+  }
+  header.hero::before{
+    content:''; position:absolute; right:-100px; top:-100px;
+    width:380px; height:380px; border-radius:50%; background:rgba(245,158,11,.12); filter:blur(40px);
+  }
+  header.hero::after{
+    content:''; position:absolute; left:-80px; bottom:-100px;
+    width:300px; height:300px; border-radius:50%; background:rgba(5,150,105,.14); filter:blur(40px);
+  }
+  header .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(254,243,199,.16); border:1px solid rgba(254,243,199,.22);
+    padding:6px 14px; border-radius:999px; font-size:12px; font-weight:600;
+    margin-bottom:18px;
+  }
+  header h1{font-family:'Fraunces',serif; font-size:48px; font-weight:700; margin:0 0 14px; line-height:1.05; max-width:900px; letter-spacing:-.02em;}
+  header .sub{font-size:18px; max-width:780px; opacity:.92; color:#FBE7C2;}
+  header .meta{margin-top:24px; display:flex; flex-wrap:wrap; gap:10px;}
+  header .badge{background:rgba(254,243,199,.13); padding:7px 13px; border-radius:10px; font-size:13px; border:1px solid rgba(254,243,199,.14);}
+
+  h2{font-family:'Fraunces',serif; font-size:30px; font-weight:600; margin:54px 0 6px; color:var(--ink); letter-spacing:-.018em;}
+  h2 .num{display:inline-block; font-size:13px; background:var(--ink); color:#FAF5EB; padding:4px 10px; border-radius:8px; vertical-align:middle; margin-right:10px; font-family:'JetBrains Mono', monospace; font-weight:700;}
+  h3{font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:28px 0 10px; color:var(--ink);}
+
+  .section-lead{color:var(--ink-soft); margin-bottom:18px; font-size:16px;}
+
+  .card{
+    background:#FFFFFF; border:1px solid var(--line);
+    border-radius:18px; padding:24px 26px; margin:18px 0;
+    box-shadow: 0 1px 0 #FFFFFF inset, 0 6px 16px -10px rgba(31,22,17,.08), 0 22px 60px -34px rgba(31,22,17,.18);
+  }
+  .card-amber { border-left: 4px solid var(--amber); }
+  .card-emerald { border-left: 4px solid var(--emerald); }
+  .card-terracotta { border-left: 4px solid var(--terracotta); }
+  .card-walnut { border-left: 4px solid var(--ink); }
+
+  .card .row{display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap; justify-content:space-between;}
+  .card .head{font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--ink);}
+  .card .meta-row { display:flex; gap:8px; flex-wrap:wrap; }
+  .card .tag{
+    background:#FEF3C7; color: var(--amber-deep); font-weight:700; font-size:11px;
+    padding:4px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;
+  }
+  .card .tag.green { background:#ECFDF5; color: var(--emerald-deep); }
+  .card .tag.red { background:#FEE2E2; color: var(--burgundy); }
+  .card .tag.blue { background:#E0E7FF; color:#3730A3; }
+  .card p{margin:10px 0; color:var(--ink-2);}
+  .card .why{margin-top:12px; padding-top:12px; border-top:1px dashed var(--line-2);}
+  .card .why-head{font-size:12px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; font-family:'JetBrains Mono', monospace;}
+  .card ul{margin:6px 0 0 0; padding-left:20px;}
+  .card ul li{margin:5px 0; color:var(--ink-2); font-size:15px;}
+  .card ul li b{color:var(--ink);}
+
+  pre, code.block{
+    background:#1F1611; color:#FBE7C2; border-radius:14px; padding:18px 20px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.55;
+    overflow-x:auto; margin:14px 0; display:block;
+  }
+  code.inline{
+    background: var(--bg-2); color: var(--ink); padding: 2px 6px; border-radius: 5px;
+    font-family:'JetBrains Mono', monospace; font-size: 13.5px;
+  }
+
+  .toc{
+    background:#FFFFFF; border-radius:18px; padding:24px 28px; margin:0 0 28px;
+    border:1px solid var(--line);
+    box-shadow:0 8px 24px -16px rgba(31,22,17,.10);
+  }
+  .toc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:8px 18px;}
+  .toc a{color:var(--ink); text-decoration:none; font-size:14px; padding:6px 8px; border-radius:8px; display:block; transition:all .15s ease;}
+  .toc a:hover{background:var(--bg-2); transform:translateX(2px);}
+  .toc a .n{display:inline-block; width:32px; color:var(--ink-soft); font-weight:600; font-size:12px; font-family:'JetBrains Mono', monospace;}
+
+  .principles{
+    background:linear-gradient(135deg, #FFFFFF 0%, #FEF3C7 130%);
+    border-radius:18px; padding:24px 28px; margin:28px 0;
+    border:1px solid #FDE68A;
+  }
+  .principles h3{margin:0 0 12px; color:var(--amber-deep);}
+  .principles ol{margin:0; padding-left:20px;}
+  .principles ol li{margin:6px 0; color:var(--ink-2);}
+
+  table.cost{
+    width:100%; border-collapse:collapse; margin:18px 0;
+    background:#FFFFFF; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 8px 24px -18px rgba(31,22,17,.12);
+  }
+  table.cost th{
+    background: var(--ink); color: #FAF5EB;
+    font-family:'Fraunces',serif; font-weight:600;
+    text-align:left; padding:12px 16px; font-size:14px;
+  }
+  table.cost td{padding:12px 16px; border-bottom:1px solid var(--line); font-size:14px;}
+  table.cost tr:last-child td{border-bottom:0;}
+  table.cost tr:hover{background:#FAF5EB;}
+  table.cost td.free{color:var(--emerald-deep); font-weight:700;}
+  table.cost td.cheap{color:var(--amber-deep); font-weight:600;}
+
+  .callout{
+    background:#FEF3C7; border-left:4px solid var(--amber);
+    padding:14px 18px; border-radius:12px; margin:16px 0; font-size:14.5px; color: var(--ink-2);
+  }
+  .callout b{color:var(--ink);}
+
+  /* phase header chips */
+  .phase-1 { color: var(--emerald-deep); }
+  .phase-2 { color: var(--amber-deep); }
+  .phase-3 { color: var(--burgundy); }
+
+  /* flow diagram blocks */
+  .flow{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    background: var(--bg-2); padding:18px; border-radius:14px;
+    border:1px solid var(--line-2);
+    margin:16px 0;
+  }
+  .flow-step{
+    background:#FFFFFF; border:1px solid var(--line);
+    padding:10px 14px; border-radius:10px; font-size:13px; font-weight:600;
+    color:var(--ink); min-width:120px; text-align:center;
+  }
+  .flow-step .role { display:block; font-size:10px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; font-weight:500; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+  .flow-arrow{ font-family:'JetBrains Mono', monospace; color:var(--ink-soft); font-size:18px; font-weight:700; }
+
+  footer{
+    margin-top:60px; padding:32px;
+    text-align:center;
+    color:var(--ink-dim); font-size:13px; border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div style="max-width:1100px; margin:0 auto;">
+    <span class="pill">
+      <span style="width:8px; height:8px; background:#86EFAC; border-radius:50%; display:inline-block;"></span>
+      v1.0 · Confirmed 2026-05-29
+    </span>
+    <h1>The AI worker, in three phases.</h1>
+    <p class="sub">How Ananta's six AI teachers actually teach, answer doubts, generate notes, and find their own voice — without us building our own GPT. Pragmatic in Phase 1, defensible by Phase 3.</p>
+    <div class="meta">
+      <span class="badge">🇮🇳 Indic-first</span>
+      <span class="badge">💸 ₹0 LLM cost at MVP</span>
+      <span class="badge">🔓 Open-source spine</span>
+      <span class="badge">🎙 Custom TTS per teacher</span>
+      <span class="badge">📈 RAG → fine-tune → custom 70B</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="principles">
+    <h3>🧭 The position we're taking</h3>
+    <ol>
+      <li><b>Don't train a foundation model.</b> A model the size of GPT-4 takes $10M and a research team to train. That's a different business. Use what already exists.</li>
+      <li><b>The knowledge is ours, the model is rented.</b> Off-the-shelf LLMs become "Ananta teachers" through retrieval-augmented generation (RAG) over our own lesson scripts, KSEEB textbooks, and accumulated doubt-answer pairs. The model is interchangeable; the knowledge base is the moat.</li>
+      <li><b>Persona via prompt engineering, not training.</b> Each teacher has a system prompt + few-shot examples + locked vocabulary. Consistent voice without a single training run.</li>
+      <li><b>One thing IS worth training early: TTS voices.</b> Six fine-tuned voices on AI4Bharat's IndicTTS — cheap (~₹50k each), permanent brand asset, can't be replicated by an OpenAI wrapper.</li>
+      <li><b>Phase in the upgrades.</b> RAG (now) → fine-tune small open model (at 500 users) → custom 70B (at 5,000 users). Each phase pays for the next.</li>
+      <li><b>Cost ceiling: zero rupees of LLM API spend until paying users exist.</b> Groq's dev tier covers it. If we cross the ceiling, we have revenue to offset.</li>
+    </ol>
+  </div>
+
+  <div class="toc">
+    <h3 style="margin-top:0;">Contents</h3>
+    <div class="toc-grid">
+      <a href="#s1"><span class="n">01</span> What the AI worker does</a>
+      <a href="#s2"><span class="n">02</span> Phase 1 — RAG architecture</a>
+      <a href="#s3"><span class="n">03</span> The RAG pipeline, step by step</a>
+      <a href="#s4"><span class="n">04</span> Persona system</a>
+      <a href="#s5"><span class="n">05</span> Knowledge base & embeddings</a>
+      <a href="#s6"><span class="n">06</span> TTS — six voices, fine-tuned</a>
+      <a href="#s7"><span class="n">07</span> Lesson generation pipeline</a>
+      <a href="#s8"><span class="n">08</span> Live doubt answering</a>
+      <a href="#s9"><span class="n">09</span> Quiz & notes generation</a>
+      <a href="#s10"><span class="n">10</span> Memory Deck cards</a>
+      <a href="#s11"><span class="n">11</span> Catch-up plan generator</a>
+      <a href="#s12"><span class="n">12</span> Phase 2 — fine-tune trigger</a>
+      <a href="#s13"><span class="n">13</span> Phase 3 — custom 70B</a>
+      <a href="#s14"><span class="n">14</span> Cost model</a>
+      <a href="#s15"><span class="n">15</span> Quality, safety, evals</a>
+    </div>
+  </div>
+
+  <h2 id="s1"><span class="num">01</span> What the AI worker does</h2>
+  <p class="section-lead">
+    The AI worker is a separate FastAPI + Celery service that handles everything LLM-shaped. Splitting it from the main API means the slow stuff (lesson rendering, TTS generation, doubt answering) never blocks transactional requests like signups and payments. The student's browser talks to the NestJS API; the API delegates AI work to this service.
+  </p>
+
+  <div class="card card-walnut">
+    <div class="head">Responsibilities</div>
+    <ul>
+      <li><b>Lesson generation</b> — produce the full script, the visual scene plan, and the Manim/Remotion animation code for one chapter, in both English and Kanglish.</li>
+      <li><b>Lesson narration (TTS)</b> — turn that script into an audio file using the teacher's fine-tuned voice.</li>
+      <li><b>Live doubt answering</b> — during a class, answer typed and voiced student questions in real time, in the teaching teacher's persona.</li>
+      <li><b>Notes generation</b> — produce the auto-generated lesson notes that students download after class.</li>
+      <li><b>Quiz generation</b> — write the 6-10 question quiz that appears at the end of each class, plus answer keys and explanations.</li>
+      <li><b>Memory Deck card generation</b> — extract spaced-repetition flashcards (definition, formula, key-fact) from each completed lesson.</li>
+      <li><b>Sunday weekly test paper generation</b> — assemble the 50-question paper from the week's chapters.</li>
+      <li><b>Catch-up plan generation</b> — for late-joining or behind-the-cohort students, produce a personalised daily watch order.</li>
+      <li><b>Parent-report writing</b> — compose the weekly WhatsApp digest in the parent's preferred language.</li>
+    </ul>
+  </div>
+
+  <h2 id="s2"><span class="num">02</span> Phase 1 — RAG architecture</h2>
+  <p class="section-lead">
+    Phase 1 is what runs from launch through ~500 paying users. The architecture is deliberately boring: a retrieval pipeline in front of off-the-shelf LLMs, with personas locked through prompts.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step"><span class="role">Browser</span>Student doubt</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Nest API</span>POST /doubts</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">AI Worker</span>Embed query</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Postgres</span>pgvector top-K</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">AI Worker</span>Assemble context</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Groq / Sarvam</span>LLM completion</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Browser</span>Answer streamed</div>
+  </div>
+
+  <div class="card card-emerald">
+    <div class="row">
+      <div class="head">Models used in Phase 1</div>
+      <div class="meta-row">
+        <span class="tag green">Phase 1</span>
+        <span class="tag">Free at MVP</span>
+      </div>
+    </div>
+    <ul>
+      <li><b>Groq Llama 3.3 70B Versatile</b> — the workhorse. Used for English-medium lesson script writing, quiz generation, parent reports, and most doubt answering. ~500 tokens/sec inference speed. Free dev tier: 30 req/min, 14,000 req/day.</li>
+      <li><b>Sarvam-1 (2B, AI4Bharat)</b> — Kanglish doubt answering and Kannada-medium lesson narration script polish. The only model that handles Kannada-English code-mixing well.</li>
+      <li><b>OpenRouter free tier (DeepSeek, Gemini 2.0 Flash, Llama 3.1 70B)</b> — fallback when Groq rate-limits. Set as automatic failover in the worker code.</li>
+      <li><b>BGE-M3 embeddings</b> — multilingual embedding model (1024-d vectors). Free to self-host. Used for both English and Kannada/Hindi knowledge base. Matches the <code class="inline">vector(1024)</code> column in the Prisma schema.</li>
+    </ul>
+  </div>
+
+  <h2 id="s3"><span class="num">03</span> The RAG pipeline, step by step</h2>
+  <p class="section-lead">
+    When a student asks a doubt mid-class, here's everything that happens in the ~800 ms before the answer starts streaming back.
+  </p>
+
+  <div class="card card-emerald">
+    <div class="head">Doubt → Answer, in eight steps</div>
+    <ol style="padding-left:20px; margin-top:14px;">
+      <li><b>The doubt arrives.</b> Student types: <code class="inline">"Why does magnesium burn so brightly?"</code> Browser POSTs to <code class="inline">/doubts</code>. NestJS API validates, persists the doubt to the Postgres <code class="inline">Doubt</code> table with status <code class="inline">PENDING</code>, then forwards to AI worker.</li>
+      <li><b>Embed the query.</b> AI worker runs the doubt through BGE-M3, producing a 1024-dimensional vector. ~30 ms on the Oracle ARM CPU.</li>
+      <li><b>Retrieve top-K relevant chunks.</b> Worker runs <code class="inline">SELECT ... ORDER BY embedding &lt;=&gt; $1 LIMIT 8</code> against the lesson-chunk table, filtered by current subject and the chapters covered so far. ~40 ms with pgvector's HNSW index.</li>
+      <li><b>Score and filter retrieved chunks.</b> Worker re-ranks the 8 chunks with a small cross-encoder (BGE-Reranker). Drops anything below threshold. Usually 3-5 chunks survive.</li>
+      <li><b>Assemble the prompt.</b> Template: <code class="inline">{teacher_system_prompt}</code> + <code class="inline">{few_shot_examples}</code> + <code class="inline">{retrieved_chunks}</code> + <code class="inline">{the_student_question}</code> + <code class="inline">{output_format_instruction}</code>.</li>
+      <li><b>Call the LLM.</b> Streaming Groq completion (Llama 3.3 70B). Worker proxies the stream back to the API, which streams it to the browser. Time-to-first-token: ~300 ms.</li>
+      <li><b>Persist the answer.</b> While streaming, also accumulate the full answer. When the stream ends, write it to the <code class="inline">Doubt</code> row with status <code class="inline">ANSWERED</code>, generate an embedding for the answer, store both in pgvector. This future doubt may now retrieve THIS answer.</li>
+      <li><b>Log quality signal.</b> A "Was this helpful?" thumbs widget appears under the answer. Whatever the student clicks is logged with the doubt — feeds the Phase 2 fine-tuning dataset.</li>
+    </ol>
+  </div>
+
+  <h3>The system prompt skeleton</h3>
+  <pre>You are {teacher_name}, the AI teacher for {subject} on Ananta.
+You teach {medium}-medium Karnataka State Board, Grade {grade}.
+
+TEACHING STYLE:
+{persona_block}
+
+VOICE / VOCABULARY:
+- Use these phrases naturally: {locked_phrases}
+- Never use: {forbidden_phrases}
+- {tone_rules}
+
+CONTEXT YOU HAVE ACCESS TO (from Ananta's knowledge base):
+{retrieved_chunks}
+
+RULES:
+- Answer ONLY using the context above + standard KSEEB syllabus knowledge.
+- If the context doesn't contain the answer, say "Let me note this — I'll
+  cover it in detail in a future class" and add it to the doubt-followup queue.
+- Cite the lesson the fact came from: e.g., "(from Ch.2 — Reactions)"
+- Match the student's medium: if they wrote in Kanglish, answer in Kanglish.
+- Keep answers under 200 words unless they explicitly asked for detail.
+
+STUDENT'S QUESTION:
+{student_question}
+
+YOUR ANSWER (as {teacher_name}):</pre>
+
+  <h2 id="s4"><span class="num">04</span> Persona system — how Vihaan stays Vihaan</h2>
+  <p class="section-lead">
+    Six teachers, six distinct voices. Each lives as a YAML file in <code class="inline">apps/ai-worker/personas/</code>. Loading the file produces the system prompt and the few-shot examples for that teacher.
+  </p>
+
+  <pre># apps/ai-worker/personas/vihaan.yaml
+name: Vihaan
+subject: Science
+day: Tuesday
+description: Playful demonstrator. Loves chemistry. Treats every lesson as a small experiment.
+
+teaching_style: |
+  You teach Science with energy. You begin with a demonstration —
+  "let's watch this happen first, then I'll explain why."
+  You use everyday Karnataka examples: rust on a cycle, baking soda
+  in idli batter, sweat evaporating after running. You're careful
+  to distinguish observation from inference.
+
+vocabulary:
+  use_naturally:
+    - "Let's see what happens..."
+    - "Watch closely."
+    - "What did you notice?"
+    - "This is the same thing that happens when..."
+    - "ಗಮನಿಸಿ" (when in Kanglish)
+  avoid:
+    - "obviously"
+    - "as you all know"
+    - "trivially"
+
+tone:
+  formality: 2  # 1 (casual) to 5 (formal)
+  energy: 4
+  patience: 5
+
+example_answers:
+  - question: "Why does iron rust?"
+    answer: "Look at any old gate left out in the rain — you'll see brown patches.
+    That's rust. It happens when iron meets oxygen and water at the same time.
+    The iron slowly turns into iron oxide (Fe₂O₃). This is an oxidation reaction
+    — the iron is losing electrons to the oxygen. (from Ch.1 — Chemical Reactions)"
+  - question: "ಸರ್, electrolysis ennu mean?"  # Kanglish
+    answer: "Electrolysis andre — water-ge current pass madidaga, water hydrogen
+    mattu oxygen-aagi separate aaguttade. 2H₂O → 2H₂ + O₂. Battery-ind electricity
+    bandu, water-na break maaduttade. Try maadi mane-li battery + salt water + 2 nails
+    use maadi — bubbles bartve. (from Ch.3 — Electricity & Chemicals)"</pre>
+
+  <div class="callout"><b>The trick:</b> Personas don't need to be fine-tuned in. A well-written 60-line YAML + 5 example answers is enough to make a 70B model reliably write as Vihaan instead of Adhvara. We've used this same pattern in production at other companies and it holds up at scale.</div>
+
+  <h2 id="s5"><span class="num">05</span> Knowledge base &amp; embeddings</h2>
+  <p class="section-lead">
+    The RAG knowledge base is everything the model is allowed to know. We control what goes in.
+  </p>
+
+  <div class="card card-amber">
+    <div class="head">What gets embedded into pgvector</div>
+    <ul>
+      <li><b>Every lesson script</b> — chunked by paragraph. Embedded immediately after lesson generation. Fields stored: <code class="inline">subject</code>, <code class="inline">chapter</code>, <code class="inline">lesson_id</code>, <code class="inline">medium</code>, <code class="inline">chunk_text</code>, <code class="inline">embedding</code>.</li>
+      <li><b>The full KSEEB Grade 10/11/12 textbooks</b> — one-time embedding job. ~6,000 chunks across all subjects. Stored with <code class="inline">source: "kseeb_textbook"</code>.</li>
+      <li><b>Every doubt + answer pair</b> — once an answer is approved (student gave thumbs-up OR no thumbs-down within 24h), both question and answer get embedded. Doubt answers become retrieval targets — meaning, when a new student asks a similar question, we find the existing high-quality answer first.</li>
+      <li><b>Memory Deck card front + back</b> — embedded so semantically-similar cards are deduplicated.</li>
+      <li><b>Marketing / FAQ corpus</b> — small (~200 chunks), used only by the support chatbot.</li>
+    </ul>
+    <div class="why">
+      <div class="why-head">What does NOT get embedded</div>
+      <ul>
+        <li>General web content — too noisy, no way to verify quality.</li>
+        <li>Other tutoring platforms' content — legal + brand risk.</li>
+        <li>Random YouTube transcripts — quality varies wildly.</li>
+        <li>Student personal data — privacy. Doubts get embedded ANONYMIZED (student-id stripped before embed).</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The chunking rules (this matters more than people think)</h3>
+  <ul>
+    <li>Target chunk size: <b>~400 tokens</b> (≈ 1500 characters).</li>
+    <li>Always include the chapter title + section title as a header on every chunk. ("Ch.2 § Types of Reactions — ...").</li>
+    <li>Overlap chunks by ~50 tokens so a paragraph crossing chunk boundary still retrieves cleanly.</li>
+    <li>Code/formula chunks (Manim scripts, balanced equations) get their own embedding type.</li>
+    <li>Multilingual chunks: store one English-translated copy AND the original, both embedded. Helps a Kanglish doubt retrieve from an English-language source.</li>
+  </ul>
+
+  <h2 id="s6"><span class="num">06</span> TTS — six voices, fine-tuned, owned</h2>
+  <p class="section-lead">
+    The one place we DO train in Phase 1. Each AI teacher gets their own fine-tuned TTS voice, so "Vihaan" sounds like Vihaan whether he's teaching, answering, or chatting — and no competitor wrapping the same off-the-shelf API can copy it.
+  </p>
+
+  <div class="card card-terracotta">
+    <div class="head">The TTS production process</div>
+    <ol style="padding-left:20px;">
+      <li><b>Record reference audio.</b> Hire one voice artist per teacher for a 4-hour session (priced ~₹3-8k/hr in Bengaluru). They record ~500 lines covering the full phonetic range plus typical teaching cadence in the teacher's medium.</li>
+      <li><b>Clean + align.</b> Standard audio prep — strip noise, normalize loudness, align transcripts.</li>
+      <li><b>Fine-tune AI4Bharat IndicTTS adapter.</b> Train a LoRA adapter on the recorded data. ~2 hours on a rented T4 GPU. ₹500-1000 in compute per teacher.</li>
+      <li><b>Evaluate.</b> Generate 50 held-out test sentences. Human listener (priyanka) rates each. If anything sounds off, iterate.</li>
+      <li><b>Deploy.</b> Adapter weights stored in R2. AI worker loads the right adapter at inference time based on which teacher is speaking.</li>
+    </ol>
+    <div class="why">
+      <div class="why-head">Total cost per teacher (one-time)</div>
+      Voice artist: ₹15k-25k · GPU training: ₹1k · Engineering time: 2 days. <b>~₹25k-40k per teacher × 6 = ₹1.5-2.4 lakh for all six.</b> Pays for itself in brand value the moment a student says "the Vihaan voice is what makes the lessons feel real."
+    </div>
+  </div>
+
+  <div class="callout"><b>Fallback:</b> Generic AI4Bharat IndicTTS (no fine-tuning) is the fallback if a teacher's adapter fails to load. Students never hear a missing voice — they hear a slightly more generic version of it.</div>
+
+  <h2 id="s7"><span class="num">07</span> Lesson generation — overnight batch</h2>
+  <p class="section-lead">
+    A class scheduled for tomorrow at 7 PM has its assets fully generated by 4 AM the same day. Nothing is generated live for the class itself — too risky.
+  </p>
+
+  <div class="flow">
+    <div class="flow-step"><span class="role">Cron 2 AM</span>Pick tomorrow's lesson</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Celery</span>Generate script</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Celery</span>Generate animation</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Celery</span>Generate TTS</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">FFmpeg</span>Mux audio + video</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">R2</span>Upload assets</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="role">Postgres</span>Mark READY</div>
+  </div>
+
+  <ul>
+    <li><b>Script generation</b> — Groq Llama 3.3 70B with the teacher's persona prompt + chapter content from KSEEB textbook (retrieved from knowledge base) + the previous N lessons' summaries (so it knows where students are). ~30 sec per lesson.</li>
+    <li><b>Animation plan</b> — second LLM call asks "list the visual scenes for this lesson". Output is a JSON schedule of Manim or Remotion scenes with timing.</li>
+    <li><b>Animation rendering</b> — Manim CLI or Remotion CLI invoked by Celery. Renders MP4 at 1080p. ~5 minutes per lesson on the Oracle ARM (Manim is CPU-bound and ARM-friendly).</li>
+    <li><b>TTS rendering</b> — Stream the script through the teacher's fine-tuned IndicTTS adapter sentence-by-sentence. Concatenate WAVs. ~3 minutes per lesson.</li>
+    <li><b>Final mux</b> — FFmpeg combines the animation video with the TTS audio. Adds captions (generated from the script).</li>
+  </ul>
+
+  <h2 id="s8"><span class="num">08</span> Live doubt answering — the hard one</h2>
+  <p class="section-lead">
+    During the 7-8 PM class, the AI teacher is answering doubts in near-real-time. This needs to feel instant (under 1 second to first token) and consistent in voice. Here are the moving parts.
+  </p>
+
+  <ul>
+    <li><b>WebSocket from browser</b> — keeps a persistent connection so the doubt-answer stream feels instant.</li>
+    <li><b>Two queues at the AI worker</b> — high priority (live class) and low priority (recordings, async questions). Live class always wins.</li>
+    <li><b>Voice doubt path</b> — student records, browser streams chunks to AI worker, worker runs <b>IndicWhisper</b> (AI4Bharat's Whisper variant) to transcribe, then routes through the same RAG pipeline as text doubts.</li>
+    <li><b>Streaming TTS for voice answers</b> — answer streams to the browser as audio chunks; student hears the AI teacher reply, not text.</li>
+    <li><b>Cohort answer caching</b> — if Student A asks "Why is X?" and Student B asks the same thing 10 minutes later, the embedded query matches above a threshold and Student B sees Student A's answer immediately (with a "Vihaan already answered this" note). Saves cost AND feels magical.</li>
+    <li><b>Doubt dedup window</b> — within a class, repeated identical questions are collapsed into a single doubt with an upvote count. The teacher sees the most-upvoted unanswered doubt.</li>
+  </ul>
+
+  <h2 id="s9"><span class="num">09</span> Quiz &amp; notes generation</h2>
+  <div class="card card-amber">
+    <div class="row">
+      <div class="head">Quiz generation</div>
+      <div class="meta-row"><span class="tag">Phase 1</span></div>
+    </div>
+    <p>
+      Runs after script generation. Single LLM call with the lesson script + difficulty distribution (4 easy, 3 medium, 3 hard typical) + the locked output schema (JSON with question, options, correctAnswer, explanation). Output is validated; if any question fails validation (e.g., correctAnswer not in options), the worker retries once, then escalates to a human review queue.
+    </p>
+    <p>
+      Every question is also <b>self-checked</b>: the LLM is asked "answer this question yourself" in a separate call, and if its answer doesn't match the correctAnswer, the question is flagged.
+    </p>
+  </div>
+
+  <div class="card card-amber">
+    <div class="row">
+      <div class="head">Notes generation</div>
+      <div class="meta-row"><span class="tag">Phase 1</span></div>
+    </div>
+    <p>
+      LLM call with the lesson script + a structured template (intro, key concepts, worked example, types/cases, balanced-equation block, summary chips). Output is HTML (no markdown — keeps formatting deterministic). Notes are saved to <code class="inline">LessonNote</code> table; the Playwright PDF renderer can produce a downloadable PDF from the HTML on demand.
+    </p>
+  </div>
+
+  <h2 id="s10"><span class="num">10</span> Memory Deck cards</h2>
+  <p class="section-lead">
+    The AI worker also generates spaced-repetition flashcards from each lesson — definitions, formulas, key facts, common mistakes.
+  </p>
+
+  <ul>
+    <li>Single LLM call: "from this lesson script, extract 8-12 flashcards. Front = the prompt; back = the answer. Tag with chapter and concept type."</li>
+    <li>Output validated against schema, then deduplicated against the student's existing Memory Deck (via embedding similarity ≥0.85 means "you already have a card for this").</li>
+    <li>New cards inserted with state <code class="inline">NEW</code>, due immediately.</li>
+    <li>The spaced-repetition scheduling (SM-2 algorithm) lives in the NestJS API, not here — it just runs SQL math on the existing rows.</li>
+  </ul>
+
+  <h2 id="s11"><span class="num">11</span> Catch-up plan generator</h2>
+  <p class="section-lead">
+    For a student who joined late or fell behind, the AI worker produces a daily catch-up plan.
+  </p>
+
+  <ul>
+    <li>Inputs: student's current lesson index per subject vs cohort's index; available hours per day (default 1.5h on weekdays, 3h on weekends); the student's quiz performance so far (to identify weaker subjects).</li>
+    <li>Single LLM call returns a JSON plan: <code class="inline">[{date, lessons: [{subject, chapter, estimated_minutes}]}]</code>.</li>
+    <li>Heuristic constraint check after the LLM: no more than 3 lessons per day; weaker subjects get more sessions; always front-load the subject the cohort is currently on so the student is closest to live by the time they're caught up.</li>
+    <li>The dashboard catch-up panel reads from this plan.</li>
+  </ul>
+
+  <h2 id="s12"><span class="num">12</span> Phase 2 — fine-tune trigger</h2>
+  <p class="section-lead phase-2">
+    Around 500-1,000 paying users, we'll have enough real student doubts (~20,000+) and graded answers to fine-tune a small open model on Ananta's voice.
+  </p>
+
+  <div class="card card-amber">
+    <div class="head">When to start Phase 2</div>
+    <p><b>Triggers (ALL must be true):</b></p>
+    <ul>
+      <li>≥500 paying users for ≥30 days.</li>
+      <li>≥20,000 doubt-answer pairs with quality signal (thumbs).</li>
+      <li>Daily LLM API spend exceeds ₹2,000 (a level that justifies the engineering effort).</li>
+      <li>Identified at least 3 systematic failure modes the off-the-shelf model has (e.g., over-formal Kanglish, hallucinated chapter references, length drift).</li>
+    </ul>
+  </div>
+
+  <div class="card card-amber">
+    <div class="head">What Phase 2 looks like</div>
+    <ul>
+      <li><b>Base model:</b> Mistral 7B Instruct or Llama 3.1 8B Instruct — small enough to fine-tune on a single A100, large enough to retain reasoning.</li>
+      <li><b>Method:</b> LoRA fine-tune (adapters, not full weights). Training cost: ~₹40k-80k per run on RunPod or Vast.ai.</li>
+      <li><b>Dataset:</b> Filtered to high-quality answers (positive thumbs OR no negative thumb within 48h). Augmented with persona-instruction examples to lock teacher voice.</li>
+      <li><b>Deployment:</b> Self-host on a Hetzner GPU box (~₹15-25k/month for a 24GB GPU). Serve via vLLM for batching.</li>
+      <li><b>Keep Groq as fallback</b> for traffic overflow and for the harder reasoning questions where the small model isn't enough.</li>
+    </ul>
+    <div class="why">
+      <div class="why-head">Why not skip straight to a 70B fine-tune?</div>
+      Cost: 70B fine-tuning is ~10x more expensive per run, and inference needs 4x the GPU memory. At Phase 2 scale (~₹3 lakh MRR) that's not yet a comfortable spend. The 7B-8B tier is the sweet spot — most of the quality, a fraction of the cost.
+    </div>
+  </div>
+
+  <h2 id="s13"><span class="num">13</span> Phase 3 — custom 70B (5k+ users)</h2>
+  <p class="section-lead phase-3">
+    Past 5,000 paying users (~₹30 lakh MRR), the financials support a serious custom model.
+  </p>
+
+  <ul>
+    <li>LoRA-fine-tune Llama 3.3 70B (or its successor) on the full accumulated doubt dataset (~200k pairs by then) + lesson scripts + Memory Deck cards.</li>
+    <li>Own inference cluster: 2-3 H100 GPUs on Hetzner or Oracle. ~₹3-5 lakh/month.</li>
+    <li>Continuous learning: monthly retrain from new data. CI pipeline auto-runs evals after each retrain; only promote to production if quality metrics improve.</li>
+    <li>This is also the stage to consider <b>training a small foundation model from scratch</b> on Indic + Karnataka-syllabus data — if a research-grade founding engineer or external researcher partnership materialises. Otherwise stick with LoRA on Llama and stay practical.</li>
+  </ul>
+
+  <h2 id="s14"><span class="num">14</span> Cost model — what AI actually costs at each stage</h2>
+
+  <table class="cost">
+    <thead>
+      <tr><th>Stage</th><th>Users</th><th>Monthly AI cost</th><th>Breakdown</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Pilot</b> (Jul 2026)</td><td>10-50</td><td class="free">₹0</td>
+        <td>Groq free tier + Sarvam free + self-hosted embeddings + IndicTTS on CPU</td>
+      </tr>
+      <tr>
+        <td><b>Soft launch</b></td><td>500</td><td class="cheap">~₹4,000</td>
+        <td>Groq dev tier still covers most; small GPU box (T4 at Hetzner) for TTS batching</td>
+      </tr>
+      <tr>
+        <td><b>Phase 2 transition</b></td><td>1,000</td><td class="cheap">~₹15,000</td>
+        <td>Self-hosted 8B fine-tune on Hetzner GPU + Groq overflow + R2 audio cache</td>
+      </tr>
+      <tr>
+        <td><b>Growth</b></td><td>5,000</td><td>~₹60,000</td>
+        <td>2× Hetzner GPU boxes + Groq paid tier overflow + monthly retrain compute</td>
+      </tr>
+      <tr>
+        <td><b>Phase 3</b></td><td>50,000</td><td>~₹6 lakh</td>
+        <td>3× H100 cluster (own 70B fine-tune) + Groq for spillover + extensive eval compute</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="s15"><span class="num">15</span> Quality, safety, evals</h2>
+  <div class="card card-walnut">
+    <div class="head">The eval suite (lightweight in Phase 1, expanded later)</div>
+    <ul>
+      <li><b>Golden Q&A set</b> — 200 hand-curated KSEEB questions with verified answers. Run after every prompt change. CI fails if accuracy drops &gt;3%.</li>
+      <li><b>Persona-fidelity check</b> — a separate LLM judges "is this answer in Vihaan's voice?" against a rubric. Sampled daily.</li>
+      <li><b>Hallucination rate</b> — sample 100 answered doubts daily, manually check for hallucinated chapter references or false facts. Target &lt;2%.</li>
+      <li><b>Citation accuracy</b> — every answer cites its source chunk; we sample 50/day and check the citation is correct.</li>
+      <li><b>Refusal calibration</b> — model should refuse off-topic questions (homework helping students cheat, etc.) but answer borderline study-related questions. Quarterly review.</li>
+    </ul>
+  </div>
+
+  <div class="callout"><b>The honest version:</b> no AI system serving high-school students should run unattended. Every Sunday, priyanka (or whoever is on rotation) spends 30 minutes scrolling the past week's lowest-rated doubt answers and triaging. That's the cheapest, highest-leverage quality control we have.</div>
+
+</div>
+
+<footer>
+  Ananta · AI Worker Architecture v1.0 · 2026-05-29<br>
+  Related: Ananta_Architecture.html · Ananta_Stack_Decisions.html · Ananta_Bootstrap_Plan.html
+</footer>
+
+</body>
+</html>
