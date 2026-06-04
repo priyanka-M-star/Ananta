@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ananta · 3D Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAF5EB; --bg-2:#F5EDD8; --paper:#FFFFFF;
+    --ink:#1F1611; --ink-2:#3F2E22; --ink-soft:#6B5D4F; --ink-dim:#A89A87;
+    --line:#E8DFCF; --line-2:#EAE1D1;
+    --amber:#D97706; --amber-deep:#B45309;
+    --emerald:#059669; --emerald-deep:#047857;
+    --terracotta:#C2410C; --burgundy:#9F1239;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Inter',sans-serif; color:var(--ink); margin:0; background:var(--bg); line-height:1.6;}
+  .serif{font-family:'Fraunces',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1100px; margin:0 auto; padding:48px 28px;}
+  header.hero{
+    background: linear-gradient(135deg, #0F2A26 0%, #142E2A 60%, var(--emerald-deep) 130%);
+    color: #FAF5EB; padding: 64px 28px 56px; position: relative; overflow: hidden;
+  }
+  header.hero::before{content:''; position:absolute; right:-100px; top:-100px; width:380px; height:380px; border-radius:50%; background:rgba(16,185,129,.18); filter:blur(40px);}
+  header.hero::after{content:''; position:absolute; left:-80px; bottom:-100px; width:300px; height:300px; border-radius:50%; background:rgba(245,158,11,.16); filter:blur(40px);}
+  header .pill{display:inline-flex; align-items:center; gap:8px; background:rgba(254,243,199,.14); border:1px solid rgba(254,243,199,.2); padding:6px 14px; border-radius:999px; font-size:12px; font-weight:600; margin-bottom:18px;}
+  header h1{font-family:'Fraunces',serif; font-size:46px; font-weight:700; margin:0 0 14px; line-height:1.05; max-width:880px; letter-spacing:-.02em;}
+  header .sub{font-size:18px; max-width:780px; opacity:.93;}
+  header .meta{margin-top:24px; display:flex; flex-wrap:wrap; gap:10px;}
+  header .badge{background:rgba(254,243,199,.13); padding:7px 13px; border-radius:10px; font-size:13px; border:1px solid rgba(254,243,199,.14);}
+  h2{font-family:'Fraunces',serif; font-size:30px; font-weight:600; margin:54px 0 6px; color:var(--ink); letter-spacing:-.018em;}
+  h2 .num{display:inline-block; font-size:13px; background:var(--ink); color:#FAF5EB; padding:4px 10px; border-radius:8px; vertical-align:middle; margin-right:10px; font-family:'JetBrains Mono', monospace; font-weight:700;}
+  h3{font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:28px 0 10px;}
+  .section-lead{color:var(--ink-soft); margin-bottom:18px; font-size:16px;}
+  .card{background:#fff; border:1px solid var(--line); border-radius:18px; padding:24px 26px; margin:18px 0; box-shadow: 0 1px 0 #fff inset, 0 6px 16px -10px rgba(31,22,17,.08), 0 22px 60px -34px rgba(31,22,17,.18);}
+  .card.emerald{border-left:4px solid var(--emerald);}
+  .card.amber  {border-left:4px solid var(--amber);}
+  .card.red    {border-left:4px solid var(--burgundy);}
+  .card .head{font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--ink);}
+  .card .tag{background:#FEF3C7; color:var(--amber-deep); font-weight:700; font-size:11px; padding:4px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;}
+  .card .tag.green{background:#ECFDF5; color:var(--emerald-deep);}
+  .card .tag.red{background:#FEE2E2; color:var(--burgundy);}
+  .card p{margin:10px 0; color:var(--ink-2);}
+  .card ul{margin:6px 0 0 0; padding-left:20px;}
+  .card ul li{margin:5px 0; color:var(--ink-2); font-size:15px;}
+  .card ul li b{color:var(--ink);}
+  pre{background:#1F1611; color:#FBE7C2; border-radius:14px; padding:18px 20px; font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.55; overflow-x:auto; margin:14px 0;}
+  code.inline{background:var(--bg-2); color:var(--ink); padding:2px 6px; border-radius:5px; font-family:'JetBrains Mono', monospace; font-size:13.5px;}
+  table{width:100%; border-collapse:collapse; margin:18px 0; background:#fff; border-radius:14px; overflow:hidden; border:1px solid var(--line); box-shadow:0 8px 24px -18px rgba(31,22,17,.12);}
+  th{background:var(--ink); color:#FAF5EB; font-family:'Fraunces',serif; font-weight:600; text-align:left; padding:12px 16px; font-size:14px;}
+  td{padding:12px 16px; border-bottom:1px solid var(--line); font-size:14px;}
+  tr:last-child td{border-bottom:0;}
+  tr:hover{background:#FAF5EB;}
+  .callout{background:#ECFDF5; border-left:4px solid var(--emerald); padding:14px 18px; border-radius:12px; margin:16px 0; font-size:14.5px; color:var(--ink-2);}
+  .callout b{color:var(--ink);}
+  .toc{background:#fff; border-radius:18px; padding:24px 28px; margin:0 0 28px; border:1px solid var(--line); box-shadow:0 8px 24px -16px rgba(31,22,17,.10);}
+  .toc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:8px 18px;}
+  .toc a{color:var(--ink); text-decoration:none; font-size:14px; padding:6px 8px; border-radius:8px; display:block; transition:all .15s ease;}
+  .toc a:hover{background:var(--bg-2);}
+  .toc a .n{display:inline-block; width:32px; color:var(--ink-soft); font-weight:600; font-size:12px; font-family:'JetBrains Mono', monospace;}
+  footer{margin-top:60px; padding:32px; text-align:center; color:var(--ink-dim); font-size:13px; border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div style="max-width:1100px; margin:0 auto;">
+    <span class="pill"><span style="width:8px; height:8px; background:#86EFAC; border-radius:50%; display:inline-block;"></span> v1.0 · 2026-05-29</span>
+    <h1>3D, restrained, on every device.</h1>
+    <p class="sub">How Ananta delivers a 3D experience that loads on a ₹6,000 Android in Davanagere and still feels editorial on a M3 MacBook. The tech, the budget, the fallback.</p>
+    <div class="meta">
+      <span class="badge">🛠 react-three-fiber + drei</span>
+      <span class="badge">⚡ &lt; 250 KB JS for hero</span>
+      <span class="badge">🐢 Auto Lite mode</span>
+      <span class="badge">🎨 Stripe / Apple aesthetic</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toc">
+    <h3 style="margin-top:0;">Contents</h3>
+    <div class="toc-grid">
+      <a href="#s1"><span class="n">01</span> Where 3D lives</a>
+      <a href="#s2"><span class="n">02</span> The stack</a>
+      <a href="#s3"><span class="n">03</span> Performance budget</a>
+      <a href="#s4"><span class="n">04</span> Lite mode (the fallback)</a>
+      <a href="#s5"><span class="n">05</span> Lesson 3D pipeline</a>
+      <a href="#s6"><span class="n">06</span> Asset rules</a>
+      <a href="#s7"><span class="n">07</span> Testing matrix</a>
+      <a href="#s8"><span class="n">08</span> When to break the rules</a>
+    </div>
+  </div>
+
+  <!-- 01 -->
+  <h2 id="s1"><span class="num">01</span> Where 3D lives — and where it doesn't</h2>
+  <p class="section-lead">3D is a teaching tool first, decoration second. We earned the right to use it by picking carefully where it appears.</p>
+
+  <div class="card emerald">
+    <div class="head">Where 3D lives</div>
+    <ul>
+      <li><b>Lesson stages</b> — the main "what is being taught right now" panel during a live class. Every subject. The exploding cube for Maths, the molecule for Science, the falling Bastille for History, the staged village for Kannada vachana.</li>
+      <li><b>Subject cards on the landing page</b> — six small scenes that prove 3D works for every subject, not just Science. Single moment of "oh, this is different".</li>
+      <li><b>Post-class quiz reward animation</b> — a tasteful 3D confetti / particle moment after the last question.</li>
+      <li><b>Memory Deck "review-complete" moment</b> — when the student clears the day's queue, a small 3D "well done" scene.</li>
+    </ul>
+  </div>
+
+  <div class="card red">
+    <div class="head">Where 3D does NOT live</div>
+    <ul>
+      <li><b>Hero of the landing page</b> — clean editorial typography. Tried it with 3D; it made the headline fight for attention. See <code class="inline">Ananta_Landing_3D.html</code> v5 changelog.</li>
+      <li><b>The teacher pavilion</b> — replaced with circular SVG anime portraits + bio cards. Reads as "real people", loads instantly.</li>
+      <li><b>Dashboard, profile, parent dashboard, admin</b> — these are utility surfaces. 3D would slow them down and add nothing.</li>
+      <li><b>Forms, auth, settings</b> — never.</li>
+    </ul>
+    <p><b>Rule of thumb:</b> if you can't explain in one sentence what the 3D <em>teaches</em> the student, it doesn't go on the page.</p>
+  </div>
+
+  <!-- 02 -->
+  <h2 id="s2"><span class="num">02</span> The stack (production)</h2>
+  <p class="section-lead">The HTML mockups load Three.js r128 from a CDN. The real Next.js app uses react-three-fiber + drei + GSAP + Lenis, all from the workspace.</p>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Pick</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Renderer</td><td><b>three</b> (latest)</td><td>The base. We never use it directly in app code.</td></tr>
+      <tr><td>React bindings</td><td><b>@react-three/fiber</b></td><td>Declarative scenes — write Three.js as JSX, reconciler updates only what changed. Native to React's render lifecycle.</td></tr>
+      <tr><td>Helpers</td><td><b>@react-three/drei</b></td><td>OrbitControls, HTML overlays, Loader, Bounds, useGLTF, ContactShadows. We use it heavily; the few utilities not in drei stay vanilla.</td></tr>
+      <tr><td>Post-processing</td><td><b>@react-three/postprocessing</b></td><td>Only for the lesson stages (subtle bloom on emissive parts). Off by default in Lite mode.</td></tr>
+      <tr><td>Timeline / animation</td><td><b>GSAP</b> + scroll-driven via Intersection Observer</td><td>Camera moves, scene-state interpolation. Smaller than Framer Motion when you only need scrubbed timelines.</td></tr>
+      <tr><td>Smooth scroll</td><td><b>Lenis</b> (lazy-loaded)</td><td>Tiny (~3 KB gz). Only mounted on routes that benefit (landing, post-class).</td></tr>
+      <tr><td>Asset format</td><td><b>glTF 2.0</b>, Draco-compressed</td><td>Smallest practical format for the web. Draco brings a typical scene from 2 MB → 200-400 KB.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Folder layout in <code class="inline">apps/web</code></h3>
+  <pre>src/three/
+├── canvas.tsx              shared Canvas wrapper — sets DPR, shadow type,
+│                           autoresize, lite-mode toggle
+├── lighting.tsx            sun + fill + ambient preset that matches our
+│                           cream/editorial palette (no glow)
+├── scenes/
+│   ├── exploding-cube.tsx     used in: Maths lesson, post-class reward
+│   ├── molecule.tsx           Science
+│   ├── globe.tsx              Social geography
+│   ├── bastille.tsx           Social history
+│   ├── unfolding-book.tsx     Kannada/Hindi/English literature
+│   └── memory-deck-celebrate.tsx
+└── primitives/
+    ├── teacher-figure.tsx  the stylised humanoid (used inside lesson stages)
+    ├── halo-disc.tsx
+    └── particles.tsx</pre>
+
+  <p>Each <code class="inline">scenes/*.tsx</code> exports a single React component. The lesson page imports just the scene it needs via dynamic import — no scene's code ships unless that subject is being taught.</p>
+
+  <!-- 03 -->
+  <h2 id="s3"><span class="num">03</span> Performance budget</h2>
+  <p class="section-lead">The numbers we measure and refuse to cross. These are for the slowest device we target: a 2-year-old Redmi at 25 Mbps 4G in Davanagere.</p>
+
+  <table>
+    <thead><tr><th>Surface</th><th>JS budget (gz)</th><th>Time-to-Interactive</th><th>3D notes</th></tr></thead>
+    <tbody>
+      <tr><td>Landing / hero</td><td><b>&lt; 250 KB</b></td><td>&lt; 2.0 s</td><td>No 3D. Pure typography.</td></tr>
+      <tr><td>Landing / subject cards</td><td>+ 180 KB once scrolled into view</td><td>—</td><td>Six small canvases, one shared three.js bundle, lazy-loaded.</td></tr>
+      <tr><td>Dashboard</td><td><b>&lt; 280 KB</b></td><td>&lt; 1.5 s</td><td>No 3D.</td></tr>
+      <tr><td>Live class stage</td><td>+ 320 KB</td><td>&lt; 2.5 s after join</td><td>One scene, dynamically imported by subject. Streams from the lesson route.</td></tr>
+      <tr><td>Post-class hub</td><td><b>&lt; 250 KB</b></td><td>&lt; 1.5 s</td><td>Reward 3D loads on quiz completion only.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Enforcement:</b> a GitHub Action runs <code class="inline">next-bundle-analyzer</code> on every PR and fails if any route crosses its budget. The number is in <code class="inline">.budget.json</code>; bumps require a comment justifying it.</div>
+
+  <h3>Other hard limits</h3>
+  <ul>
+    <li><b>Draw calls per scene:</b> ≤ 60</li>
+    <li><b>Triangles on screen:</b> ≤ 100k</li>
+    <li><b>Texture size:</b> ≤ 2048×2048; prefer BasisU compressed</li>
+    <li><b>Lights:</b> ≤ 3 (one sun + two soft fills)</li>
+    <li><b>Shadow casters:</b> ≤ 4 dynamic; bake everything else</li>
+    <li><b>Frame budget:</b> 16.6 ms/frame at 60fps target — degrade to 30fps before dropping any visuals</li>
+  </ul>
+
+  <!-- 04 -->
+  <h2 id="s4"><span class="num">04</span> Lite mode — the fallback</h2>
+  <p class="section-lead">Some devices shouldn't get 3D at all. We detect them on first paint and serve a 2D rendition that teaches exactly the same content.</p>
+
+  <div class="card amber">
+    <div class="head">When Lite mode kicks in (automatic)</div>
+    <ul>
+      <li><code class="inline">prefers-reduced-motion: reduce</code> — respect OS-level setting</li>
+      <li>WebGL2 unavailable</li>
+      <li>Devicememory &lt; 2 GB (Navigator API)</li>
+      <li>navigator.connection.effectiveType === <code class="inline">"slow-2g"</code> or <code class="inline">"2g"</code></li>
+      <li>User toggled it manually (settings → "Lite mode")</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="head">What Lite mode looks like</div>
+    <ul>
+      <li><b>Lesson stage:</b> a sequence of static SVG diagrams + text captions. Same teaching beats; no Canvas.</li>
+      <li><b>Subject cards:</b> flat illustrations; no animation.</li>
+      <li><b>Post-class reward:</b> CSS confetti, no 3D.</li>
+      <li><b>Memory Deck celebrate:</b> simple checkmark animation.</li>
+    </ul>
+    <p>Each scene file exports two components: <code class="inline">{ ThreeD }</code> and <code class="inline">{ Lite }</code>. A single hook chooses which to render:</p>
+    <pre>// src/three/use-3d-mode.ts
+export function use3dMode(): "three" | "lite" {
+  const [mode, setMode] = useState&lt;"three" | "lite"&gt;("three");
+  useEffect(() =&gt; {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const noWebGL = !window.WebGL2RenderingContext;
+    const lowMem  = (navigator as any).deviceMemory &lt; 2;
+    const slow    = ["slow-2g", "2g"].includes(
+      (navigator as any).connection?.effectiveType
+    );
+    if (reduce || noWebGL || lowMem || slow) setMode("lite");
+  }, []);
+  return mode;
+}</pre>
+  </div>
+
+  <!-- 05 -->
+  <h2 id="s5"><span class="num">05</span> Lesson 3D content pipeline</h2>
+  <p class="section-lead">Two production paths: procedural (cheap) and authored glTF (when a scene is too complex to generate).</p>
+
+  <div class="card amber">
+    <div class="head">Procedural scenes (default)</div>
+    <ul>
+      <li>Author the scene as <code class="inline">apps/web/src/three/scenes/&lt;name&gt;.tsx</code> using react-three-fiber primitives.</li>
+      <li>The AI worker generates a small JSON "scene script" per lesson (timing, captions, what to animate when). The React scene reads that script and orchestrates.</li>
+      <li>No model downloads. Bundle cost: ~20 KB JS per scene.</li>
+      <li>Use this for: cube unfolds, molecule assembly, supply/demand curves, electric circuits, simple geometry, abstract systems.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="head">Authored glTF (heavy scenes)</div>
+    <ul>
+      <li>Modelled in Blender, exported as <b>glTF 2.0 + Draco</b>, uploaded to Cloudflare R2.</li>
+      <li>Loaded via drei's <code class="inline">useGLTF</code> with a Suspense boundary so the React tree doesn't block.</li>
+      <li>Target ≤ 400 KB per asset after Draco compression.</li>
+      <li>Use this for: Bastille fortress, anatomy (heart/lungs/cell), historical monuments, anything organic.</li>
+    </ul>
+  </div>
+
+  <div class="callout"><b>Process for adding a new lesson scene:</b> (1) write the scene component, (2) add a Lite-mode 2D fallback in the same file, (3) add a Storybook story so the QA can preview it, (4) run the budget check, (5) PR.</div>
+
+  <!-- 06 -->
+  <h2 id="s6"><span class="num">06</span> Asset rules</h2>
+  <ul>
+    <li><b>Always Draco-compress</b> glTF. Use <code class="inline">gltfjsx --transform</code> in the pipeline.</li>
+    <li><b>Textures:</b> BasisU/KTX2 where possible (3-10× smaller than PNG, decompresses on the GPU).</li>
+    <li><b>One material per mesh</b> where reasonable — material swaps are cheap; multi-material meshes are draw-call killers.</li>
+    <li><b>Bake lighting</b> for anything static (a fortress wall) into the texture; only dynamic things receive runtime shadows.</li>
+    <li><b>Assets live in R2</b>, not in the JS bundle. The bundle has only the scene logic.</li>
+  </ul>
+
+  <!-- 07 -->
+  <h2 id="s7"><span class="num">07</span> Testing matrix</h2>
+  <p class="section-lead">What gets checked, on what, before a 3D change ships.</p>
+
+  <table>
+    <thead><tr><th>Device</th><th>Browser</th><th>Expected mode</th><th>Manual / auto</th></tr></thead>
+    <tbody>
+      <tr><td>iPhone 12 mini</td><td>Safari 17</td><td>3D</td><td>Auto Lighthouse run</td></tr>
+      <tr><td>Pixel 7</td><td>Chrome stable</td><td>3D</td><td>Auto</td></tr>
+      <tr><td>Redmi Note 10 (4 GB)</td><td>Chrome stable</td><td>3D, but check FPS ≥ 30</td><td>Manual, weekly</td></tr>
+      <tr><td>Redmi 9 Power (3 GB)</td><td>Chrome stable</td><td>Lite</td><td>Manual, weekly</td></tr>
+      <tr><td>Any laptop, WebGL2 disabled</td><td>—</td><td>Lite</td><td>Auto Playwright run</td></tr>
+      <tr><td>OS reduced-motion ON</td><td>any</td><td>Lite</td><td>Auto Playwright run</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 08 -->
+  <h2 id="s8"><span class="num">08</span> When to break these rules</h2>
+  <p class="section-lead">A rule that can't be broken is dogma. Here are the legitimate exceptions:</p>
+  <ul>
+    <li><b>Marketing launch landing</b> — once we have paying users, a high-fidelity Awwwards-ambition landing page is justified. Different budget, different file, served separately from the app.</li>
+    <li><b>Special-occasion lesson</b> — board exam eve, founder's note. We can break the lesson budget if the asset is opt-in and clearly labelled "experimental".</li>
+    <li><b>A teacher's signature opener</b> — Vihaan walks into frame in a glTF model on his first lesson of the year. Worth 600 KB once.</li>
+  </ul>
+
+  <p>Anything beyond these requires a written exception in the PR description explaining what we're trading off.</p>
+
+</div>
+
+<footer>
+  Ananta · 3D Strategy v1.0 · 2026-05-29<br>
+  Related: Ananta_Architecture.html · Ananta_Stack_Decisions.html · Ananta_AI_Architecture.html
+</footer>
+
+</body>
+</html>

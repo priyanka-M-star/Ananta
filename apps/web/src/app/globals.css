@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ananta — warm academic palette (cream + amber + emerald + terracotta) */
+:root {
+  --bg: #FAF5EB;
+  --bg-2: #F5EDD8;
+  --ink: #1F1611;
+  --ink-soft: #6B5D4F;
+  --ink-dim: #A89A87;
+  --line: #E8DFCF;
+  --amber: #D97706;
+  --emerald: #059669;
+  --terracotta: #B45309;
+}
+
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+}
+
+.serif { font-family: 'Fraunces', Georgia, serif; }
+.mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.paper-card-strong {
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 0 #fff inset, 0 6px 16px -8px rgba(31,22,17,.07), 0 22px 60px -28px rgba(31,22,17,.14);
+}
+
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 98%      { transform: scaleY(.1); }
+}
+.blink-eye { transform-origin: center; animation: blink 5s infinite; }
+
+@keyframes fillBar { from { width: 0; } }
+.bar-fill { animation: fillBar 1.3s cubic-bezier(.2,.7,.2,1) both; }

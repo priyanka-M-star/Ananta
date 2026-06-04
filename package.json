@@ -26,6 +26,7 @@
     "db:migrate": "pnpm --filter @ananta/db prisma migrate dev",
     "db:studio": "pnpm --filter @ananta/db prisma studio",
     "db:seed": "pnpm --filter @ananta/db tsx prisma/seed.ts",
+    "db:seed:demo": "pnpm --filter @ananta/db tsx prisma/seed-demo.ts",
     "infra:up": "docker compose -f infra/docker-compose.yml up -d",
     "infra:down": "docker compose -f infra/docker-compose.yml down",
     "infra:logs": "docker compose -f infra/docker-compose.yml logs -f",

@@ -1,0 +1,24 @@
+# Production LiveKit config.
+# WebRTC needs predictable ports; the firewall rules in the Oracle VM open
+# 7880 (WS), 7881 (TCP), and 50000-60000/udp (RTC).
+port: 7880
+
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 60000
+  use_external_ip: true
+
+keys:
+  # values come from prod.env via envsubst on deploy
+  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+
+room:
+  enabled_codecs:
+    - mime: audio/opus
+    - mime: video/vp8
+    - mime: video/h264
+
+logging:
+  level: info
+  json: true

@@ -16,6 +16,9 @@ import { QuizzesModule } from './modules/quizzes/quizzes.module';
 import { DoubtsModule } from './modules/doubts/doubts.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { NotesModule } from './modules/notes/notes.module';
+import { MaterialsModule } from './modules/materials/materials.module';
+import { MemoryDeckModule } from './modules/memory-deck/memory-deck.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     DoubtsModule,
     PaymentsModule,
     NotificationsModule,
+    NotesModule,
+    MaterialsModule,
+    MemoryDeckModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

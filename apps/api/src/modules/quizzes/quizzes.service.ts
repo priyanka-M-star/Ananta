@@ -7,6 +7,23 @@ import type { QuizSubmitInput } from '@ananta/types';
 export class QuizzesService {
   constructor(@Inject(PRISMA) private readonly prisma: PrismaClient) {}
 
+  /** GET /v1/lessons/:lessonId/quiz — resolve the quiz for a given lesson. */
+  async forLesson(lessonId: string) {
+    const quiz = await this.prisma.quiz.findFirst({
+      where: { lessonId },
+      include: {
+        questions: {
+          select: {
+            id: true, orderIndex: true, type: true, difficulty: true,
+            textEn: true, textKn: true, options: true, points: true,
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+    return quiz ?? null;
+  }
+
   /** GET /v1/quizzes/:id — questions only, no answers. */
   async byId(id: string) {
     const quiz = await this.prisma.quiz.findUnique({

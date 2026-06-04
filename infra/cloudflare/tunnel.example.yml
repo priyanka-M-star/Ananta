@@ -1,0 +1,25 @@
+# Cloudflare Tunnel — routes ananta.app + api.ananta.app to the VM
+# without ever exposing public ports.
+#
+# Setup:
+#   1. Create a tunnel in the Cloudflare dashboard (Zero Trust → Networks → Tunnels)
+#   2. Copy the token into prod.env as CLOUDFLARE_TUNNEL_TOKEN
+#   3. In the dashboard, add public hostnames pointing at these services:
+#         ananta.app          → http://web:3000
+#         api.ananta.app      → http://api:4000
+#         livekit.ananta.app  → http://localhost:7880   (because livekit uses host networking)
+#
+# The token authenticates the cloudflared daemon. No config file is required when
+# using the token-based approach — but for reference, the equivalent config is:
+
+tunnel: <your-tunnel-id>
+credentials-file: /etc/cloudflared/<your-tunnel-id>.json
+
+ingress:
+  - hostname: ananta.app
+    service: http://web:3000
+  - hostname: api.ananta.app
+    service: http://api:4000
+  - hostname: livekit.ananta.app
+    service: http://localhost:7880
+  - service: http_status:404
