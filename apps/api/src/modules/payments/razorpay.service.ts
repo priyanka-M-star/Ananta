@@ -20,7 +20,7 @@ export class RazorpayService {
   private readonly client: InstanceType<typeof Razorpay> | null = null;
   private readonly webhookSecret: string;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(config: ConfigService) {
     const keyId = config.get<string>('RAZORPAY_KEY_ID');
     const keySecret = config.get<string>('RAZORPAY_KEY_SECRET');
     this.webhookSecret = config.get<string>('RAZORPAY_WEBHOOK_SECRET', '');

@@ -17,7 +17,7 @@
 
 import { useFrame } from '@react-three/fiber';
 import { useRef, useMemo, useState, useEffect } from 'react';
-import { type Group, type Mesh, Vector3 } from 'three';
+import { type Group, type Mesh } from 'three';
 import { AnantaCanvas } from '../canvas';
 import { EditorialLights, ShadowGround } from '../lighting';
 

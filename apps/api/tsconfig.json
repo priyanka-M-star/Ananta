@@ -12,9 +12,7 @@
     "strictPropertyInitialization": false,
     "noUncheckedIndexedAccess": false,
     "paths": {
-      "@/*": ["src/*"],
-      "@ananta/db": ["../../packages/db/src/index.ts"],
-      "@ananta/types": ["../../packages/types/src/index.ts"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*.ts"],

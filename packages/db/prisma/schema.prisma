@@ -202,7 +202,13 @@ enum SubjectCode {
 }
 
 enum DayOfWeek {
-  MON SUN TUE WED THU FRI SAT
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
 }
 
 model Subject {
