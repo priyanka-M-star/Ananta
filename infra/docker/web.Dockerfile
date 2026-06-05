@@ -22,6 +22,7 @@ COPY packages ./packages
 COPY apps/web ./apps/web
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_OUTPUT=standalone
 RUN pnpm --filter @ananta/web build
 
 # ---------- runtime ----------
